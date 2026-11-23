@@ -1,9 +1,9 @@
 name: Deploy to GitHub Pages
 
+# Manual only: the GitHub Pages site now serves the Tech Bench app (techbench-pages.yml).
+# Running this would replace Tech Bench with the demo Task Dashboard at the same address.
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   # Build job
