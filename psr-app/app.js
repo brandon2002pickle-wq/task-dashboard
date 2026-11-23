@@ -165,6 +165,7 @@ function storeLabel() {
 function render() { renderRecent(); if (cur.tab === 'diag') renderDiag(); if (cur.tab === 'hist') renderHist(); if (cur.tab === 'telem') renderTelem(); if (cur.tab === 'set') renderSet(); }
 
 /* ---------- Claude: account function, or copy & paste ---------- */
+let keyNoted = false;
 const ai = {
   mode() { return backend.ready && backend.session() && store.getMeta('aiMode') !== 'manual' && store.getMeta('fnMissing') !== true ? 'account' : 'manual'; },
   async json(prompt, { images = [], modelTier = 'default' } = {}) {
@@ -174,6 +175,8 @@ const ai = {
         const out = await backend.ask({ prompt, images: imgs, tier: modelTier });
         return parseJsonReply(out.text);
       } catch (e) {
+        // key not added to Supabase yet: use copy & paste for this read, try automatic again next time
+        if (e.status === 500 && /ANTHROPIC_API_KEY/.test(e.message || '')) { if (!keyNoted) { keyNoted = true; toast('Claude key not added yet: using copy & paste'); } return manualAsk(prompt, images, 'Automatic reading isn\'t switched on yet (Claude key not added). '); }
         if (e.status === 404) { await store.setMeta('fnMissing', true); toast('Claude function not deployed: switching to copy & paste'); return manualAsk(prompt, images); }
         if (e.status === 429) { const x = new Error(e.message); x.code = 'rate_limited'; throw x; }
         if (e.status === 422) { const x = new Error(e.message); x.code = 'refused'; throw x; }

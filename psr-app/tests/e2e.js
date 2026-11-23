@@ -72,7 +72,9 @@ const until = async (f, ms = 8000) => { const t = Date.now(); while (Date.now() 
   // iPhone Safari can report offline while connected: sync must not trust navigator.onLine
   await p.evaluate(() => Object.defineProperty(Navigator.prototype, 'onLine', { get: () => false, configurable: true }));
   await signIn(p, true);
-  ok(await until(async () => (await ctl()).docs.filter(d => !d.deleted).length === 2 && (await ctl()).docs.length === 3), 'case, telematics and one deletion pushed to the account');
+  const pushed = await until(async () => (await ctl()).docs.filter(d => !d.deleted).length === 2 && (await ctl()).docs.length === 3);
+  if (!pushed) console.log('    DIAG server', JSON.stringify((await ctl()).docs), '| store:', await p.textContent('#store'), '| title:', await p.getAttribute('#store', 'title'), '| set:', (await p.textContent('#set-ed')).replace(/\s+/g, ' ').slice(0, 300));
+  ok(pushed, 'case, telematics and one deletion pushed to the account');
   ok(await until(async () => /Synced/.test(await p.textContent('#store'))), 'status says synced');
 
   console.log('Laptop, same account, Claude through the function');
@@ -97,6 +99,19 @@ const until = async (f, ms = 8000) => { const t = Date.now(); while (Date.now() 
   await p.evaluate(() => dispatchEvent(new Event('online')));
   ok(await until(async () => { await p.evaluate(() => dispatchEvent(new Event('online'))); await p.click('nav [data-tab=triage]'); return (await p.locator('#t-recent .item').count()) === 1; }, 10000), 'deleted case leaves the phone, the other stays');
 
+  console.log('Key not added yet: copy & paste, then automatic once it is');
+  await ctl('?key=off');
+  await l.click('nav [data-tab=triage]'); await l.fill('#t-text', '168-4 active'); await l.click('#t-go');
+  await l.waitForSelector('#ask[open]');
+  ok(/Claude key not added/.test(await l.textContent('#ask-why')), 'missing key explained in the copy & paste box');
+  await answer(l); await l.waitForSelector('#v-diag:not([hidden]) .next');
+  ok(true, 'read still completes by copy & paste');
+  await l.click('#d-del'); await l.click('#d-del');
+  await ctl('?key=on'); const before = (await ctl()).asks;
+  await l.click('nav [data-tab=triage]'); await l.fill('#t-text', '168-4 active'); await l.click('#t-go');
+  await l.waitForSelector('#v-diag:not([hidden]) .next');
+  ok((await ctl()).asks === before + 1 && !(await l.isVisible('#ask')), 'switches back to automatic once the key exists, no setting to change');
+  await l.click('#d-del'); await l.click('#d-del');
   console.log('Function missing falls back to copy & paste');
   await ctl('?fn=off');
   await l.click('nav [data-tab=triage]'); await l.fill('#t-text', '41-3 logged'); await l.click('#t-go');
