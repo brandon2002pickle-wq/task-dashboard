@@ -5,7 +5,8 @@
 // Supabase verifies the caller's sign-in token before this runs (verify_jwt is on by default).
 import Anthropic from "npm:@anthropic-ai/sdk";
 
-const client = new Anthropic(); // reads ANTHROPIC_API_KEY from the function's secrets
+// Created on first use, so a missing key returns a clear error instead of crashing the function at boot.
+let client: Anthropic | null = null;
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -43,6 +44,11 @@ Deno.serve(async (req) => {
     })),
     { type: "text", text: prompt },
   ];
+
+  if (!Deno.env.get("ANTHROPIC_API_KEY")) {
+    return json({ error: "ANTHROPIC_API_KEY is not set. Add it under Edge Functions → Secrets." }, 500);
+  }
+  client ??= new Anthropic(); // reads ANTHROPIC_API_KEY from the function's secrets
 
   try {
     const response = await client.beta.messages.create({
