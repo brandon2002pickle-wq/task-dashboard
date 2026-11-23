@@ -42,6 +42,7 @@ jobs:
           cp psr-app/{index.html,app.css,app.js,sync.js,sw.js,manifest.webmanifest,config.js} site/psr/
           cp psr-app/icons/*.png site/psr/icons/
           cp psr-app/vendor/*.js site/psr/vendor/
+          mkdir -p site/psr/splash && cp psr-app/splash/*.png site/psr/splash/
           if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_ANON_KEY" ]; then
             printf "window.PSR_CONFIG = { supabaseUrl: '%s', supabaseAnonKey: '%s', psrFunction: 'psr' };\n" "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > site/psr/config.js
           fi

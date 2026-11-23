@@ -115,3 +115,40 @@ details>div{padding:0 14px 14px}
 dialog{border:2px solid var(--fg);border-top:10px solid var(--accent);border-radius:6px;background:var(--panel);color:var(--fg);padding:18px;width:min(720px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto}
 dialog::backdrop{background:rgba(0,0,0,.55)}
 code{font-family:var(--font-m);font-size:.9em}
+
+/* ---------- phone polish (iPhone first): compact header, thumb-reach tab bar, safe areas ---------- */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,label,summary,.item,select{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+nav,.btn,.item .t{-webkit-user-select:none;user-select:none}
+nav svg{display:none}
+.kbd{font:700 13px var(--font-d);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 6px;background:var(--panel);white-space:nowrap}
+.ios-hint{line-height:1.9}.ios-hint .btn{display:block;margin-top:6px}
+@media (max-width:600px), (max-height:500px) and (pointer:coarse){
+  /* the header scrolls away; a strip keeps the status bar readable over content */
+  body::before{content:"";position:fixed;inset:0 0 auto 0;height:env(safe-area-inset-top);background:var(--hdr);z-index:30}
+  header{position:relative;padding-bottom:12px;gap:4px;box-shadow:0 4px 0 var(--accent)}
+  .brand{grid-template-columns:minmax(0,1fr) auto;gap:4px 12px}
+  .brand h1{grid-column:1/-1;grid-row:1}
+  .word{font-size:clamp(1.2rem,6.4vw,1.6rem);white-space:nowrap}.word em{display:inline;margin-left:.25em}
+  .sub{display:none}
+  .wave{grid-column:1;grid-row:2;height:20px}
+  .store{grid-column:2;grid-row:2;font-size:11px;white-space:nowrap}
+  /* tab bar along the bottom, clear of the home indicator */
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:20;margin:0;max-width:none;background:var(--hdr);border-top:3px solid var(--accent);
+    display:grid;grid-template-columns:repeat(5,1fr);gap:2px;overflow:visible;
+    padding:5px max(6px,env(safe-area-inset-right)) calc(5px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
+  nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;padding:5px 0;border-radius:8px;font-size:10.5px;letter-spacing:.02em;border:0}
+  nav button svg{display:block}
+  nav button[aria-selected=true]{background:var(--accent);color:var(--accent-fg)}
+  body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  .toast{bottom:calc(80px + env(safe-area-inset-bottom))}
+  h3{font-size:1.15rem}
+  .panel{padding:14px;border-radius:8px}
+  .wrap{gap:14px}
+  /* copy & paste dialog: full width, clear of the notch and home indicator */
+  dialog{width:calc(100vw - 16px);max-width:none;margin:max(8px,env(safe-area-inset-top)) auto auto;max-height:calc(100dvh - max(8px,env(safe-area-inset-top)) - max(8px,env(safe-area-inset-bottom)));padding:14px}
+  dialog textarea{min-height:0}
+}
+@media (max-width:600px) and (orientation:landscape), (max-height:500px) and (pointer:coarse){
+  .wave{display:none}
+}

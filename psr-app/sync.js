@@ -130,14 +130,16 @@ export function makeBackend(cfg) {
 
 /* ---------------- sync engine ---------------- */
 export function makeSync(backend) {
-  let running = false, again = false, timer = null;
+  let running = false, again = false, timer = null, retryT = null;
   const status = { phase: 'local', error: '' };   // local | signed-out | syncing | synced | offline | setup | error
   const set = (phase, error = '') => { status.phase = phase; status.error = error; emit({ type: 'sync', phase }); };
   async function run() {
     if (!backend.ready) return set('local');
     if (!backend.session()) return set('signed-out');
-    if (!navigator.onLine) return set('offline');
+    // No navigator.onLine gate: it lags after the signal returns and iPhone Safari misreports it.
+    // Just try; a failed fetch is what marks the device offline.
     if (running) { again = true; return; }
+    clearTimeout(retryT);
     running = true; set('syncing');
     try {
       await backend.ensureFresh();
@@ -162,7 +164,11 @@ export function makeSync(backend) {
       const missing = e.status === 404 || /psr_docs|psr_put|schema cache/i.test(e.message || '');
       if (e.status === 401) { await backend.signOut(); set('signed-out', 'Signed out: sign in again.'); }
       else if (missing) set('setup', 'Sync table not set up yet (run supabase/migrations/003_psr.sql).');
-      else set(navigator.onLine ? 'error' : 'offline', e.message || String(e));
+      else {
+        const net = !e.status;   // fetch itself failed: no signal, or the server unreachable
+        set(net ? 'offline' : 'error', e.message || String(e));
+        retryT = setTimeout(run, net ? 15000 : 30000);
+      }
     } finally {
       running = false;
       if (again) { again = false; setTimeout(run, 50); }
@@ -200,14 +206,15 @@ export function parseJsonReply(text) {
 export function makeDictation() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) return null;
-  let rec = null, h = { partial: () => {}, final: () => {}, state: () => {} };
+  let rec = null, h = { partial: () => {}, final: () => {}, state: () => {}, error: () => {} };
   return {
-    onPartial(f) { h.partial = f; }, onFinal(f) { h.final = f; }, onState(f) { h.state = f; },
+    onPartial(f) { h.partial = f; }, onFinal(f) { h.final = f; }, onState(f) { h.state = f; }, onError(f) { h.error = f; },
     async start() {
       rec = new SR(); rec.lang = navigator.language || 'en-US'; rec.continuous = true; rec.interimResults = true;
       rec.onstart = () => h.state({ state: 'listening' });
       rec.onend = () => { h.state({ state: 'idle' }); rec = null; };
-      rec.onerror = e => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { const x = new Error('Microphone blocked'); x.code = 'not_granted'; h.state({ state: 'idle' }); } };
+      // iPhone: speech recognition needs Siri & Dictation on, and can be unavailable in a Home Screen app
+      rec.onerror = e => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed' || e.error === 'audio-capture') h.error({ code: 'not_granted', reason: e.error }); };
       rec.onresult = e => {
         let interim = '';
         for (let i = e.resultIndex; i < e.results.length; i++) { const r = e.results[i]; if (r.isFinal) h.final({ text: r[0].transcript.trim() }); else interim += r[0].transcript; }

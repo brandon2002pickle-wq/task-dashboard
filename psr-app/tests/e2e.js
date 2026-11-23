@@ -69,6 +69,8 @@ const until = async (f, ms = 8000) => { const t = Date.now(); while (Date.now() 
   await phone.setOffline(false);
 
   console.log('Phone signs in, uploads');
+  // iPhone Safari can report offline while connected: sync must not trust navigator.onLine
+  await p.evaluate(() => Object.defineProperty(Navigator.prototype, 'onLine', { get: () => false, configurable: true }));
   await signIn(p, true);
   ok(await until(async () => (await ctl()).docs.filter(d => !d.deleted).length === 2 && (await ctl()).docs.length === 3), 'case, telematics and one deletion pushed to the account');
   ok(await until(async () => /Synced/.test(await p.textContent('#store'))), 'status says synced');

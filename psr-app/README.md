@@ -32,7 +32,18 @@ Photos sent to Claude are shrunk on the device (longest side 1568 px, JPEG) befo
 - **iPhone (Safari):** Share → *Add to Home Screen*.
 - **Windows 11 (Edge/Chrome):** install icon at the right of the address bar.
 
-Sign in under **Settings** with your Tech Bench email. It installs as a separate app with its own icon; Tech Bench's service worker ignores `/psr/`.
+Sign in under **Settings** with your Tech Bench email.
+
+### On iPhone
+
+- Install from **Safari** (Chrome on iPhone can't add web apps to the Home Screen). Intake shows a one-time reminder until it's installed.
+- The Home Screen app keeps its **own storage, separate from Safari**. Sign in before you rely on it, or move cases across with Settings → Export / Import backup.
+- Opens on a dark launch screen (`splash/`, made by `node dev/make-splash.js`) instead of a white flash.
+- Tabs sit along the bottom within thumb reach, clear of the home indicator. The header scrolls away, and a strip keeps the status bar readable.
+- Code, model, serial and reply fields have autocorrect and auto-capitalisation tuned so iOS doesn't "fix" `168-4` or `E0360`.
+- **Dictate** uses Siri's speech recognition (Siri & Dictation must be on). If iOS won't allow it in the Home Screen app, the buttons hide and the keyboard's mic works instead.
+- The app asks iOS to keep its storage, so Safari's clean-up of unused site data doesn't clear your cases.
+ It installs as a separate app with its own icon; Tech Bench's service worker ignores `/psr/`.
 
 ## Develop and test
 
@@ -40,6 +51,7 @@ Sign in under **Settings** with your Tech Bench email. It installs as a separate
 node dev/mock.js            # Supabase-shaped mock on :8798, app on http://localhost:8797/psr/
 node tests/e2e.js           # phone (copy & paste, PDF, telematics, offline) -> sign-in sync -> laptop via function -> delete sync -> function missing
 node dev/make-icons.js      # regenerate icons
+node dev/make-splash.js     # regenerate iPhone launch screens
 ```
 
 Bump `VERSION` in `sw.js` when app files change so installed copies update.

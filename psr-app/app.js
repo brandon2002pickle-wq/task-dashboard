@@ -1,5 +1,16 @@
 import { store, makeBackend, makeSync, shrinkImage, parseJsonReply, makeDictation } from './sync.js';
 
+// iPhone / iPad (iPadOS reports itself as a Mac with touch)
+const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+document.documentElement.classList.toggle('ios', IOS);
+document.documentElement.classList.toggle('standalone', standalone());
+function iosHint() {
+  const el = document.querySelector('#ios-hint'); if (!el) return;
+  el.hidden = !(IOS && !standalone() && !store.getMeta('iosHintDone'));
+  document.querySelector('#ios-hint-x').onclick = async () => { el.hidden = true; await store.setMeta('iosHintDone', true); };
+}
+
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -197,6 +208,9 @@ function manualAsk(prompt, images = [], why = '') {
   await store.open();
   load();
   dict = makeDictation();
+  // keep cases from being cleared by Safari's storage clean-up
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  iosHint();
   if (dict) document.querySelectorAll('[data-mic]').forEach(wireMic);
   store.on(w => { if (w.type === 'remote') { load(); render(); } storeLabel(); });
   storeLabel(); render(); tmHint();
@@ -204,8 +218,9 @@ function manualAsk(prompt, images = [], why = '') {
 })();
 
 /* ---------- dictation ---------- */
-let micOn = null;
+let micOn = null, micDead = false;
 function wireMic(b) {
+  if (micDead) return;
   b.hidden = false;
   b.onclick = () => {
     const ta = document.getElementById(b.dataset.mic);
@@ -215,7 +230,9 @@ function wireMic(b) {
     dict.onPartial(({ text }) => { if (micOn === b) ta.value = base + fin + text; });
     dict.onFinal(({ text }) => { if (micOn === b) { fin += text + ' '; ta.value = base + fin; ta.dispatchEvent(new Event('input')); } });
     dict.onState(({ state }) => { const on = state === 'listening' && micOn === b; b.setAttribute('aria-pressed', on); b.textContent = on ? 'Stop' : 'Dictate'; if (state === 'idle' && micOn === b) micOn = null; });
-    dict.start().catch(e => { micOn = null; b.setAttribute('aria-pressed', 'false'); if (e && e.code === 'not_granted') document.querySelectorAll('[data-mic]').forEach(x => x.hidden = true); });
+    const noMic = () => { micOn = null; b.setAttribute('aria-pressed', 'false'); b.textContent = 'Dictate'; micDead = true; document.querySelectorAll('[data-mic]').forEach(x => x.hidden = true); toast(IOS ? 'Dictation unavailable here: use the mic on the iPhone keyboard' : 'Dictation unavailable: use your keyboard\'s mic'); };
+    dict.onError(noMic);
+    dict.start().catch(noMic);
   };
 }
 
@@ -423,7 +440,7 @@ function renderDiag() {
     ${r.next.why ? `<div class="note"><b>Why:</b> ${esc(r.next.why)}</div>` : ''}${r.next.how ? `<div><b>How:</b> ${esc(r.next.how)}</div>` : ''}
     <div class="exp">${r.next.pass ? `<div style="--ec:var(--good)"><b>Good result:</b> ${esc(r.next.pass)}</div>` : ''}${r.next.fail ? `<div style="--ec:var(--bad)"><b>Bad result:</b> ${esc(r.next.fail)}</div>` : ''}</div>
     <div class="row" role="group" aria-label="Result"><button class="btn pass" data-res="pass" aria-pressed="${cur.res === 'pass'}" type="button">Pass / as expected</button><button class="btn fail" data-res="fail" aria-pressed="${cur.res === 'fail'}" type="button">Fail / out of spec</button><button class="btn skip" data-res="skip" aria-pressed="${cur.res === 'skip'}" type="button">Can't do it</button></div>
-    <div class="g2"><label class="f"><span>Reading (exactly as measured)</span><input id="s-val" placeholder="e.g. 4.6 V at pin 1"></label></div>
+    <div class="g2"><label class="f"><span>Reading (exactly as measured)</span><input id="s-val" placeholder="e.g. 4.6 V at pin 1" autocorrect="off" spellcheck="false" autocomplete="off"></label></div>
     <label class="f"><span class="lab">Notes <button class="btn sm mic" type="button" data-mic="s-note" aria-pressed="false" hidden>Dictate</button></span><textarea id="s-note" placeholder="What you saw: connector condition, where measured, key on/engine running…"></textarea></label>
     <div class="row"><button class="btn pri" type="button" id="s-go">Submit result</button><span class="note" id="s-msg" role="status"></span></div>
   </div>` : ''}
@@ -632,7 +649,7 @@ function showMapper(rows, fname) {
   const el = $('#tm-map'), opts = sel => '<option value="">(none)</option>' + headers.map((h, i) => `<option value="${i}"${sel === i ? ' selected' : ''}>${esc(h || 'Column ' + (i + 1))}</option>`).join('');
   el.innerHTML = `<div class="col"><h4>${esc(fname)}: ${data.length} rows. Check the columns.</h4>
     <div class="maprow">${FIELDS.map(([k, l]) => `<span class="note">${l}</span><select data-mk="${k}" aria-label="${l}">${opts(map[k])}</select>`).join('')}</div>
-    <label class="f"><span>Serial for rows without one</span><input id="tm-fser" autocapitalize="characters" placeholder="e.g. FTL01234"></label>
+    <label class="f"><span>Serial for rows without one</span><input id="tm-fser" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="e.g. FTL01234"></label>
     <div class="row"><button class="btn pri" type="button" id="tm-imp">Import</button><button class="btn sm" type="button" id="tm-cancel">Cancel</button></div></div>`;
   $('#tm-cancel').onclick = () => { el.innerHTML = ''; };
   $('#tm-imp').onclick = () => {
@@ -728,7 +745,6 @@ document.querySelectorAll('nav [data-tab]').forEach(b => b.onclick = () => go(b.
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; if (cur.tab === 'set') renderSet(); });
 addEventListener('appinstalled', () => { installEvt = null; toast('Installed'); if (cur.tab === 'set') renderSet(); });
-const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 function renderSet() {
   const s = backend.session(), st = sync.status, ed = $('#set-ed'), m = ai.mode();
   ed.innerHTML = `
@@ -753,7 +769,9 @@ function renderSet() {
     <p class="note" style="margin:0">Importing merges by case: the newer copy of each case wins, nothing is duplicated.</p>
   </div>
   <div class="panel"><h2>Install</h2>
-    ${standalone() ? '<p style="margin:0"><b>Running as an installed app.</b></p>' : installEvt ? '<div class="row"><button class="btn pri" type="button" id="i-go">Install PSR Tool</button></div>'
+    ${standalone() ? `<p style="margin:0"><b>Running as an installed app.</b></p>${IOS ? '<p class="note" style="margin:0">On iPhone the Home Screen app keeps its own storage, separate from Safari. Sign in so cases made in either one show up in both.</p>' : ''}`
+    : IOS ? `<ol style="margin:0;padding-left:20px"><li>Open this page in <b>Safari</b>${/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent) ? ' (you are in another browser: copy the link into Safari)' : ''}.</li><li>Tap <span class="kbd">Share</span> (the square with the arrow).</li><li>Tap <span class="kbd">Add to Home Screen</span>, then <span class="kbd">Add</span>.</li></ol><p class="note" style="margin:0">The Home Screen app keeps its own storage, separate from Safari. Sign in first and your cases follow you; otherwise export a backup here and import it there.</p>`
+    : installEvt ? '<div class="row"><button class="btn pri" type="button" id="i-go">Install PSR Tool</button></div>'
     : '<ul style="margin:0;padding-left:20px"><li><b>Android (Chrome):</b> ⋮ → Add to Home screen → Install</li><li><b>iPhone (Safari):</b> Share → Add to Home Screen</li><li><b>Windows 11 (Edge or Chrome):</b> install icon at the right of the address bar</li></ul>'}
     <p class="note" style="margin:0">Opens with no signal. Reading a new report needs a connection (or copy &amp; paste once you have one).</p>
   </div>`;
