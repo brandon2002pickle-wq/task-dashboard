@@ -1,0 +1,46 @@
+name: Deploy Tech Bench app
+
+on:
+  push:
+    branches: [main]
+    paths: ['techbench-app/**', '.github/workflows/techbench-pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: techbench-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect app files
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+        run: |
+          mkdir -p site/icons
+          cp techbench-app/{index.html,app.css,app.js,data.js,report.js,sw.js,manifest.webmanifest,config.js} site/
+          cp techbench-app/icons/*.png site/icons/
+          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_ANON_KEY" ]; then
+            printf "window.TB_CONFIG = { supabaseUrl: '%s', supabaseAnonKey: '%s', reportFunction: 'report' };\n" "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > site/config.js
+            echo "config.js written from repository variables"
+          else
+            echo "SUPABASE_URL / SUPABASE_ANON_KEY not set: app deploys in this-device-only mode"
+          fi
+          touch site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
