@@ -66,6 +66,7 @@ node dev/mock-supabase.js          # Supabase-shaped mock on :8788, app on :8787
 node tests/e2e-299d3.js A          # phone + laptop + offline + sync + duplicates + conflicts
 node tests/e2e-299d3.js B reply.json   # apply a report reply on the laptop and check it
 node tests/import-backup.js        # old-page backup import, twice
+node tests/local-then-sync.js      # jobs saved before sync was set up upload on first sign-in
 node dev/make-icons.js             # regenerate icons
 ```
 
