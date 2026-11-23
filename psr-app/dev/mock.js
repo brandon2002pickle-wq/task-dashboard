@@ -4,7 +4,7 @@
 const http = require('http'), fs = require('fs'), path = require('path'), crypto = require('crypto');
 const API = +(process.argv[2] || 8798), APP = +(process.argv[3] || 8797), DIR = path.join(__dirname, '..');
 const db = { users: new Map(), tokens: new Map(), docs: new Map(), seq: 0, asks: [] };
-const ctl = { fn: process.env.PSR_FN !== 'off' };
+const ctl = { fn: process.env.PSR_FN !== 'off', key: true };
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
 const send = (res, s, b) => { res.writeHead(s, { ...cors, 'Content-Type': 'application/json' }); res.end(JSON.stringify(b)); };
 const body = req => new Promise(r => { const c = []; req.on('data', d => c.push(d)); req.on('end', () => r(Buffer.concat(c).toString())); });
@@ -21,7 +21,7 @@ function reply(prompt) {
 http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') return send(res, 200, {});
   const u = new URL(req.url, 'http://x');
-  if (u.pathname === '/__ctl') { if (u.searchParams.has('fn')) ctl.fn = u.searchParams.get('fn') === 'on'; return send(res, 200, { ...ctl, asks: db.asks.length, docs: [...db.docs.values()].map(d => ({ id: d.id, upd: d.upd, deleted: d.deleted })) }); }
+  if (u.pathname === '/__ctl') { if (u.searchParams.has('fn')) ctl.fn = u.searchParams.get('fn') === 'on'; if (u.searchParams.has('key')) ctl.key = u.searchParams.get('key') === 'on'; return send(res, 200, { ...ctl, asks: db.asks.length, docs: [...db.docs.values()].map(d => ({ id: d.id, upd: d.upd, deleted: d.deleted })) }); }
   if (u.pathname === '/auth/v1/signup') { const { email, password } = JSON.parse(await body(req)); const user = { id: crypto.randomUUID(), email, password }; db.users.set(email, user); return send(res, 200, sess(user)); }
   if (u.pathname === '/auth/v1/token') {
     const b = JSON.parse(await body(req));
@@ -44,6 +44,7 @@ http.createServer(async (req, res) => {
   if (u.pathname === '/functions/v1/psr') {
     if (!ctl.fn) return send(res, 404, { message: 'Function not found' });
     if (!uid) return send(res, 401, { message: 'JWT' });
+    if (!ctl.key) return send(res, 500, { error: 'ANTHROPIC_API_KEY is not set. Add it under Edge Functions → Secrets.' });
     const b = JSON.parse(await body(req)); db.asks.push({ tier: b.tier, images: (b.images || []).length });
     return send(res, 200, { text: '```json\n' + JSON.stringify(reply(b.prompt)) + '\n```', model: 'mock' });
   }

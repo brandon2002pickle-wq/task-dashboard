@@ -15,9 +15,6 @@ create table if not exists public.psr_docs (
 create index if not exists psr_docs_user_seq on public.psr_docs (user_id, seq);
 
 alter table public.psr_docs enable row level security;
-drop policy if exists psr_docs_select on public.psr_docs;
-drop policy if exists psr_docs_insert on public.psr_docs;
-drop policy if exists psr_docs_update on public.psr_docs;
 create policy psr_docs_select on public.psr_docs for select using (user_id = auth.uid());
 create policy psr_docs_insert on public.psr_docs for insert with check (user_id = auth.uid());
 create policy psr_docs_update on public.psr_docs for update using (user_id = auth.uid()) with check (user_id = auth.uid());
@@ -28,7 +25,7 @@ grant usage on sequence public.psr_docs_seq to authenticated;
 -- a late push from a stale device can never overwrite a newer copy. Returns the row's new seq,
 -- or null when the server already had something newer (the device picks that up on its next pull).
 create or replace function public.psr_put(p_id text, p_doc jsonb, p_upd bigint, p_deleted boolean default false)
-returns bigint language plpgsql security invoker as $$
+returns bigint language plpgsql security invoker set search_path = '' as $$
 declare s bigint;
 begin
   if octet_length(coalesce(p_doc::text, '')) > 4000000 then

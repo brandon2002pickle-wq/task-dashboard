@@ -18,6 +18,17 @@ const rq = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r
 const os = (s, mode = 'readonly') => idb.transaction(s, mode).objectStore(s);
 const clone = o => JSON.parse(JSON.stringify(o));
 
+/** The doc and its "needs syncing" mark commit together or not at all, so closing the app
+ *  mid-save can never leave a saved case that silently never uploads. */
+function saveWithDirty(doc) {
+  return new Promise((res, rej) => {
+    const t = idb.transaction(['docs', 'meta'], 'readwrite');
+    t.objectStore('docs').put(doc);
+    t.objectStore('meta').put(meta.dirty, 'dirty');
+    t.oncomplete = () => res(); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+  });
+}
+
 export const store = {
   async open() {
     idb = await new Promise((res, rej) => {
@@ -48,15 +59,13 @@ export const store = {
     const copy = clone(doc);
     docs.set(doc.id, copy);
     meta.dirty[doc.id] = copy.upd;
-    await rq(os('docs', 'readwrite').put(copy));
-    await this.setMeta('dirty', meta.dirty);
+    await saveWithDirty(copy);
     emit({ type: 'local', id: doc.id });
   },
   async remove(id) {
     const t = { id, _deleted: true, upd: Date.now() };
     docs.set(id, t); meta.dirty[id] = t.upd;
-    await rq(os('docs', 'readwrite').put(t));
-    await this.setMeta('dirty', meta.dirty);
+    await saveWithDirty(t);
     emit({ type: 'local', id });
   },
   /** apply a doc that came from the server (newer upd wins) */
