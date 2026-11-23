@@ -51,7 +51,8 @@ const jobs = () => store.list('job').sort((a, b) => (b.fields.date || '').locale
 const segsOf = id => store.list('seg', id).sort((a, b) => a.fields.order - b.fields.order);
 const entriesOf = id => store.list('entry', id).sort((a, b) => a.fields.at - b.fields.at);
 const photosOf = id => store.list('photo', id).sort((a, b) => a.fields.at - b.fields.at);
-const jobTitle = j => (j.fields.wo ? 'Call ' + j.fields.wo : 'New job');
+// AX service calls read "SC1431949"; older jobs may hold a bare number
+const jobTitle = j => { const w = String(j.fields.wo || '').trim().toUpperCase(); return w ? (/^[A-Z]/.test(w) ? w : 'Call ' + w) : 'New job'; };
 const machineLine = j => [(R.MAKES[j.fields.make] || R.MAKES.other).name, j.fields.model, j.fields.serial && 'S/N ' + j.fields.serial, j.fields.smu && j.fields.smu + ' h'].filter(Boolean).join(' · ');
 
 async function newJob() {
@@ -251,7 +252,7 @@ function renderJob(v, id, openDetails) {
   <div class="panel" style="margin-top:10px"><h2>Timeline</h2><div class="tl">${tl || '<span class="note">Nothing logged yet.</span>'}</div></div>
 
   <details class="panel" data-det="wo" style="margin-top:10px" ${openDetails || !j.wo || ui.open.wo ? 'open' : ''}><summary><h2 style="display:inline-block">Work order &amp; machine</h2></summary>
-    <div class="grid2">${fld(job, 'wo', 'Service call #', 'inputmode="numeric" id="f-wo"')}${fld(job, 'date', 'Date', 'type="date"')}${fld(job, 'smu', 'Hours (SMU)', 'inputmode="decimal"')}${sel(job, 'status', 'Status', R.STATUS)}</div>
+    <div class="grid2">${fld(job, 'wo', 'Service call #', 'id="f-wo" placeholder="SC1431949" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase"')}${fld(job, 'date', 'Date', 'type="date"')}${fld(job, 'smu', 'Hours (SMU)', 'inputmode="decimal"')}${sel(job, 'status', 'Status', R.STATUS)}</div>
     <div class="grid2">${sel(job, 'make', 'Make', R.MAKES)}${fld(job, 'model', 'Model', 'list="dl-models"')}${fld(job, 'serial', 'Serial / PIN', 'style="text-transform:uppercase"')}</div>
     <div class="grid2">${sel(job, 'category', 'Record type', R.CATS)}${fld(job, 'customer', 'Customer')}${fld(job, 'stockNo', 'Stock / unit #')}</div>
     <datalist id="dl-models">${(R.MODELS[j.make] || []).map(m => `<option value="${m}">`).join('')}</datalist>
@@ -268,8 +269,10 @@ function renderJob(v, id, openDetails) {
 
   <div class="panel" style="margin-top:10px" id="rep">
     <div class="axh"><h2>Service report (AX)</h2><button class="btn sm" type="button" id="r-copyall">Copy all segments</button></div>
-    <div class="chips">${segs.map((s, i) => `<button class="chip" type="button" data-seg="${s.id}" aria-pressed="${s.id === ui.seg}">${i + 1} · ${esc(s.fields.title)}</button>`).join('')}</div>
-    <select id="r-segadd" aria-label="Add a segment"><option value="">+ Add segment…</option>${R.SEG_TPL.map((t, i) => `<option value="${i}">${t[0]}</option>`).join('')}</select>
+    <div class="chips">${segs.map((s, i) => `<button class="chip" type="button" data-seg="${s.id}" aria-pressed="${s.id === ui.seg}">${esc(R.seqOf(s.fields))} · ${esc(s.fields.title)}</button>`).join('')}</div>
+    <select id="r-segadd" aria-label="Add a segment"><option value="">+ Add segment…</option>
+      <optgroup label="AX segment lines">${R.AX_LINES.map((l, i) => `<option value="ax${i}">${l[0]} / ${l[1]} · ${esc(l[2])}</option>`).join('')}</optgroup>
+      <optgroup label="Other">${R.SEG_TPL.map((t, i) => `<option value="${i}">${t[0]}</option>`).join('')}</optgroup></select>
     ${seg ? renderSeg(job, seg, segs, mk) : ''}
   </div>
 
@@ -280,7 +283,9 @@ function renderJob(v, id, openDetails) {
   $$('details[data-det]', v).forEach(d => d.addEventListener('toggle', () => ui.open[d.dataset.det] = d.open));
   $('#q-text').addEventListener('input', e => ui.draft = e.target.value);
   if (ui.newPhoto) { $('#q-prev').src = URL.createObjectURL(ui.newPhoto); $('#q-photoform').hidden = false; }
-  if (openDetails && !j.wo) setTimeout(() => $('#f-wo') && $('#f-wo').focus(), 50);
+  // focus the call # once when a new job opens; a later re-render (e.g. after a sync) must not steal focus
+  if (openDetails && !j.wo && ui.autofocused !== id) { ui.autofocused = id; setTimeout(() => { const a = document.activeElement; if ($('#f-wo') && !(a && a.matches('input, textarea, select'))) $('#f-wo').focus(); }, 50); }
+  $('#f-wo').addEventListener('change', () => setTimeout(softRender, 400));   // title + segment ids follow the call #
 
   // quick log
   $$('[data-kind]', v).forEach(b => b.onclick = () => { ui.kind = b.dataset.kind; $$('[data-kind]', v).forEach(x => x.setAttribute('aria-pressed', String(x.dataset.kind === ui.kind))); $('#q-text').placeholder = R.TL[ui.kind].ph; $('#q-wait').hidden = !(ui.kind === 'pending' || ui.kind === 'part'); if (ui.kind === 'part') $('#q-wtype').value = 'part'; });
@@ -334,8 +339,15 @@ function renderJob(v, id, openDetails) {
   $('#j-dely').onclick = async () => { await store.remove(id); for (const r of [...segs, ...entries, ...photos]) await store.remove(r.id); location.hash = '#/'; };
   // report editor
   $$('[data-seg]', v).forEach(b => b.onclick = () => { ui.seg = b.dataset.seg; render(); setTimeout(() => $('#rep').scrollIntoView(), 0); });
-  $('#r-segadd').onchange = async e => { const t = R.SEG_TPL[+e.target.value]; if (!t) return; const s = await store.create('seg', id, R.segDefaults(t[0] === 'Custom segment' ? 'New segment' : t[0], t[1], segs.length + 1)); ui.seg = s.id; render(); };
-  $('#r-copyall').onclick = () => copy(segsOf(id).map((s, i) => '--- Segment ' + (i + 1) + ': ' + s.fields.title + ' ---\n' + R.AXF.map(([k, n]) => n + ': ' + (s.fields[k] || '')).join('\n')).join('\n\n'));
+  $('#r-segadd').onchange = async e => {
+    const val = e.target.value, next = Math.max(0, ...segs.map(s => parseInt(R.seqOf(s.fields), 10) || 0)) + 1;
+    let fields;
+    if (val.startsWith('ax')) { const l = R.AX_LINES[+val.slice(2)]; if (!l) return; fields = R.segDefaults(l[2], R.NON_REPAIR_JOBS.includes(l[0]) ? l[2] : '', next, { jobCode: l[0], compCode: l[1] }); }
+    else { const t = R.SEG_TPL[+val]; if (!t) return; fields = R.segDefaults(t[0] === 'Custom segment' ? 'New segment' : t[0], t[1], next); }
+    fields.order = segs.length + 1;
+    const s = await store.create('seg', id, fields); ui.seg = s.id; render();
+  };
+  $('#r-copyall').onclick = () => copy(segsOf(id).map(s => '--- ' + (R.segId(job.fields.wo, s.fields) || 'Segment ' + R.seqOf(s.fields)) + ': ' + s.fields.title + ' ---\n' + R.AXF.map(([k, n]) => n + ': ' + (s.fields[k] || '')).join('\n')).join('\n\n'));
   if (seg) wireSeg(v, job, seg);
   // save model/serial typed in the last moment (fields save 350 ms after typing stops) before leaving
   if ($('#j-parts')) $('#j-parts').onclick = async e => {
@@ -347,7 +359,12 @@ function renderJob(v, id, openDetails) {
 
 function renderSeg(job, seg, segs, mk) {
   const s = seg.fields, locked = R.partLocked(s);
-  return `<div class="grid2" style="margin-top:4px">${fld(seg, 'title', 'Segment title')}</div>
+  const sid = R.segId(job.fields.wo, s);
+  return `<div class="axseg"><span class="note">Segment id</span> <b>${sid ? esc(sid) : '<span class="uv">enter the service call #</span>'}</b>${s.jobCode && R.JOB_CODES[s.jobCode] ? ' <span class="note">· ' + esc(R.JOB_CODES[s.jobCode]) + '</span>' : ''}${R.isRepairSeg(s) ? '' : ' <span class="pill ex">non-repair</span>'}</div>
+    <div class="grid2" style="margin-top:4px">${fld(seg, 'seq', 'Seq #', 'inputmode="numeric" maxlength="2"')}${fld(seg, 'jobCode', 'Job code', 'inputmode="numeric" list="dl-jobcodes" placeholder="035"')}${fld(seg, 'compCode', 'Component', 'inputmode="numeric" list="dl-comps" placeholder="0113"')}</div>
+    <datalist id="dl-jobcodes">${Object.entries(R.JOB_CODES).map(([c, n]) => `<option value="${c}">${esc(n)}</option>`).join('')}</datalist>
+    <datalist id="dl-comps">${[...new Map(R.AX_LINES.map(l => [l[1], l[2].split(' - ').slice(1).join(' - ')])).entries()].map(([c, n]) => `<option value="${c}">${esc(n)}</option>`).join('')}</datalist>
+    <div class="grid2">${fld(seg, 'title', 'Description (as in AX)')}</div>
     ${area(seg, 'notes', 'Notes for this segment only', '', 2)}
     <div class="cl"><label><input type="checkbox" id="s-warr" ${s.warranty ? 'checked' : ''}><span><b>Warranty segment</b></span></label><label><input type="checkbox" id="s-part" ${s.hasPart ? 'checked' : ''}><span><b>Replaced or repaired a specific part</b></span></label></div>
     <p class="note">${locked ? 'Not warranty with a specific part: part number 0000000, group 7595.' : 'Warranty part: enter the part and group from ' + esc(mk.parts) + '.'}</p>
@@ -374,6 +391,12 @@ function wireSeg(v, job, seg) {
     else if (s.part === R.NO_PART.part) await store.update(seg.id, { part: '', group: '' });
     render();
   };
+  // job + component pair seen in AX fills the description, unless one was typed already
+  $$(`[data-rec="${seg.id}"][data-k="seq"], [data-rec="${seg.id}"][data-k="jobCode"], [data-rec="${seg.id}"][data-k="compCode"]`, v).forEach(el => el.addEventListener('change', () => setTimeout(async () => {
+    const s = store.get(seg.id).fields, l = R.AX_LINES.find(x => x[0] === String(s.jobCode).trim() && x[1] === String(s.compCode).trim());
+    if (l && (!s.title || ['New segment', 'Main repair'].includes(s.title) || R.AX_LINES.some(x => x[2] === s.title))) await store.update(seg.id, { title: l[2] });
+    softRender();
+  }, 400)));
   $('#s-warr').onchange = async e => { await store.update(seg.id, { warranty: e.target.checked }); partRule(); };
   $('#s-part').onchange = async e => { await store.update(seg.id, { hasPart: e.target.checked }); partRule(); };
   $$('[data-copy]', v).forEach(b => b.onclick = () => { const f = $(`[data-rec="${seg.id}"][data-k="${b.dataset.copy}"]`, v); copy(f.value, f); });

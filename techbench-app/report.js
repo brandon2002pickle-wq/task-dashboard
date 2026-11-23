@@ -23,7 +23,20 @@ export const AX_DEFAULT = { dealer: 'D435', cause: 'G', second: '49' };
 export const NO_PART = { part: '0000000', group: '7595' };
 export const SEG_TPL = [['Main repair', ''], ['Clean machine', 'Clean machine'], ['Perform TA1 inspection', 'Perform TA1 inspection'], ['PM service', 'Perform PM service'], ['Travel / field call', 'Travel to and from job site'], ['Custom segment', '']];
 export const NON_REPAIR = ['Clean machine', 'Perform TA1 inspection', 'PM service', 'Travel / field call'];
-export const isRepairSeg = s => !NON_REPAIR.includes(s.title);
+// AX service segments: segment id = service call + "_" + 2-digit seq (SC1431949_03); job code + component code.
+// Only codes seen in the TTC1 technician job queue; anything else can be typed.
+export const JOB_CODES = { '012': 'Install', '035': 'Troubleshoot', '036': 'Test/Check/Adjust', '044': 'Drain/ Refill', '050': 'Pre-Deliver', '070': 'Clean', '540': 'Perform' };
+export const AX_LINES = [
+  ['035', '0113', 'Troubleshoot - Fluids & Hydraulics'], ['035', '1400', 'Troubleshoot - Electric System'], ['035', '1401', 'Troubleshoot - Battery'], ['035', '7007', 'Troubleshoot - For Leaks - Attachment'],
+  ['012', '4170', 'Install - Track Assembly'], ['012', '6001', 'Install - High Flow - Bucket'], ['012', '7555', 'Install - Motor - Seals & Gaskets'],
+  ['036', '7000', 'Test/Check/Adjust - Machine'], ['044', '0113', 'Drain/ Refill - Fluids & Hydraulics'],
+  ['070', '7000', 'Clean - Machine'], ['540', '7535', 'Perform - Technical Analysis 1 Inspection'], ['540', '7583', 'Perform - Inspection'], ['050', '7000', 'Pre-Deliver - Machine Inspect /run/ oil samples']
+];
+export const NON_REPAIR_JOBS = ['050', '070', '540'];   // pre-deliver, clean, perform (inspections)
+export const isRepairSeg = s => !(NON_REPAIR.includes(s.title) || NON_REPAIR_JOBS.includes(s.jobCode));
+export const seqOf = s => String(s.seq || s.order || '').padStart(2, '0');
+/** AX segment id, e.g. SC1431949_03; '' until the service call is entered */
+export const segId = (wo, s) => { const c = String(wo || '').trim().toUpperCase(); return c && seqOf(s) !== '00' ? c + '_' + seqOf(s) : ''; };
 export const partLocked = s => !(s.warranty && s.hasPart);
 export const TL = {
   step: { name: 'Step done', c: 'var(--good)', ph: 'e.g. Removed bucket to access tilt cylinder' },
@@ -35,7 +48,7 @@ export const TL = {
   photo: { name: 'Photo', c: 'var(--teal)', ph: '' }
 };
 export const WAIT = { sample: { name: 'Oil sample', who: 'S·O·S lab' }, part: { name: 'Part', who: 'Parts' }, tc: { name: 'TC Help Desk ticket', who: 'TC Help Desk' }, approval: { name: 'Customer approval', who: 'Customer' }, other: { name: 'Other', who: '' } };
-export const segDefaults = (title, complaint, order) => ({ order, title, notes: '', warranty: false, hasPart: false, ...AX_DEFAULT, ...NO_PART, complaint: complaint || '', repair: '', causing: '', damage: '', internal: '', groupName: '' });
+export const segDefaults = (title, complaint, order, ax = {}) => ({ order, title, seq: String(order).padStart(2, '0'), jobCode: ax.jobCode || '', compCode: ax.compCode || '', notes: '', warranty: false, hasPart: false, ...AX_DEFAULT, ...NO_PART, complaint: complaint || '', repair: '', causing: '', damage: '', internal: '', groupName: '' });
 
 const when = t => new Date(t).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
@@ -105,6 +118,7 @@ Reply with ONLY a JSON object: {"complaint": string, "repair": string, "causing"
 INPUT
 Machine: ${mk.name} ${j.model || '(model not given)'}, serial/PIN ${j.serial || '(not given)'}, hours ${j.smu || '(not given)'}
 Service tool: ${mk.tool}. Service information: ${mk.info}.
+AX segment: ${segId(j.wo, sg) || '(service call not entered)'}${sg.jobCode ? ', job code ' + sg.jobCode : ''}${sg.compCode ? ', component ' + sg.compCode : ''}, "${sg.title || ''}"
 Complaint / assigned work already entered: ${sg.complaint || '(none)'}
 CODES:
 ${j.dtcs || '(none recorded)'}

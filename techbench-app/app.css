@@ -223,3 +223,5 @@ a { color: var(--accent); }
 .srcs { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; overflow-wrap: anywhere; }
 .srcs a, .pdl a { color: var(--accent); }
 h4.sub { margin: 4px 0 0; font-family: var(--font-d); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.axseg { font-family: var(--font-m); font-size: 14px; display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+.axseg b { font-weight: 500; letter-spacing: .04em; }

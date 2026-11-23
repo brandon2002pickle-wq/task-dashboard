@@ -12,7 +12,7 @@ It reuses the Tech Bench page's design, job timeline, AX segment layout, part-nu
 | Timeline | Step done, finding, part (ordered → received → installed), next step, waiting on (oil sample, part, TC Help Desk ticket, customer approval), note |
 | Resume card | Last completed step, next action, everything waiting on someone else |
 | Photos | Camera photo with caption, pinned to a step; the original file is kept |
-| Report | AX segments (D435, G/49, 0000000/7595 unless warranty part), each segment written with Claude using your report instructions; shop-assist notes stay internal |
+| Report | AX segments matching the service call (SC1431949_03: seq, job code, component, AX description; D435, G/49, 0000000/7595 unless warranty part), each segment written with Claude using your report instructions; shop-assist notes stay internal |
 | Offline | Every save goes to the device first; the app opens with no signal; nothing is lost if it's closed |
 | Sync | One sign-in on both devices; each entry shows *Saved on phone*, *Waiting to sync* or *Synced* |
 | Conflicts | If both devices change the same field before syncing, both versions are kept and you choose |
@@ -81,6 +81,7 @@ node tests/import-backup.js        # old-page backup import, twice
 node tests/local-then-sync.js      # jobs saved before sync was set up upload on first sign-in
 node tests/parts.mjs               # parts rules: suffixes, PIN reading, serial ranges, CSV, evidence
 node tests/parts-e2e.js            # parts on a phone: job -> lookup -> log part -> import, before/after migration 002
+node tests/ax-segments.js          # AX layout: SC call #, seq, job/component codes, segment ids, 8-char serial
 node dev/make-icons.js             # regenerate icons
 ```
 
