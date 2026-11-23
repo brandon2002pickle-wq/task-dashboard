@@ -52,7 +52,7 @@ const ctx = (name, dev) => chromium.launchPersistentContext(path.join(TMP, name)
     await p.waitForSelector('#h-new');
     await p.waitForFunction(() => document.querySelector('#sync')?.textContent.includes('All synced'), null, { timeout: 40000 });
     check('local job still on phone after sign-in', (await p.textContent('body')).includes('LOCAL-001'));
-    const all = JSON.stringify(s);
+    const s = await state(), all = JSON.stringify(s);
     check('server has the local job', all.includes(jobId) && all.includes('LOCAL-001'));
     check('server has the local timeline step once', (all.match(/Logged before sync existed/g) || []).length === 1);
     await c.close();
