@@ -1,6 +1,6 @@
 {
-  "name": "Tech Bench",
-  "short_name": "Tech Bench",
+  "name": "Pickle’s CCE Tech Bench",
+  "short_name": "CCE Bench",
   "description": "Work orders, timeline notes, photos and AX service reports.",
   "id": "./",
   "start_url": "./",

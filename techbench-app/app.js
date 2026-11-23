@@ -565,7 +565,7 @@ function renderSettings(v) {
   <div class="panel" style="margin-top:10px"><h2>Install on your devices</h2>
     <div class="installtip"><b>Android phone (Chrome):</b> open this page, tap ⋮ → <i>Add to Home screen</i> → <i>Install</i>.</div>
     <div class="installtip"><b>iPhone (Safari):</b> tap Share → <i>Add to Home Screen</i>.</div>
-    <div class="installtip"><b>Windows 11 laptop (Edge or Chrome):</b> click the install icon at the right of the address bar, or ⋯ → <i>Apps</i> → <i>Install Tech Bench</i>. It gets a Start menu entry and its own window.</div>
+    <div class="installtip"><b>Windows 11 laptop (Edge or Chrome):</b> click the install icon at the right of the address bar, or ⋯ → <i>Apps</i> → <i>Install Pickle’s CCE Tech Bench</i>. It gets a Start menu entry and its own window.</div>
     <button class="btn" type="button" id="s-install" hidden>Install now</button>
   </div>
   <div class="panel" style="margin-top:10px"><h2>Bring jobs over</h2>
