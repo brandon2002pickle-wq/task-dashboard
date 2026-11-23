@@ -1,6 +1,6 @@
 // PSR Tool service worker: keeps the app itself available offline.
 // Cases never go through here: they live in IndexedDB and sync from the page.
-const VERSION = 'psr-v2';
+const VERSION = 'psr-v3';
 const SHELL = ['./', 'index.html', 'app.css', 'app.js', 'sync.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/icon-180.png',
   'vendor/pdf.min.js', 'vendor/pdf.worker.min.js', 'vendor/xlsx.full.min.js'];
