@@ -1,9 +1,9 @@
-name: Deploy Tech Bench app
+name: Deploy Tech Bench and PSR Tool apps
 
 on:
   push:
     branches: [main]
-    paths: ['techbench-app/**', '.github/workflows/techbench-pages.yml']
+    paths: ['techbench-app/**', 'psr-app/**', '.github/workflows/techbench-pages.yml']
   workflow_dispatch:
 
 permissions:
@@ -36,6 +36,15 @@ jobs:
             echo "config.js written from repository variables"
           else
             echo "SUPABASE_URL / SUPABASE_ANON_KEY not set: app deploys in this-device-only mode"
+          fi
+          # PSR Tool, installed separately from /psr/
+          mkdir -p site/psr/icons site/psr/vendor
+          cp psr-app/{index.html,app.css,app.js,sync.js,sw.js,manifest.webmanifest,config.js} site/psr/
+          cp psr-app/icons/*.png site/psr/icons/
+          cp psr-app/vendor/*.js site/psr/vendor/
+          mkdir -p site/psr/splash && cp psr-app/splash/*.png site/psr/splash/
+          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_ANON_KEY" ]; then
+            printf "window.PSR_CONFIG = { supabaseUrl: '%s', supabaseAnonKey: '%s', psrFunction: 'psr' };\n" "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > site/psr/config.js
           fi
           touch site/.nojekyll
       - uses: actions/configure-pages@v5
