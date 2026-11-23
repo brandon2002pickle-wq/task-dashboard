@@ -50,6 +50,7 @@ Sign in under **Settings** with your Tech Bench email.
 ```
 node dev/mock.js            # Supabase-shaped mock on :8798, app on http://localhost:8797/psr/
 node tests/e2e.js           # phone (copy & paste, PDF, telematics, offline) -> sign-in sync -> laptop via function -> delete sync -> function missing
+node tests/atomic-save.js   # a case and its sync mark are saved in one transaction (closing the app mid-save can't strand a case)
 node dev/make-icons.js      # regenerate icons
 node dev/make-splash.js     # regenerate iPhone launch screens
 ```
