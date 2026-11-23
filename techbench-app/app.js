@@ -1,5 +1,6 @@
 import { store, makeBackend, makeSync } from './data.js';
 import * as R from './report.js';
+import * as P from './parts.js';
 
 const cfg = window.TB_CONFIG || {};
 const backend = makeBackend(cfg);
@@ -18,7 +19,7 @@ async function copy(text, field) {
   catch (e) { if (field) { field.focus(); field.select(); } toast('Select and copy'); }
 }
 
-const ui = { kind: 'step', seg: null, pendingRender: false, prompt: '', newPhoto: null, draft: '', open: {} };
+const ui = { kind: 'step', seg: null, pendingRender: false, prompt: '', newPhoto: null, draft: '', open: {}, parts: { q: '', model: '', pin: '', job: null } };
 
 /* ---------------- sync labels ---------------- */
 function entryBadge(rec) {
@@ -83,7 +84,8 @@ function hydratePhotos(root) {
 
 /* ---------------- views ---------------- */
 function nav(hash) {
-  $$('nav.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.go === (hash.startsWith('#/settings') ? '#/settings' : '#/'))));
+  const tab = hash.startsWith('#/settings') ? '#/settings' : hash.startsWith('#/parts') ? '#/parts' : '#/';
+  $$('nav.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.go === tab)));
 }
 $$('nav.tabs button').forEach(b => b.onclick = () => location.hash = b.dataset.go);
 
@@ -96,6 +98,7 @@ function render() {
   const m = h.match(/^#\/job\/([0-9a-f-]{36})(\/details)?/);
   if (m && store.get(m[1]) && !store.get(m[1]).deleted) return renderJob(v, m[1], !!m[2]);
   if (h.startsWith('#/settings')) return renderSettings(v);
+  if (h.startsWith('#/parts')) return renderParts(v, new URLSearchParams(h.split('?')[1] || ''));
   renderHome(v);
 }
 function softRender() {
@@ -252,6 +255,7 @@ function renderJob(v, id, openDetails) {
     <div class="grid2">${sel(job, 'make', 'Make', R.MAKES)}${fld(job, 'model', 'Model', 'list="dl-models"')}${fld(job, 'serial', 'Serial / PIN', 'style="text-transform:uppercase"')}</div>
     <div class="grid2">${sel(job, 'category', 'Record type', R.CATS)}${fld(job, 'customer', 'Customer')}${fld(job, 'stockNo', 'Stock / unit #')}</div>
     <datalist id="dl-models">${(R.MODELS[j.make] || []).map(m => `<option value="${m}">`).join('')}</datalist>
+    ${j.make === 'cat' ? `<div class="row"><a class="btn sm" href="#/parts?job=${id}" id="j-parts">Look up parts for this machine</a></div>` : ''}
   </details>
 
   <details class="panel" data-det="codes" style="margin-top:10px" ${ui.open.codes ? 'open' : ''}><summary><h2 style="display:inline-block">Codes, findings &amp; shop notes</h2></summary>
@@ -333,6 +337,12 @@ function renderJob(v, id, openDetails) {
   $('#r-segadd').onchange = async e => { const t = R.SEG_TPL[+e.target.value]; if (!t) return; const s = await store.create('seg', id, R.segDefaults(t[0] === 'Custom segment' ? 'New segment' : t[0], t[1], segs.length + 1)); ui.seg = s.id; render(); };
   $('#r-copyall').onclick = () => copy(segsOf(id).map((s, i) => '--- Segment ' + (i + 1) + ': ' + s.fields.title + ' ---\n' + R.AXF.map(([k, n]) => n + ': ' + (s.fields[k] || '')).join('\n')).join('\n\n'));
   if (seg) wireSeg(v, job, seg);
+  // save model/serial typed in the last moment (fields save 350 ms after typing stops) before leaving
+  if ($('#j-parts')) $('#j-parts').onclick = async e => {
+    e.preventDefault();
+    const patch = {}; for (const k of ['model', 'serial']) { const el = $(`[data-rec="${id}"][data-k="${k}"]`, v); if (el) { clearTimeout(timers[id + k]); patch[k] = el.value; } }
+    await store.update(id, patch); location.hash = '#/parts?job=' + id;
+  };
 }
 
 function renderSeg(job, seg, segs, mk) {
@@ -388,6 +398,134 @@ function wireSeg(v, job, seg) {
   if ($('#r-apply')) $('#r-apply').onclick = async () => {
     try { await apply(R.parseReply($('#r-paste').value)); }
     catch (e) { toast('That reply isn\'t the JSON Claude was asked for. Paste the whole reply.'); }
+  };
+}
+
+/* ---------------- parts lookup ---------------- */
+const partRecs = () => store.list('part');
+const partRows = () => [...partRecs().map(r => ({ ...Object.fromEntries(P.COLS.map(c => [c, ''])), ...r.fields, _id: r.id })), ...P.SEED];
+const EVC = { pin: 'var(--good)', serial: 'var(--good)', model: 'var(--amber)', cross: 'var(--bad)', none: 'var(--bad)' };
+const uv = v => (String(v ?? '').trim() ? esc(v) : '<span class="uv">unverified</span>');
+
+function renderParts(v, qs) {
+  const pp = ui.parts, jobId = qs.get('job'), job = jobId && store.get(jobId) && !store.get(jobId).deleted ? store.get(jobId) : null;
+  if (job && pp.job !== job.id) { pp.job = job.id; pp.model = job.fields.model || ''; pp.pin = job.fields.serial || ''; pp.q = ''; }
+  if (!job) pp.job = null;
+  const models = [...new Set([...partRows().map(r => r.model), ...(R.MODELS.cat || [])].filter(Boolean))].sort();
+  const files = Object.entries(partRecs().reduce((m, r) => { const f = r.fields.import_file || 'Imported'; m[f] = (m[f] || 0) + 1; return m; }, {}));
+  const pState = store.getMeta('partsSync'), pPending = partRecs().filter(r => store.state(r) === 'pending').length;
+  v.innerHTML = `
+  ${job ? `<div class="view-top" style="margin-top:14px"><a href="#/job/${job.id}" class="btn sm">‹ ${esc(jobTitle(job))}</a><span class="note">${esc(machineLine(job))}</span></div>` : ''}
+  <div class="panel" style="margin-top:${job ? 10 : 14}px">
+    <h2>Find a part</h2>
+    <div class="grid2">
+      <label class="f"><span>Part, name, group or alias</span><input id="p-q" value="${esc(pp.q)}" placeholder="e.g. suction screen, 262-5689, breather" autocomplete="off" enterkeyhint="search"></label>
+      <label class="f"><span>Exact model</span><input id="p-model" value="${esc(pp.model)}" list="dl-pmodels" placeholder="e.g. 299D3 XE" autocomplete="off" style="text-transform:uppercase"></label>
+      <label class="f"><span>Serial / PIN</span><input id="p-pin" value="${esc(pp.pin)}" placeholder="Full PIN or serial" autocomplete="off" style="text-transform:uppercase"></label>
+    </div>
+    <datalist id="dl-pmodels">${models.map(m => `<option value="${esc(m)}">`).join('')}</datalist>
+    <div class="note" id="p-pinnote"></div>
+  </div>
+  <div id="p-results" class="list" style="margin-top:10px"></div>
+
+  <details class="panel" data-det="pimport" style="margin-top:10px" ${ui.open.pimport ? 'open' : ''}><summary><h2 style="display:inline-block">Add SIS 2.0 records</h2></summary>
+    <ol class="steps">
+      <li>In SIS 2.0, select the exact PIN, open Parts, and capture the group illustration and BOM with the group header and serial applicability.</li>
+      <li>Give Claude the pages with this prompt: <button class="btn sm" type="button" id="p-prompt">Copy extraction prompt</button></li>
+      <li>Check the CSV against the diagram, then import it here. Importing the same file again updates rows instead of duplicating them.</li>
+    </ol>
+    <div class="row"><label class="btn" for="p-file" style="cursor:pointer">Choose CSV file</label><input id="p-file" type="file" accept=".csv,text/csv,text/plain" hidden></div>
+    <label class="f"><span>Or paste the CSV</span><textarea id="p-paste" rows="4" placeholder="${esc(P.COLS.slice(0, 6).join(','))},…"></textarea></label>
+    <label class="f"><span>Name for this import</span><input id="p-name" placeholder="e.g. 299D3_DY9_Hydraulic_345-4581.csv"></label>
+    <div class="row"><button class="btn pri" type="button" id="p-import">Import pasted CSV</button></div>
+    <div id="p-imsg" class="note" role="status"></div>
+    ${files.length ? `<div class="psr"><h4>On file (${partRecs().length} rows)</h4>${files.map(([f, n]) => `<div class="row" style="justify-content:space-between"><span><b>${esc(f)}</b> <span class="note">${n} row${n > 1 ? 's' : ''}</span></span><button class="btn sm danger" type="button" data-pfile="${esc(f)}">Remove</button></div>`).join('')}
+      <div class="row"><button class="btn sm" type="button" id="p-export">Export imported rows as CSV</button></div></div>` : ''}
+    <p class="note" style="margin:0">${!backend.ready ? 'Imported rows stay on this device (sync not set up).' : pState && pState.ok === false ? (/check constraint|kind/i.test(pState.error || '') ? `<b style="color:var(--bad)">Imported rows aren't syncing yet.</b> Run <code>supabase/migrations/002_parts.sql</code> once in the Supabase SQL Editor. Until then they stay on this ${here}; jobs sync as normal.` : `<b style="color:var(--bad)">Imported rows didn't sync</b> (${esc(pState.error)}). They're safe on this ${here} and will retry; jobs sync as normal.`) : pPending ? pPending + ' imported row(s) waiting to sync.' : partRecs().length ? 'Imported rows sync to your other devices.' : ''}</p>
+  </details>
+
+  <details class="panel" data-det="psrc" style="margin-top:10px" ${ui.open.psrc ? 'open' : ''}><summary><h2 style="display:inline-block">Sources &amp; rules</h2></summary>
+    <ul class="srcs">${P.LINKS.map(([n, u, d]) => `<li><a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>${d ? ' <span class="note">· ' + esc(d) + '</span>' : ''}</li>`).join('')}</ul>
+    <h4 class="sub">Starter index references</h4>
+    <ul class="srcs">${Object.entries(P.SOURCES).map(([k, s]) => `<li><b>${k}.</b> <a href="${s.url}" target="_blank" rel="noopener">${esc(s.name)}</a> <span class="pill ${s.grade === 'cat' ? 'done' : 'parts'}">${s.grade === 'cat' ? 'Cat' : 'third-party copy'}</span></li>`).join('')}</ul>
+    <p class="note" style="margin:0">The starter index comes from public references, not SIS 2.0. Only rows imported from SIS with a verified date show as SIS verified. A drawing quantity isn't an order quantity, and a current substitution is unknown until it's documented.</p>
+  </details>`;
+
+  const draw = () => {
+    const res = P.search(partRows(), pp), note = $('#p-pinnote');
+    const fromPrefix = res.pin ? P.modelsForPrefix(res.pin.prefix) : [];
+    const bits = [];
+    if (pp.pin && !res.pin) bits.push('<span style="color:var(--bad)">Couldn\'t read that serial. Enter the 17-character PIN or the 8-character serial (prefix + 5 digits).</span>');
+    if (res.pin) bits.push(`Read as ${esc(res.pin.form)}: prefix <b>${esc(res.pin.prefix)}</b>${res.pin.seq ? ', serial ' + esc(res.pin.seq) : ''}.`);
+    if (fromPrefix.length) bits.push(`The public D3 guide lists ${esc(res.pin.prefix)} under ${fromPrefix.map(esc).join(', ')} (not SIS coverage).`);
+    if (fromPrefix.length && pp.model && !fromPrefix.some(m => P.normModel(m) === P.normModel(pp.model))) bits.push(`<b style="color:var(--bad)">That prefix is listed for ${fromPrefix.map(esc).join(', ')}, not ${esc(pp.model.toUpperCase())}. Check the model suffix.</b>`);
+    note.innerHTML = bits.join(' ');
+    const cards = res.rows.map(r => {
+      const ev = P.evidence(r), rec = r._seed ? null : store.get(r._id);
+      return `<article class="pcard" style="--ev:${EVC[ev.key]}">
+        <div class="pchead"><span class="pn">${esc(r.part_number)}</span><span class="pd">${esc(r.part_description) || '<span class="uv">no description</span>'}</span><span class="ev">${esc(ev.label)}</span></div>
+        <dl class="pdl">
+          <div><dt>Machine &amp; applicability</dt><dd>${uv(P.applicability(r))}</dd></div>
+          <div><dt>Group</dt><dd>${r.group_number || r.group_name ? esc((r.group_number + ' ' + r.group_name).trim()) : '<span class="uv">unverified</span>'}</dd></div>
+          <div><dt>Item</dt><dd>${uv(r.item_number)}</dd></div>
+          <div><dt>Qty per group</dt><dd>${uv(r.quantity)}</dd></div>
+          <div><dt>Associated</dt><dd>${[r.related_seal && 'Seal ' + esc(r.related_seal), r.parent_part_number && 'Parent ' + esc(r.parent_part_number), r.replaced_by && 'Replaced by ' + esc(r.replaced_by)].filter(Boolean).join(' · ') || '<span class="note">None listed</span>'}</dd></div>
+          <div><dt>Source</dt><dd>${r._seed ? 'Starter index · ' + r.source_reference.split(/,\s*/).map(k => P.SOURCES[k] ? `<a href="${P.SOURCES[k].url}" target="_blank" rel="noopener" title="${esc(P.SOURCES[k].name)}">${k}</a>` : esc(k)).join(', ') : esc([r.source_type, r.source_reference, r.diagram_id].filter(Boolean).join(' · ')) || '<span class="uv">unverified</span>'}${r.source_page ? ' · ' + esc(r.source_page) : ''}${r.verified_on ? ' · checked ' + esc(r.verified_on) : ''}</dd></div>
+        </dl>
+        ${r.notes ? `<p class="note" style="margin:0">${esc(r.notes)}</p>` : ''}
+        <div class="row"><button class="btn sm" type="button" data-pcopy="${esc(r._id)}">Copy line</button>${job ? `<button class="btn sm pri" type="button" data-padd="${esc(r._id)}">Log as part on ${esc(jobTitle(job))}</button>` : ''}${rec ? `<span class="row" style="margin-left:auto;gap:6px">${entryBadge(rec)}<button class="tdel" type="button" data-pdel="${rec.id}">delete</button></span>` : ''}</div>
+      </article>`;
+    }).join('');
+    const hid = res.hidden.map(h => h.n + ' hidden for ' + h.reason).join(' · ');
+    const need = [];
+    if (res.rows.length && !res.pin) need.push('Serial breaks can change fitment: add the full PIN.');
+    if (res.rows.length && !pp.model) need.push('Add the exact model, suffix included (299D3 and 299D3 XE are different machines).');
+    if (res.rows.some(r => P.evidence(r).key !== 'pin')) need.push('Not order-ready until checked in SIS 2.0 against the exact PIN, with the illustrated parent group and item.');
+    $('#p-results').innerHTML = (cards || `<div class="empty"><b>No matching records.</b><span>The index only holds what has been imported. Look it up in SIS 2.0 for the exact PIN and import the group here, or check the model suffix.</span></div>`)
+      + (hid || need.length ? `<div class="warnbox">${hid ? '<div>' + esc(hid) + '.</div>' : ''}${need.map(n => '<div>' + esc(n) + '</div>').join('')}</div>` : '');
+    const byId = id => res.rows.find(r => r._id === id);
+    $$('[data-pcopy]', v).forEach(b => b.onclick = () => copy(P.answerLine(byId(b.dataset.pcopy))));
+    $$('[data-padd]', v).forEach(b => b.onclick = async () => {
+      const r = byId(b.dataset.padd), ev = P.evidence(r);
+      await store.create('entry', job.id, { kind: 'part', text: `${r.part_number} ${r.part_description}`.trim() + ` (${ev.label}${r.group_number ? ', group ' + r.group_number : ''}; verify in SIS for this PIN)`, at: Date.now(), pstate: 'ordered', wtype: 'part', who: R.WAIT.part.who, ref: '', resume: '' });
+      b.disabled = true; b.textContent = 'Logged on ' + jobTitle(job); toast('Part logged on the job');
+    });
+    $$('[data-pdel]', v).forEach(b => b.onclick = async () => { if (b.dataset.armed !== '1') { b.dataset.armed = '1'; b.textContent = 'tap again'; return; } await store.remove(b.dataset.pdel); draw(); });
+  };
+  const bindIn = (sel, k) => $(sel).addEventListener('input', e => { pp[k] = e.target.value; draw(); });
+  bindIn('#p-q', 'q'); bindIn('#p-model', 'model'); bindIn('#p-pin', 'pin');
+  $$('details[data-det]', v).forEach(d => d.addEventListener('toggle', () => ui.open[d.dataset.det] = d.open));
+  draw();
+
+  $('#p-prompt').onclick = () => copy(P.EXTRACT_PROMPT);
+  const doImport = async (text, name) => {
+    const msg = $('#p-imsg'), res = P.readImport(text);
+    if (res.error) { msg.innerHTML = '<span style="color:var(--bad)">' + esc(res.error) + '</span>'; return; }
+    if (!res.rows.length) { msg.textContent = 'No rows with a model and part number found.'; return; }
+    msg.textContent = 'Importing…';
+    let added = 0, updated = 0;
+    const file = name || 'Pasted ' + today();
+    for (const r of res.rows) {
+      const fields = { ...r, import_file: file };
+      let id = await uid5('part:' + P.rowKey(r)), cur = store.get(id);
+      if (cur && cur.deleted) { id = store.uuid(); cur = null; }
+      if (cur) { if (P.COLS.some(c => (cur.fields[c] || '') !== r[c]) || cur.fields.import_file !== file) { await store.update(id, fields); updated++; } }
+      else { await store.create('part', null, fields, id); added++; }
+    }
+    ui.open.pimport = true; render();
+    $('#p-imsg').innerHTML = esc(`${added} added, ${updated} updated, ${res.rows.length - added - updated} already on file.`)
+      + (res.skipped.length ? '<br>Skipped: ' + res.skipped.map(s => 'line ' + s.line + ' (' + esc(s.why) + ')').join(', ') : '')
+      + (res.unknown.length ? '<br>Columns not in the header, ignored: ' + res.unknown.map(esc).join(', ') : '');
+  };
+  $('#p-file').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (f) await doImport(await f.text(), f.name); };
+  $('#p-import').onclick = () => { const t = $('#p-paste').value; if (!t.trim()) { $('#p-paste').focus(); return; } doImport(t, $('#p-name').value.trim()); };
+  $$('[data-pfile]', v).forEach(b => b.onclick = async () => {
+    if (b.dataset.armed !== '1') { b.dataset.armed = '1'; b.textContent = 'Remove ' + b.closest('.row').querySelector('.note').textContent + '?'; return; }
+    for (const r of partRecs().filter(r => (r.fields.import_file || 'Imported') === b.dataset.pfile)) await store.remove(r.id);
+    ui.open.pimport = true; render(); toast('Removed');
+  });
+  if ($('#p-export')) $('#p-export').onclick = () => {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([P.toCSV(partRecs().map(r => r.fields))], { type: 'text/csv' })); a.download = 'tech-bench-parts-' + today() + '.csv'; a.click();
   };
 }
 

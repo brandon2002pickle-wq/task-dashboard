@@ -1,7 +1,7 @@
 // Tech Bench service worker: keeps the app itself available offline.
 // Data never goes through here: jobs and photos live in IndexedDB and sync from the page.
-const VERSION = 'tb-v1';
-const SHELL = ['./', 'index.html', 'app.css', 'app.js', 'data.js', 'report.js', 'manifest.webmanifest',
+const VERSION = 'tb-v2';
+const SHELL = ['./', 'index.html', 'app.css', 'app.js', 'data.js', 'report.js', 'parts.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/icon-180.png'];
 
 self.addEventListener('install', e => {

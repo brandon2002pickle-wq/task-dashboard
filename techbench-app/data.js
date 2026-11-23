@@ -100,7 +100,8 @@ export const store = {
     if (!rec.remote || rec.delDirty || Object.keys(rec.dirty).length || (b && !b.uploaded)) return 'pending';
     return 'synced';
   },
-  pendingCount() { return [...mem.values()].filter(r => this.state(r) === 'pending').length; },
+  // job data only: the parts library has its own status on the Parts page
+  pendingCount() { return [...mem.values()].filter(r => r.kind !== 'part' && this.state(r) === 'pending').length; },
   conflictsFor(ids) { return [...mem.values()].filter(r => ids.has(r.id) && Object.keys(r.conflicts || {}).length); },
   async wipe() {
     mem.clear(); blobs.clear(); Object.keys(meta).forEach(k => k !== 'deviceId' && delete meta[k]);
@@ -256,8 +257,15 @@ export function makeSync(backend) {
         }
         // 2. records: parents before children so links resolve on the other side
         const order = { job: 0, seg: 1, entry: 2, photo: 3 };
-        const todo = store.all().filter(r => !r.remote || r.delDirty || Object.keys(r.dirty).length).sort((a, b) => order[a.kind] - order[b.kind] || a.createdAt - b.createdAt);
+        const dirty = store.all().filter(r => !r.remote || r.delDirty || Object.keys(r.dirty).length);
+        const todo = dirty.filter(r => r.kind !== 'part').sort((a, b) => order[a.kind] - order[b.kind] || a.createdAt - b.createdAt);
         for (const rec of todo) await pushRecord(rec);
+        // 2b. parts library rows: a server without migration 002 refuses them; that must never hold up jobs
+        const ptodo = dirty.filter(r => r.kind === 'part');
+        if (ptodo.length) {
+          try { for (const rec of ptodo) await pushRecord(rec); await store.setMeta('partsSync', { ok: true, at: Date.now() }); }
+          catch (e) { if (!navigator.onLine) throw e; await store.setMeta('partsSync', { ok: false, error: e.message || String(e), at: Date.now() }); }
+        }
         // 3. pull everything newer than our cursor
         let cursor = store.getMeta('cursor') || 0, rows;
         do {

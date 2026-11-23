@@ -29,7 +29,7 @@ jobs:
           SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
         run: |
           mkdir -p site/icons
-          cp techbench-app/{index.html,app.css,app.js,data.js,report.js,sw.js,manifest.webmanifest,config.js} site/
+          cp techbench-app/{index.html,app.css,app.js,data.js,report.js,parts.js,sw.js,manifest.webmanifest,config.js} site/
           cp techbench-app/icons/*.png site/icons/
           if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_ANON_KEY" ]; then
             printf "window.TB_CONFIG = { supabaseUrl: '%s', supabaseAnonKey: '%s', reportFunction: 'report' };\n" "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > site/config.js

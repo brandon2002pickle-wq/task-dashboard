@@ -12,7 +12,7 @@ const ROOT = path.join(__dirname, '..');
 
 function copySite() {
   const d = path.join(SITE, 'task-dashboard'); fs.mkdirSync(path.join(d, 'icons'), { recursive: true });
-  for (const f of ['index.html', 'app.css', 'app.js', 'data.js', 'report.js', 'sw.js', 'manifest.webmanifest', 'config.js']) fs.copyFileSync(path.join(ROOT, f), path.join(d, f));
+  for (const f of ['index.html', 'app.css', 'app.js', 'data.js', 'report.js', 'parts.js', 'sw.js', 'manifest.webmanifest', 'config.js']) fs.copyFileSync(path.join(ROOT, f), path.join(d, f));
   for (const f of fs.readdirSync(path.join(ROOT, 'icons'))) fs.copyFileSync(path.join(ROOT, 'icons', f), path.join(d, 'icons', f));
   fs.writeFileSync(path.join(d, 'config.js'), "window.TB_CONFIG = { supabaseUrl: '', supabaseAnonKey: '', reportFunction: 'report' };\n");
 }
