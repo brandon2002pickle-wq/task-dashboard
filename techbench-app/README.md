@@ -18,7 +18,9 @@ It reuses the Tech Bench page's design, job timeline, AX segment layout, part-nu
 | Conflicts | If both devices change the same field before syncing, both versions are kept and you choose |
 | Parts | Cat CCE parts lookup by exact model, serial/PIN, part number, group or alias; SIS 2.0 extracts imported as CSV; log a result straight onto the job |
 
-Not in version 1 yet (still in the original Tech Bench page): PSR reading, photo reading, machine register, checklists, shift handoff, Gmail sending.
+Not in version 1 yet (still in the original Tech Bench page): photo reading, machine register, checklists, shift handoff, Gmail sending.
+
+PSR reading lives in its own installable app, **Pickle's PSR Tool** (`../psr-app`), published at `/psr/` beside this one and signed in with the same account.
 
 ## Parts lookup
 
