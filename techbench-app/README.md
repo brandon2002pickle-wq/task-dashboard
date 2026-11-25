@@ -83,9 +83,13 @@ supabase secrets set ANTHROPIC_API_KEY=<key> --project-ref <ref>
 ```
 Optionally lock the functions to your site: `supabase secrets set JARVIS_ALLOWED_ORIGIN=https://<project>.pages.dev`. Then open `https://<project>.pages.dev/jarvis/` and sign in with your Tech Bench account. Use Edge or Chrome for "Hey Jarvis" hands-free.
 
+**Free voice (default).** Voice › *J.A.R.V.I.S. (free neural voice)* runs Kokoro-82M (Apache-2.0, British male `bm_george`) in the browser: no key, no account, no per-use cost. The first tap starts a one-time model download (about 90 MB, cached by the browser afterwards; do it on Wi-Fi). Until it's ready, and if it can't load, he speaks in the device voice. It uses WebGPU when the device has a GPU adapter, otherwise the smaller q8 model on WASM. *J.A.R.V.I.S. (ElevenLabs, needs key)* uses the `jarvis-voice` function above.
+
 If the ElevenLabs key is missing or rejected, he keeps talking in the device voice (Edge: Ryan Online (Natural)) and shows a one-time notice. If the Anthropic key is missing, he says so in the chat instead of failing silently.
 
-Tests: `node --experimental-strip-types tests/jarvis-voice-fn.mjs` (exact ElevenLabs request), `MOCK_TONE=<mp3> node tests/jarvis-hosted.js` (sign-in, Claude tool call, spoken reply), `node tests/jarvis-fallback.js` (bad ElevenLabs key, missing Anthropic key).
+The claude.ai artifact version can't download models, so it picks the best free voice it has: a neural British device voice when one is installed (Edge's Ryan Natural, Apple's Daniel Enhanced, Android's neural UK voices), otherwise Claude's own British voice.
+
+Tests: `node --experimental-strip-types tests/jarvis-voice-fn.mjs` (exact ElevenLabs request), `MOCK_TONE=<mp3> node tests/jarvis-hosted.js` (sign-in, Claude tool call, spoken reply), `node tests/jarvis-fallback.js` (bad ElevenLabs key, missing Anthropic key), `node tests/jarvis-kokoro.js` (free voice with a stand-in model: device voice while loading, sentence-by-sentence synthesis, fallback when the model can't load).
 
 ## Install
 

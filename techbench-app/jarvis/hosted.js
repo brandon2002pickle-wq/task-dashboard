@@ -98,10 +98,52 @@
       syn.speak(u);
     });
   }
+  /* Free neural voice: Kokoro-82M (Apache-2.0) running in this browser. No key, no account.
+     First use downloads the model (~90 MB) once; the browser caches it. Until it's ready, the device voice speaks. */
+  const KOKORO = { lib: 'https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/+esm', model: 'onnx-community/Kokoro-82M-v1.0-ONNX', voice: 'bm_george' };
+  let kokoro = null, kokoroLoading = null, kokoroDown = false, kGen = 0;
+  function loadKokoro() {
+    if (kokoro || kokoroDown) return Promise.resolve(kokoro);
+    if (!kokoroLoading) kokoroLoading = (async () => {
+      try {
+        const { KokoroTTS } = await import(KOKORO.lib);
+        // WebGPU only when a GPU adapter is really there; otherwise (or if it fails) the small q8 model on WASM
+        const adapter = navigator.gpu ? await navigator.gpu.requestAdapter().catch(() => null) : null;
+        if (adapter) { try { kokoro = await KokoroTTS.from_pretrained(KOKORO.model, { dtype: 'fp32', device: 'webgpu' }); } catch (e) { kokoro = null; } }
+        if (!kokoro) kokoro = await KokoroTTS.from_pretrained(KOKORO.model, { dtype: 'q8', device: 'wasm' });
+        if (window.toast) try { window.toast('Free J.A.R.V.I.S. voice ready'); } catch (e) {}
+      } catch (e) { kokoroDown = true; console.warn('Free neural voice unavailable, using the device voice:', e && e.message); }
+      return kokoro;
+    })();
+    return kokoroLoading;
+  }
+  const sentences = t => (String(t).match(/[^.!?]+[.!?]+["')\]]*|[^.!?]+$/g) || [String(t)]).map(x => x.trim()).filter(Boolean);
+  async function kokoroSpeak(text) {
+    if (!kokoro) { loadKokoro(); return deviceVoice(text); }      // first time: talk now, download in the background
+    const gen = ++kGen, parts = sentences(text);
+    const make = s => kokoro.generate(s, { voice: KOKORO.voice, speed: 1 }).then(a => URL.createObjectURL(a.toBlob()));
+    let next = make(parts[0]), started = false;
+    for (let i = 0; i < parts.length; i++) {
+      const url = await next; if (gen !== kGen) { URL.revokeObjectURL(url); return { playedMs: 0 }; }
+      if (i + 1 < parts.length) next = make(parts[i + 1]);           // synthesise the next sentence while this one plays
+      await new Promise((res, rej) => {
+        audio = new Audio(url); current = { res, rej };
+        audio.onplaying = () => { if (!started) { started = true; emit('speaking'); } };
+        audio.onended = () => { URL.revokeObjectURL(url); current = null; res(); };
+        audio.onerror = () => { URL.revokeObjectURL(url); current = null; rej({ code: 'upstream_error' }); };
+        audio.play().catch(() => { current = null; rej({ code: 'no_gesture' }); });
+      });
+    }
+    emit('idle', 'completed'); return { playedMs: 0 };
+  }
   const tts = {
-    async speak(text) {
+    async speak(text, opts = {}) {
       tts.stop();
       emit('starting');
+      if (opts.voice === 'kokoro' || (elDown && !kokoroDown)) {
+        try { return await kokoroSpeak(text); }
+        catch (e) { if (e && e.code === 'stopped') throw e; kokoroDown = kokoroDown || e.code !== 'no_gesture'; return deviceVoice(text); }
+      }
       if (elDown) return deviceVoice(text);
       let r;
       try { r = await authFetch('/functions/v1/jarvis-voice', { text: String(text).slice(0, 1200) }, true); }
@@ -121,7 +163,7 @@
         audio.play().catch(() => { emit('idle', 'no_gesture'); current = null; rej({ code: 'no_gesture' }); });
       });
     },
-    async stop() { if (window.speechSynthesis && elDown) window.speechSynthesis.cancel(); if (audio) { audio.pause(); audio = null; } if (current) { emit('idle', 'stopped'); current.rej({ code: 'stopped' }); current = null; } },
+    async stop() { kGen++; if (window.speechSynthesis && (elDown || kokoroDown || !kokoro)) window.speechSynthesis.cancel(); if (audio) { audio.pause(); audio = null; } if (current) { emit('idle', 'stopped'); current.rej({ code: 'stopped' }); current = null; } },
     onState(h) { ttsHandlers.add(h); return () => ttsHandlers.delete(h); }
   };
 
@@ -156,6 +198,7 @@
   }
 
   window.JV_HOSTED = true;
+  window.JV_KOKORO = KOKORO;     // tests can point this at a stand-in
   window.claude = {
     use(name) {
       const ok = !!(URL0 && ANON);
@@ -166,10 +209,15 @@
   addEventListener('DOMContentLoaded', () => {
     if (!URL0 || !ANON) return;
     if (!getS()) showSignIn();
-    // offer the ElevenLabs voice first
+    // free neural voice first, ElevenLabs (needs a key) second
     const sel = document.getElementById('jvvoicepick');
-    if (sel && !sel.querySelector('[value="elevenlabs"]')) { const o = new Option('J.A.R.V.I.S. (ElevenLabs)', 'elevenlabs'); sel.insertBefore(o, sel.firstChild); }
-    try { if (!localStorage.getItem('cc.voice')) localStorage.setItem('cc.voice', 'elevenlabs'); } catch (e) {}
-    if (sel) sel.value = (localStorage.getItem('cc.voice') || 'elevenlabs');
+    if (sel && !sel.querySelector('[value="elevenlabs"]')) sel.insertBefore(new Option('J.A.R.V.I.S. (ElevenLabs, needs key)', 'elevenlabs'), sel.firstChild);
+    if (sel && !sel.querySelector('[value="kokoro"]')) sel.insertBefore(new Option('J.A.R.V.I.S. (free neural voice)', 'kokoro'), sel.firstChild);
+    let v = 'kokoro'; try { v = localStorage.getItem('cc.voice') || 'kokoro'; localStorage.setItem('cc.voice', v); } catch (e) {}
+    if (sel) sel.value = v;
+    // start the one-time model download on the first tap, so his first reply is usually already neural
+    const warm = () => { let cur = 'kokoro'; try { cur = localStorage.getItem('cc.voice') || 'kokoro'; } catch (e) {} if (cur === 'kokoro') loadKokoro(); };
+    addEventListener('pointerdown', warm, { once: true });
+    if (sel) sel.addEventListener('change', () => { if (sel.value === 'kokoro') loadKokoro(); });
   });
 })();

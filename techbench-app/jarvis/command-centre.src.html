@@ -893,19 +893,30 @@ function act(t) {
     if (sel && view === 'overview') flyTo(cardFor(sel));
   }, 350);
 }
-const voicePick = () => { const d = window.speechSynthesis ? 'british' : 'rounded'; try { return localStorage.getItem('cc.voice') || d; } catch (e) { return d; } };
+const voicePick = () => { let v = null; try { v = localStorage.getItem('cc.voice'); } catch (e) {} return v || autoVoice(); };
+/* free default: the device's own neural British voice when it has one; otherwise Claude's British voice */
+function autoVoice() {
+  const syn = window.speechSynthesis;
+  if (syn && syn.getVoices().some(goodVoice)) return 'british';
+  if (window.JV_HOSTED) return syn ? 'british' : 'rounded';
+  return J.tts ? 'claude-gb' : (syn ? 'british' : 'rounded');
+}
 /* the browser's own speech engine: plays while the microphone stays open */
 const SYN = window.speechSynthesis || null;
 /* voice tuning: device voice, pitch and pace, saved per browser */
 const VPREF = () => { try { return { name: '', pitch: 1, rate: 1, ...JSON.parse(localStorage.getItem('cc.vtune2') || '{}') }; } catch (e) { return { name: '', pitch: 1, rate: 1 }; } };
 const saveV = v => { try { localStorage.setItem('cc.vtune2', JSON.stringify(v)); } catch (e) {} };
 const JARVIS_ORDER = ['Ryan Online (Natural)', 'Thomas Online (Natural)', 'Oliver Online (Natural)', 'Elliot Online (Natural)', 'Ethan Online (Natural)', 'Noah Online (Natural)', 'Alfie Online (Natural)',
-  'Microsoft Ryan', 'Microsoft George', 'Google UK English Male', 'Daniel', 'Arthur', 'Microsoft Thomas', 'Oliver'];
+  'Daniel (Premium)', 'Arthur (Premium)', 'Daniel (Enhanced)', 'Arthur (Enhanced)', 'Jamie (Premium)', 'Jamie (Enhanced)',
+  'en-gb-x-rjs-network', 'en-gb-x-gbd-network', 'en-GB-Neural2-B', 'en-GB-Neural2-D', 'en-GB-Wavenet-B',
+  'Microsoft Ryan', 'Microsoft George', 'Google UK English Male', 'Daniel', 'Arthur', 'en-gb-x-rjs-local', 'en-gb-x-gbd-local', 'Microsoft Thomas', 'Oliver'];
+/* a device voice good enough to be J.A.R.V.I.S.: neural/natural, or Apple's downloadable Enhanced/Premium voices */
+const goodVoice = v => !!(v && /^en[-_]GB/i.test(v.lang) && /Natural|Neural|Online|Premium|Enhanced|network|Wavenet/i.test(v.name + ' ' + (v.voiceURI || '')));
 function britishVoice() {
   if (!SYN) return null;
   const vs = SYN.getVoices(); if (!vs.length) return null;
   const want = VPREF().name; if (want) { const v = vs.find(x => x.name === want); if (v) return v; }
-  for (const p of JARVIS_ORDER) { const v = vs.find(x => x.name.includes(p)); if (v) return v; }
+  for (const p of JARVIS_ORDER) { const v = vs.find(x => x.name.includes(p) || (x.voiceURI || '').includes(p)); if (v) return v; }
   return vs.find(x => /en[-_]GB/i.test(x.lang)) || vs.find(x => /^en/i.test(x.lang)) || null;
 }
 function fillVoiceLab() {
@@ -915,10 +926,12 @@ function fillVoiceLab() {
   sel.innerHTML = vs.length ? vs.map(v => `<option value="${esc(v.name)}" ${cur && v.name === cur.name ? 'selected' : ''}>${esc(v.name.replace(/^Microsoft /, '').replace(/ - English.*$/, ''))} · ${esc(v.lang)}</option>`).join('') : '<option>No voices found yet</option>';
   $('#vt-pitch').value = pref.pitch; $('#vt-rate').value = pref.rate;
   $('#vt-pv').textContent = (+pref.pitch).toFixed(2); $('#vt-rv').textContent = (+pref.rate).toFixed(2);
-  const best = vs.find(v => v.name.includes('Natural') && /GB/.test(v.lang));
-  $('#vt-note').textContent = best ? 'Best match found: ' + best.name.replace(/^Microsoft /, '').replace(/ - English.*$/, '') + '.' : 'For the closest match, open this page in Microsoft Edge on Windows and pick "Ryan Online (Natural)".';
+  const best = vs.find(goodVoice);
+  $('#vt-note').textContent = best ? 'Best match found: ' + best.name.replace(/^Microsoft /, '').replace(/ - English.*$/, '') + '.' : (/iPhone|iPad|Mac/.test(navigator.userAgent) ? 'Free upgrade: Settings › Accessibility › Spoken Content › Voices › English (UK) › download Daniel (Enhanced), then reload.'
+      : /Android/.test(navigator.userAgent) ? 'Free upgrade: Settings › Accessibility › Text-to-speech › Google › install English (UK) and pick a male voice, then reload.'
+      : 'Free upgrade: open this page in Microsoft Edge on Windows and pick "Ryan Online (Natural)".') + (J.tts ? ' Until then, Voice › Claude voice, British sounds best.' : '');
 }
-if (SYN) { SYN.getVoices(); SYN.onvoiceschanged = () => { SYN.getVoices(); fillVoiceLab(); }; }
+if (SYN) { SYN.getVoices(); SYN.onvoiceschanged = () => { SYN.getVoices(); fillVoiceLab(); const sel = $('#jvvoicepick'); if (sel && [...sel.options].some(o => o.value === voicePick())) sel.value = voicePick(); }; }
 J.speakingUntil = 0;
 /* make text sound spoken, not read */
 function forEar(t) {
@@ -931,7 +944,7 @@ function forEar(t) {
     .replace(/(\d+(?:\.\d+)?)\s?h\b/g, '$1 hours').replace(/\s*[›»→]\s*/g, '. ').replace(/\s*[—–]\s*/g, ', ')
     .replace(/\s+/g, ' ').trim();
 }
-const isNatural = v => !!(v && /Natural|Neural|Online/i.test(v.name));
+const isNatural = v => !!(v && (/Natural|Neural|Online/i.test(v.name) || goodVoice(v)));
 function speakBrowser(text) {
   return new Promise(res => {
     try {
@@ -1095,7 +1108,7 @@ $('#vt-rate').oninput = e => { const v = VPREF(); v.rate = +e.target.value; save
 $('#vt-test').onclick = () => { if (useBrowserVoice()) { if (!SYN) { toast('This browser has no device voices. Try Edge or Chrome.'); return; } speakBrowser(SAMPLE); } else { setState('speak'); speak(SAMPLE); } };
 $('#vt-preset').onclick = () => {
   const vs = SYN ? SYN.getVoices() : []; let pick = '';
-  for (const p of JARVIS_ORDER) { const v = vs.find(x => x.name.includes(p)); if (v) { pick = v.name; break; } }
+  for (const p of JARVIS_ORDER) { const v = vs.find(x => x.name.includes(p) || (x.voiceURI || '').includes(p)); if (v) { pick = v.name; break; } }
   const pv = (SYN ? SYN.getVoices() : []).find(x => x.name === pick); saveV({ name: pick, pitch: isNatural(pv) ? 1 : .94, rate: isNatural(pv) ? 1 : .97 }); try { localStorage.setItem('cc.voice', 'british'); } catch (e) {} $('#jvvoicepick').value = 'british';
   fillVoiceLab(); toast(pick ? 'Preset: ' + pick.replace(/^Microsoft /, '').replace(/ - English.*$/, '') : 'No British voice on this device'); if (SYN) speakBrowser(SAMPLE);
 };
@@ -1165,7 +1178,7 @@ document.addEventListener('keydown', e => {
 (async () => {
   const cl = window.claude; if (!cl || !cl.use) return;
   cl.use('sample').then(s => { J.sample = s; }).catch(() => {});
-  cl.use('tts').then(t => { if (!t) { if (!SYN) { $('#jvvoice').closest('label').hidden = true; $('#jvvoicepick').closest('label').hidden = true; } else { [...$('#jvvoicepick').options].forEach(o => { if (o.value !== 'british') o.remove(); }); $('#jvvoicepick').value = 'british'; } return; } J.tts = t; t.onState(({ state }) => { if (state === 'speaking') setState('speak'); else if (state === 'idle' && J.state === 'speak') setState('idle'); }); }).catch(() => {});
+  cl.use('tts').then(t => { if (!t) { if (!SYN) { $('#jvvoice').closest('label').hidden = true; $('#jvvoicepick').closest('label').hidden = true; } else { [...$('#jvvoicepick').options].forEach(o => { if (o.value !== 'british') o.remove(); }); $('#jvvoicepick').value = 'british'; } return; } J.tts = t; $('#jvvoicepick').value = voicePick(); t.onState(({ state }) => { if (state === 'speaking') setState('speak'); else if (state === 'idle' && J.state === 'speak') setState('idle'); }); }).catch(() => {});
   cl.use('dictation').then(d => {
     if (!d) return; J.dict = d; $('#jvmic').hidden = false; $('#hfbtn').hidden = false;
     let heard = '';
