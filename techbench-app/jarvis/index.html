@@ -546,7 +546,7 @@ input[type=range] { padding: 0; accent-color: var(--indigo-2); background: trans
   <div class="hud-body">
     <div class="hud-core" id="hudcore">
       <div class="hud-panel"><h4>You</h4><div id="hudop"></div><h4>Your numbers</h4><div id="hudmeters"></div></div>
-      <div class="hud-orb"><canvas id="hudorb" width="900" height="900" aria-hidden="true"></canvas><div class="orb-tag"><b>BRANDON</b><span id="orbstate">Online</span></div></div>
+      <div class="hud-orb"><canvas id="hudorb" width="900" height="900" aria-hidden="true"></canvas><div class="orb-tag"><b>J.A.R.V.I.S.</b><span id="orbstate">Online</span></div></div>
       <div class="hud-side">
         <div class="hud-panel"><h4>What you're building</h4><ol class="build" id="hudbuild"></ol></div>
         <div class="hud-panel"><h4 id="hudbigl">Next up</h4><div class="hud-big" id="hudbig">0</div><div class="hud-sub" id="hudbigs"></div><div class="nextup" id="hudnext"></div></div>
@@ -1119,7 +1119,7 @@ function hudFill() {
   $('#hudop').innerHTML = opCard(); $('#hudop2').innerHTML = opCard();
   $('#hudsub').textContent = sh && sh.on ? 'On the clock · machines first, by the book' : 'Off the clock · time to build something of your own';
   $('#hudbuild').innerHTML = items('project').filter(p => p.status !== 'done').slice(0, 6).map(p => `<li><div><span>${esc(p.title)}</span><b>${+p.pct || 0}%</b></div><i style="--v:${Math.max(3, +p.pct || 0)}%"></i>${p.next ? `<small>${esc(p.next)}</small>` : ''}</li>`).join('') || '<li><div><span>Nothing on the go yet</span></div></li>';
-  $('#orbstate').textContent = sh && sh.on ? 'On shift · ' + fmtDur(Date.now() - sh.since) : J.state === 'speak' ? 'Speaking' : J.state === 'listen' ? 'Listening' : 'Online';
+  $('#orbstate').textContent = (J.state === 'speak' ? 'Speaking' : J.state === 'listen' ? 'Listening' : J.state === 'think' ? 'Thinking' : 'Online') + ' · for Brandon' + (sh && sh.on ? ' · on shift ' + fmtDur(Date.now() - sh.since) : '');
   $('#chip-mode').textContent = sh && sh.on ? 'Shop mode' : 'Off shift';
   $('#chip-sync').textContent = mode === 'db' ? 'Synced' : 'Local';
   $('#chip-voice').textContent = J.hf && J.mode === 'hf' ? 'Listening' : 'Voice';
@@ -1173,16 +1173,21 @@ function drawHudOrb(t) {
   c.fillStyle = g; c.beginPath(); c.ellipse(0, 0, R * .9, R * .9 * tilt * 1.6, 0, 0, 6.283); c.fill();
   c.globalCompositeOperation = 'lighter';
   for (const p of hudGal) {
-    const ang = p.ang + spin * (1.6 - p.d), r = p.d * R * .82 * (1 + talk * .05 * Math.sin(t / 120 + p.d * 12));
+    const ang = p.ang + spin * (1.6 - p.d), r = (.42 + p.d * .58) * R * .95 * (1 + talk * .05 * Math.sin(t / 120 + p.d * 12));
     const x = Math.cos(ang) * r, y = Math.sin(ang) * r * tilt;
     const tw = .45 + .55 * Math.abs(Math.sin(t / 900 + p.z * 40));
     const a = (1 - p.d * .65) * tw * (.55 + talk * .4);
     c.fillStyle = p.warm ? `rgba(255,220,240,${a})` : (p.d < .3 ? `rgba(${HI},${a})` : `rgba(${RGB},${a})`);
     c.beginPath(); c.arc(x, y, p.s * (W / 900), 0, 6.283); c.fill();
   }
-  // bright core
-  const cg = c.createRadialGradient(0, 0, 0, 0, 0, R * .16 * (1 + talk * .25)); cg.addColorStop(0, 'rgba(255,255,255,.95)'); cg.addColorStop(.35, `rgba(${HI},.7)`); cg.addColorStop(1, 'rgba(0,0,0,0)');
-  c.fillStyle = cg; c.beginPath(); c.arc(0, 0, R * .16 * (1 + talk * .25), 0, 6.283); c.fill();
+  // the centre is J.A.R.V.I.S.: his own holographic orb, talking and listening, in the eye of the galaxy
+  c.globalCompositeOperation = 'source-over';
+  const halo = c.createRadialGradient(0, 0, R * .25, 0, 0, R * .52); halo.addColorStop(0, 'rgba(0,0,0,.6)'); halo.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = halo; c.beginPath(); c.arc(0, 0, R * .52, 0, 6.283); c.fill();
+  if (!HUD.ai) { HUD.ai = document.createElement('canvas'); HUD.ai.width = HUD.ai.height = 420; }
+  drawFace(HUD.ai, t);
+  const sz = R * 1.02 * (1 + talk * .04); c.drawImage(HUD.ai, -sz / 2, -sz / 2, sz, sz);
+  c.globalCompositeOperation = 'lighter';
   // one faint orbit and a moon riding it
   c.strokeStyle = `rgba(${RGB},.25)`; c.lineWidth = 1.5; c.beginPath(); c.ellipse(0, 0, R * .93, R * .93 * tilt, 0, 0, 6.283); c.stroke();
   const ma = t / 9000; c.fillStyle = `rgba(${HI},.95)`; c.beginPath(); c.arc(Math.cos(ma) * R * .93, Math.sin(ma) * R * .93 * tilt, W / 160, 0, 6.283); c.fill();
