@@ -89,7 +89,7 @@ If the ElevenLabs key is missing or rejected, he keeps talking in the device voi
 
 The claude.ai artifact version can't download models, so it picks the best free voice it has: a neural British device voice when one is installed (Edge's Ryan Natural, Apple's Daniel Enhanced, Android's neural UK voices), otherwise Claude's own British voice.
 
-Tests: `node --experimental-strip-types tests/jarvis-voice-fn.mjs` (exact ElevenLabs request), `MOCK_TONE=<mp3> node tests/jarvis-hosted.js` (sign-in, Claude tool call, spoken reply), `node tests/jarvis-fallback.js` (bad ElevenLabs key, missing Anthropic key), `node tests/jarvis-kokoro.js` (free voice with a stand-in model: device voice while loading, sentence-by-sentence synthesis, fallback when the model can't load).
+Tests: `node --experimental-strip-types tests/jarvis-voice-fn.mjs` (exact ElevenLabs request), `MOCK_TONE=<mp3> node tests/jarvis-hosted.js` (sign-in, Claude tool call, spoken reply), `node tests/jarvis-fallback.js` (bad ElevenLabs key, missing Anthropic key), `node tests/jarvis-hud.js` (system display: "pull up the diagram", live lanes, core/close, phone layout), `node tests/jarvis-kokoro.js` (free voice with a stand-in model: device voice while loading, sentence-by-sentence synthesis, fallback when the model can't load).
 
 ## Install
 
