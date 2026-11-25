@@ -107,7 +107,11 @@ const api = http.createServer(async (req, res) => {
   // ---- PostgREST
   if (p === '/rest/v1/rpc/push_record' && req.method === 'POST') {
     ctl.pushCalls++;
-    const out = pushRecord(uid, j());
+    const body = j();
+    // MOCK_KINDS=job,seg,entry,photo stands in for a database that hasn't run migration 002 yet
+    const kinds = (process.env.MOCK_KINDS || '').split(',').filter(Boolean);
+    if (kinds.length && !kinds.includes(body.p_kind) && !db.records.has(body.p_id)) return send(res, 400, { code: '23514', message: 'new row for relation "records" violates check constraint "records_kind_check"' });
+    const out = pushRecord(uid, body);
     if (ctl.dropPushResponses > 0) { ctl.dropPushResponses--; req.socket.destroy(); return; }   // applied, but the reply is lost
     return send(res, 200, out);
   }

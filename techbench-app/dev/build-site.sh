@@ -1,25 +1,44 @@
 #!/usr/bin/env bash
-# Assembles the deployable site: Tech Bench app at /, hosted J.A.R.V.I.S. at /jarvis/.
+# Assembles the deployable site:
+#   /         Pickle's CCE Tech Bench
+#   /jarvis/  hosted J.A.R.V.I.S. command centre (ElevenLabs voice)
+#   /psr/     PSR Tool
 # Cloudflare Pages: build command `bash techbench-app/dev/build-site.sh`, output directory `site`.
-# Set SUPABASE_URL and SUPABASE_ANON_KEY as Cloudflare Pages environment variables to turn on sync.
+# SUPABASE_URL / SUPABASE_ANON_KEY (Cloudflare Pages environment variables), if set, override the
+# Supabase project in config.js; otherwise the committed config is used.
 set -euo pipefail
 APP="$(cd "$(dirname "$0")/.." && pwd)"
-OUT="${1:-$APP/../site}"
-mkdir -p "$OUT/icons" "$OUT/jarvis"
-cp "$APP"/{index.html,app.css,app.js,data.js,report.js,sw.js,manifest.webmanifest,config.js} "$OUT/"
+ROOT="$(cd "$APP/.." && pwd)"
+OUT="${1:-$ROOT/site}"
+mkdir -p "$OUT/icons" "$OUT/jarvis" "$OUT/psr/icons" "$OUT/psr/vendor" "$OUT/psr/splash"
+
+cp "$APP"/{index.html,app.css,app.js,data.js,report.js,parts.js,sw.js,manifest.webmanifest,config.js} "$OUT/"
 cp "$APP"/icons/*.png "$OUT/icons/"
 cp "$APP"/jarvis/index.html "$APP"/jarvis/hosted.js "$OUT/jarvis/"
+
+PSR="$ROOT/psr-app"
+cp "$PSR"/{index.html,app.css,app.js,sync.js,sw.js,manifest.webmanifest,config.js} "$OUT/psr/"
+cp "$PSR"/icons/*.png "$OUT/psr/icons/"
+cp "$PSR"/vendor/*.js "$OUT/psr/vendor/"
+cp "$PSR"/splash/*.png "$OUT/psr/splash/"
+
 if [ -n "${SUPABASE_URL:-}" ] && [ -n "${SUPABASE_ANON_KEY:-}" ]; then
   printf "window.TB_CONFIG = { supabaseUrl: '%s', supabaseAnonKey: '%s', reportFunction: 'report' };\n" "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > "$OUT/config.js"
-  echo "config.js written from environment variables"
+  printf "window.PSR_CONFIG = { supabaseUrl: '%s', supabaseAnonKey: '%s', psrFunction: 'psr' };\n" "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > "$OUT/psr/config.js"
+  echo "config.js files written from environment variables"
 else
-  echo "SUPABASE_URL / SUPABASE_ANON_KEY not set: the site runs in this-device-only mode"
+  echo "Using the Supabase project in the committed config.js files"
 fi
-# the service worker and settings must never be served stale
+
+# service workers and settings must never be served stale
 cat > "$OUT/_headers" <<'HEADERS'
 /sw.js
   Cache-Control: no-cache
 /config.js
+  Cache-Control: no-cache
+/psr/sw.js
+  Cache-Control: no-cache
+/psr/config.js
   Cache-Control: no-cache
 /*
   X-Content-Type-Options: nosniff

@@ -1,0 +1,20 @@
+{
+  "name": "Pickle’s PSR Tool",
+  "short_name": "PSR Tool",
+  "description": "Read status reports, rank the causes, order the next check and draft the work order entry.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#141414",
+  "theme_color": "#141414",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Read a report", "url": "./", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
