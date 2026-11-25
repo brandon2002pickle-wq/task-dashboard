@@ -47,6 +47,29 @@ You need two free accounts: **Supabase** (database, sign-in, photo storage) and 
 
 The anon key is designed to be public; the security rules above are what protect the data.
 
+## J.A.R.V.I.S. command centre with the ElevenLabs voice
+
+`jarvis/` is the hosted copy of the J.A.R.V.I.S. command centre (the same page as the claude.ai artifact, built by `node dev/build-jarvis.js <artifact html>`). Hosted, it can do what the claude.ai frame blocks: Claude writes each reply through `supabase/functions/jarvis-chat`, and ElevenLabs speaks it through `supabase/functions/jarvis-voice`, while the browser keeps listening for "Hey Jarvis".
+
+| Setting | Value |
+|---|---|
+| Voice ID | `fONmGZvf9jMdFhjqnd2L` (override with secret `JARVIS_VOICE_ID`) |
+| Model | `eleven_flash_v2_5` |
+| Endpoint | `POST https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream?output_format=mp3_44100_128` |
+| Voice settings | stability 0.62, similarity_boost 0.80, style 0.05, speed 0.96, use_speaker_boost true |
+| Key | `ELEVENLABS_API_KEY`, read from the Supabase function secrets, never sent to the page |
+
+Deploy (once Supabase is set up as above):
+```
+supabase functions deploy jarvis-voice --project-ref <ref>
+supabase functions deploy jarvis-chat --project-ref <ref>
+supabase secrets set ELEVENLABS_API_KEY=<key from the workspace that holds the jarvis voice> --project-ref <ref>
+supabase secrets set ANTHROPIC_API_KEY=<key> --project-ref <ref>
+```
+Then open `https://<github-user>.github.io/task-dashboard/jarvis/` and sign in with your Tech Bench account. Use Edge or Chrome for "Hey Jarvis" hands-free.
+
+Tests: `node --experimental-strip-types tests/jarvis-voice-fn.mjs` (exact ElevenLabs request), `MOCK_TONE=<mp3> node tests/jarvis-hosted.js` (sign-in, Claude tool call, spoken reply).
+
 ## Install
 
 - **Android (Chrome):** open the app link → ⋮ → *Add to Home screen* → *Install*.
