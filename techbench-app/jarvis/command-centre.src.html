@@ -328,7 +328,6 @@ input[type=range] { padding: 0; accent-color: var(--indigo-2); background: trans
     <button type="button" data-view="ideas" aria-label="Ideas vault"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg><span class="tip">Ideas vault</span></button>
     <button type="button" data-view="deadreckoning" aria-label="DEAD RECKONING"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="2"/></svg><span class="tip">DEAD RECKONING</span></button>
     <span class="spacer"></span>
-    <a class="railink" href="https://claude.ai/artifact/AeypxrNbDXPj63jzc13NJe" target="_blank" rel="noopener" aria-label="Open Tech Bench"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg><span class="tip">Tech Bench</span></a>
   </nav>
   <main id="main" aria-live="polite"></main>
 </div>
@@ -395,7 +394,7 @@ const SHOPCHECKS = [
   'Chock tracks or wheels, lower attachments to the ground',
   'Record active and logged codes',
   'Photos before teardown',
-  'Log steps and findings in Tech Bench as you go',
+  'Log steps and findings on the work order as you go',
   'Pull a PSR after the repair',
   'Clean up, final walk-around and test run'
 ];
@@ -538,7 +537,7 @@ function overview(m) {
       <div class="quip">${shift.on ? esc(quip) : '"' + esc(quip) + '"'}</div>
       ${shift.on ? `<div class="readouts"><div><span>On the clock</span><b id="ro-clock">${fmtDur(Date.now() - shift.since)}</b></div><div><span>Pre-job checks</span><b>${(shift.checks || []).length}/${SHOPCHECKS.length}</b></div><div><span>Shop notes</span><b>${items('task').filter(t => t.area === 'work' && !t.done).length} open</b></div></div>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <a class="btn" href="https://claude.ai/artifact/AeypxrNbDXPj63jzc13NJe" target="_blank" rel="noopener">Open Tech Bench ↗</a>
+        <button class="btn" type="button" id="herotalk">Talk to J.A.R.V.I.S.</button>
         ${empty ? '<button class="btn ghost" type="button" id="starter">Load starter board</button>' : '<button class="btn ghost" type="button" data-go="projects">New project</button>'}
       </div>
     </div>
@@ -563,7 +562,6 @@ function overview(m) {
       <div class="small muted">Resets when you start your next shift. Specs and procedures come from SIS or the OEM manual, not from me.</div></section>
     <section class="card c5"><div class="head"><h2>Shop links</h2></div>
       <div class="shoplinks">
-        <a href="https://claude.ai/artifact/AeypxrNbDXPj63jzc13NJe" target="_blank" rel="noopener">Tech Bench<small>Jobs, timeline, AX report</small></a>
         <a href="https://sis2.cat.com/" target="_blank" rel="noopener">Cat SIS 2.0<small>Parts, schematics, troubleshooting</small></a>
         <a href="https://partscatalog.deere.com/" target="_blank" rel="noopener">Deere Parts<small>Search by PIN</small></a>
         <a href="https://www.bobcat.com/na/en/parts-service/parts-catalog" target="_blank" rel="noopener">Bobcat Parts<small>Search by serial</small></a>
@@ -619,6 +617,7 @@ function overview(m) {
 
   m.querySelectorAll('[data-go]').forEach(b => b.onclick = () => location.hash = b.dataset.go);
   requestAnimationFrame(() => { const a = $('#arcval'); if (a) a.style.strokeDashoffset = String(C * (1 - overall / 100)); });
+  if ($('#herotalk')) $('#herotalk').onclick = () => { if (typeof openPanel === 'function') openPanel(); };
   $('#focusbtn').onclick = () => { prefs.focus = !prefs.focus; savePrefs(); toast(prefs.focus ? 'Focus Protocol engaged' : 'Focus Protocol off'); render(); };
   $('#shiftbtn').onclick = () => setShift(!(S.items.get('shift') || {}).on);
   m.querySelectorAll('[data-shopcheck]').forEach(c => c.onchange = () => {
