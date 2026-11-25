@@ -26,6 +26,7 @@ const path = require('path');
   await p.fill('#jv-em', 'sir@example.com'); await p.fill('#jv-pw', 'bench-test-1'); await p.click('#jv-auth button');
   await p.waitForSelector('#jv-auth', { state: 'detached' });
   await p.click('#starter'); await p.waitForTimeout(300);
+  await p.evaluate(() => { document.querySelector('#jvvoicepick').value = 'elevenlabs'; try { localStorage.setItem('cc.voice', 'elevenlabs'); } catch (e) {} }); // ElevenLabs chosen, key rejected
   await p.click('#jvfab', { force: true }); await p.waitForTimeout(1500);
 
   let spoken = await p.evaluate(() => window.__spoken);
