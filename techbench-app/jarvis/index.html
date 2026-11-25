@@ -11,28 +11,23 @@
 <title>Brandon's Command Centre</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@1&family=Orbitron:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@1&family=Orbitron:wght@500;700&family=Anton&family=UnifrakturCook:wght@700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: lavender glass deck. Indigo rail on the left, indigo briefing banner on top, glass cards in a 12-col grid; week strip + feed on the right. */
 :root {
-  --bg: #e9e6f7; --bg-2: #f4f2fc; --glass: rgba(255,255,255,.72); --glass-line: rgba(120,104,214,.16);
-  --ink: #1c1838; --muted: #6c6890; --indigo: #2a2468; --indigo-2: #3a3290; --on-indigo: #f3f1ff; --on-indigo-muted: #b8b2ea;
-  --lime: #d6f25c; --lime-ink: #20240a; --violet: #7b6cf0; --good: #3f9b62; --warn: #c27d12; --bad: #c8475a;
-  --shadow: 0 10px 30px -14px rgba(42,36,104,.35);
+  /* off shift: "after hours" — midnight violet, hot-pink neon, slowed-phonk mood. Always dark; it's a night vibe. */
+  --bg: #07040d; --bg-2: #120a1f; --glass: rgba(24,12,38,.62); --glass-line: rgba(255,70,180,.16);
+  --ink: #f5ecff; --muted: #a891c6; --indigo: #10071c; --indigo-2: #3d0d55; --on-indigo: #f8eeff; --on-indigo-muted: #c9a8ea;
+  --lime: #ff46b4; --lime-ink: #1c0012; --violet: #a35cff; --good: #5cffb2; --warn: #ffc35c; --bad: #ff5c7a;
+  --shadow: 0 18px 40px -18px rgba(0,0,0,.8), 0 0 0 1px rgba(255,70,180,.05); color-scheme: dark;
+  --font-g: 'UnifrakturCook', 'Instrument Serif', Georgia, serif;
+  --font-x: 'Anton', 'Plus Jakarta Sans', Impact, sans-serif;
   --font-d: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-s: 'Instrument Serif', Georgia, 'Times New Roman', serif;
   --font-m: 'JetBrains Mono', ui-monospace, Menlo, monospace;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #100e22; --bg-2: #17142f; --glass: rgba(34,30,66,.72); --glass-line: rgba(160,150,255,.16);
-  --ink: #ecebff; --muted: #a29fc9; --indigo: #2b2575; --indigo-2: #3a3394; --on-indigo: #f3f1ff; --on-indigo-muted: #b8b2ea;
-  --lime: #d6f25c; --lime-ink: #20240a; --violet: #9d91ff; --good: #6fd197; --warn: #f0b547; --bad: #ff8a9a;
-  --shadow: 0 14px 34px -16px rgba(0,0,0,.6); color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #100e22; --bg-2: #17142f; --glass: rgba(34,30,66,.72); --glass-line: rgba(160,150,255,.16);
-  --ink: #ecebff; --muted: #a29fc9; --indigo: #2b2575; --indigo-2: #3a3394; --on-indigo: #f3f1ff; --on-indigo-muted: #b8b2ea;
-  --lime: #d6f25c; --lime-ink: #20240a; --violet: #9d91ff; --good: #6fd197; --warn: #f0b547; --bad: #ff8a9a;
-  --shadow: 0 14px 34px -16px rgba(0,0,0,.6); color-scheme: dark }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark } }
+:root[data-theme="dark"] { color-scheme: dark }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 body { margin: 0; font-family: var(--font-d); color: var(--ink); font-size: 15px; line-height: 1.45;
@@ -248,6 +243,52 @@ input[type=range] { padding: 0; accent-color: var(--indigo-2); background: trans
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
 /* ===== SHOP MODE: on shift the deck becomes J.A.R.V.I.S.'s holographic HUD ===== */
+/* ===== OFF SHIFT — "after hours" (slowed / phonk mood) ===== */
+:root:not([data-mode="shop"]) body {
+  background:
+    radial-gradient(900px 520px at 88% -8%, rgba(163,92,255,.30), transparent 62%),
+    radial-gradient(760px 460px at -8% 108%, rgba(255,70,180,.22), transparent 60%),
+    radial-gradient(600px 300px at 50% 120%, rgba(90,20,140,.35), transparent 70%),
+    var(--bg);
+  background-attachment: fixed; }
+/* bass-breath: a slow pulsing glow behind everything, about one beat every 1.8s */
+:root:not([data-mode="shop"]) body::before { content: ""; position: fixed; inset: -10%; pointer-events: none; z-index: -1;
+  background: radial-gradient(40% 35% at 70% 30%, rgba(255,70,180,.16), transparent 70%), radial-gradient(45% 40% at 25% 75%, rgba(163,92,255,.16), transparent 70%);
+  animation: thump 1.8s cubic-bezier(.3,0,.2,1) infinite; }
+@keyframes thump { 0%, 100% { opacity: .55; transform: scale(1); } 12% { opacity: 1; transform: scale(1.035); } 40% { opacity: .7; } }
+/* film grain + faint VHS scanlines */
+:root:not([data-mode="shop"]) body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 40; opacity: .5; mix-blend-mode: overlay;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+    repeating-linear-gradient(180deg, rgba(255,255,255,.03) 0 1px, transparent 1px 4px);
+  animation: grain .9s steps(4) infinite; }
+@keyframes grain { 0% { transform: translate(0,0); } 25% { transform: translate(-2%,1%); } 50% { transform: translate(1%,-2%); } 75% { transform: translate(2%,2%); } 100% { transform: translate(0,0); } }
+/* headline: tall condensed caps with a chromatic split, blackletter accent */
+:root:not([data-mode="shop"]) h1 { font-family: var(--font-x); font-weight: 400; text-transform: uppercase; letter-spacing: .02em; font-size: clamp(1.7rem, 3.6vw, 2.6rem); line-height: 1.02;
+  text-shadow: 2px 0 rgba(255,70,180,.55), -2px 0 rgba(90,200,255,.35), 0 0 28px rgba(163,92,255,.35); }
+:root:not([data-mode="shop"]) h1 em { font-family: var(--font-g); font-style: normal; font-weight: 700; text-transform: none; letter-spacing: 0; font-size: 1.12em; color: var(--lime);
+  text-shadow: 0 0 18px rgba(255,70,180,.7), 0 0 2px rgba(255,255,255,.5); }
+:root:not([data-mode="shop"]) h2 { letter-spacing: .14em; text-transform: uppercase; font-size: 12px; color: var(--muted); }
+:root:not([data-mode="shop"]) .quip { color: #e9b8ff; text-shadow: 0 0 14px rgba(163,92,255,.45); }
+/* glass cards with a neon hairline that warms on hover */
+:root:not([data-mode="shop"]) .card { border-radius: 18px; border-color: var(--glass-line); transition: box-shadow .35s, border-color .35s; }
+:root:not([data-mode="shop"]) .card:hover { border-color: rgba(255,70,180,.38); box-shadow: var(--shadow), 0 0 32px -10px rgba(255,70,180,.45); }
+:root:not([data-mode="shop"]) .hero.dr .btn { background: #e2574c; box-shadow: 0 0 22px -6px rgba(226,87,76,.8); }
+:root:not([data-mode="shop"]) .hero:not(.dr) { background: radial-gradient(520px 240px at 92% 0%, rgba(255,70,180,.28), transparent 70%), radial-gradient(420px 220px at 0% 100%, rgba(163,92,255,.28), transparent 70%), linear-gradient(160deg, #1a0830, #0b0414);
+  border: 1px solid rgba(255,70,180,.22); }
+:root:not([data-mode="shop"]) .rail { background: rgba(14,6,24,.86); border: 1px solid var(--glass-line); box-shadow: 0 0 34px -12px rgba(163,92,255,.55); }
+:root:not([data-mode="shop"]) .rail button[aria-current="page"] { box-shadow: 0 0 18px -2px rgba(255,70,180,.75); }
+:root:not([data-mode="shop"]) .btn { box-shadow: 0 0 22px -6px rgba(255,70,180,.8); color: #fff; background: linear-gradient(135deg, #ff46b4, #a35cff); }
+:root:not([data-mode="shop"]) .btn:hover { box-shadow: 0 0 30px -4px rgba(255,70,180,.95); }
+:root:not([data-mode="shop"]) .btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--glass-line); }
+:root:not([data-mode="shop"]) .pill { background: rgba(255,70,180,.12); color: #ffb3e0; border: 1px solid rgba(255,70,180,.2); }
+:root:not([data-mode="shop"]) .arc .val { filter: drop-shadow(0 0 10px rgba(255,70,180,.8)); }
+:root:not([data-mode="shop"]) .jv-fab { background: radial-gradient(circle, #24093a, #07030d 70%); box-shadow: 0 12px 30px -8px rgba(120,20,160,.7), 0 0 0 1px rgba(255,70,180,.35), 0 0 26px -4px rgba(255,70,180,.6); }
+:root:not([data-mode="shop"]) .jv { background: #0d0618; box-shadow: 0 0 0 1px rgba(255,70,180,.18), 0 30px 60px -20px rgba(80,0,120,.8); }
+:root:not([data-mode="shop"]) .msg.u { background: linear-gradient(135deg, rgba(255,70,180,.28), rgba(163,92,255,.28)); color: var(--ink); }
+:root:not([data-mode="shop"]) ::selection { background: rgba(255,70,180,.45); color: #fff; }
+@media (prefers-reduced-motion: reduce) { :root:not([data-mode="shop"]) body::before, :root:not([data-mode="shop"]) body::after { animation: none; } }
+
 :root[data-mode="shop"] {
   --bg: #04070e; --bg-2: rgba(10,26,44,.7); --glass: rgba(8,20,36,.72); --glass-line: rgba(62,230,255,.22);
   --ink: #dff6ff; --muted: #7fa3b8; --indigo: rgba(6,16,30,.92); --indigo-2: #0c2442; --on-indigo: #dff6ff; --on-indigo-muted: #8fb4c8;
@@ -711,7 +752,8 @@ function drawFace(cv, t) {
   const c = cv.getContext('2d'), W = cv.width, H = cv.height, R = W / 2, big = W >= 220;
   if (reduceMotion) t = 4000;
   const st = J.state, speak = st === 'speak', listen = st === 'listen', think = st === 'think';
-  const CY = '62,200,255', AM = '255,176,72';
+  const shopOn = document.documentElement.dataset.mode === 'shop';
+  const CY = shopOn ? '62,200,255' : '178,110,255', AM = shopOn ? '255,176,72' : '255,70,180';
   c.clearRect(0, 0, W, H);
   c.save(); c.translate(R, R + (reduceMotion ? 0 : Math.sin(t / 1100) * R * .02));
   J.look.x += (J.aim.x - J.look.x) * .05; J.look.y += (J.aim.y - J.look.y) * .05;
