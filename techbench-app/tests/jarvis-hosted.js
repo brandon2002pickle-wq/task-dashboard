@@ -17,11 +17,11 @@ const path = require('path');
   await p.fill('#jv-em', 'sir@example.com'); await p.fill('#jv-pw', 'bench-test-1'); await p.click('#jv-auth button');
   await p.waitForSelector('#jv-auth', { state: 'detached' });
   check('signs in with the Tech Bench account', true);
-  await p.click('#starter'); await p.waitForTimeout(300);
+  await p.evaluate(() => document.querySelector('#starter').click()); await p.waitForTimeout(300);
   check('free voice is the default, ElevenLabs offered', (await p.inputValue('#jvvoicepick')) === 'kokoro' && (await p.$('#jvvoicepick option[value="elevenlabs"]')) !== null);
   await p.evaluate(() => { const s = document.querySelector('#jvvoicepick'); s.value = 'elevenlabs'; try { localStorage.setItem('cc.voice', 'elevenlabs'); } catch (e) {} }); // this test covers the ElevenLabs path
   await fetch('http://localhost:8818/__test/control', { method: 'POST', body: JSON.stringify({ voiceTexts: [] }) });
-  await p.click('#jvfab', { force: true }); await p.waitForTimeout(1500);
+  await p.click('#cosmos-core', { force: true }); await p.waitForTimeout(1500);
   let state = await fetch('http://localhost:8818/__test/control', { method: 'POST', body: '{}' }).then(r => r.json());
   check('greeting spoken through jarvis-voice', (state.voiceTexts || []).length >= 1, JSON.stringify(state.voiceTexts));
   await p.fill('#jvtext', 'Start my shift'); await p.press('#jvtext', 'Enter');

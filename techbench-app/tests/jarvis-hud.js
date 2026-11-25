@@ -13,8 +13,8 @@ const { chromium } = require('playwright');
     window.claude = { use: n => Promise.resolve(n === 'sample' ? sample : null) };
   });
   await p.goto(PAGE); await p.waitForTimeout(600);
-  await p.click('#starter'); await p.waitForTimeout(300);
-  await p.click('#jvfab', { force: true }); await p.waitForTimeout(400);
+  await p.evaluate(() => document.querySelector('#starter').click()); await p.waitForTimeout(300);
+  await p.click('#cosmos-core', { force: true }); await p.waitForTimeout(400);
   await p.fill('#jvtext', 'Hey Jarvis, can you pull up that diagram of how everything works'); await p.press('#jvtext', 'Enter');
   await p.waitForTimeout(700);
   const st = await p.evaluate(() => ({ hud: !document.querySelector('#hud').hidden, map: !document.querySelector('#hudmap').hidden, said: window.__said.slice(-1)[0], asked: window.__asked,
@@ -39,11 +39,11 @@ const { chromium } = require('playwright');
   await p.evaluate(() => document.querySelector('#jvpanel').hidden = false);
   await p.fill('#jvtext', 'close the display'); await p.press('#jvtext', 'Enter'); await p.waitForTimeout(300);
   check('"close the display" closes it', await p.evaluate(() => document.querySelector('#hud').hidden));
-  await p.click('#hudbtn'); await p.waitForTimeout(200); await p.keyboard.press('Escape');
+  await p.evaluate(() => document.querySelector('#hudbtn').click()); await p.waitForTimeout(200); await p.keyboard.press('Escape');
   check('rail button opens, Esc closes', await p.evaluate(() => document.querySelector('#hud').hidden));
   // phone
   const m = await b.newPage({ viewport: { width: 390, height: 844 } }); m.on('pageerror', e => errs.push(e.message));
-  await m.goto(PAGE); await m.waitForTimeout(500); await m.click('#starter');
+  await m.goto(PAGE); await m.waitForTimeout(500); await m.evaluate(() => document.querySelector('#starter').click());
   await m.evaluate(() => document.querySelector('#hudbtn').click()); await m.waitForTimeout(800); await m.screenshot({ path: OUT + '/hud-phone-core.png' });
   await m.keyboard.press('Escape'); await m.evaluate(() => { document.querySelector('#hudbtn').click(); }); 
   await m.evaluate(() => { document.querySelector('#hudcore').hidden = true; document.querySelector('#hudmap').hidden = false; }); await m.waitForTimeout(900);

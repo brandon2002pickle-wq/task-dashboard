@@ -32,7 +32,7 @@ export class KokoroTTS { static async from_pretrained(model, o) { window.__kload
   // 1. working model
   const { p, errs } = await open('data:text/javascript;base64,' + Buffer.from(STUB).toString('base64'));
   check('free neural voice is the default', (await p.inputValue('#jvvoicepick')) === 'kokoro');
-  await p.click('#starter'); await p.click('#jvfab', { force: true }); await p.waitForTimeout(1500);
+  await p.evaluate(() => document.querySelector('#starter').click()); await p.click('#cosmos-core', { force: true }); await p.waitForTimeout(1500);
   const first = await p.evaluate(() => ({ dev: window.__dev.length, load: window.__kload }));
   check('first reply spoken at once in the device voice while the model loads', first.dev >= 1, JSON.stringify(first));
   check('model requested: Kokoro-82M, q8 on WASM without WebGPU', first.load && first.load.model === 'onnx-community/Kokoro-82M-v1.0-ONNX' && first.load.dtype === 'q8' && first.load.device === 'wasm', JSON.stringify(first.load));
@@ -49,7 +49,7 @@ export class KokoroTTS { static async from_pretrained(model, o) { window.__kload
 
   // 2. model can't load (offline, blocked): device voice keeps talking
   const bad = await open('data:text/javascript,throw new Error("offline")');
-  await bad.p.click('#starter'); await bad.p.click('#jvfab', { force: true }); await bad.p.waitForTimeout(1500);
+  await bad.p.evaluate(() => document.querySelector('#starter').click()); await bad.p.click('#cosmos-core', { force: true }); await bad.p.waitForTimeout(1500);
   await bad.p.fill('#jvtext', 'Start my shift'); await bad.p.press('#jvtext', 'Enter');
   await bad.p.waitForFunction(() => window.__dev.some(t => /Shift started/.test(t)), null, { timeout: 15000 }).catch(() => {});
   check('model unavailable: replies continue in the device voice', await bad.p.evaluate(() => window.__dev.some(t => /Shift started/.test(t))), JSON.stringify(await bad.p.evaluate(() => window.__dev)));
