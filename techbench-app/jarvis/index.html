@@ -1,0 +1,1170 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2a2468">
+<link rel="icon" href="../icons/icon-192.png">
+<script src="../config.js"></script>
+<script src="hosted.js"></script>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
+</head><body>
+<title>Brandon's Command Centre</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@1&family=Orbitron:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: lavender glass deck. Indigo rail on the left, indigo briefing banner on top, glass cards in a 12-col grid; week strip + feed on the right. */
+:root {
+  --bg: #e9e6f7; --bg-2: #f4f2fc; --glass: rgba(255,255,255,.72); --glass-line: rgba(120,104,214,.16);
+  --ink: #1c1838; --muted: #6c6890; --indigo: #2a2468; --indigo-2: #3a3290; --on-indigo: #f3f1ff; --on-indigo-muted: #b8b2ea;
+  --lime: #d6f25c; --lime-ink: #20240a; --violet: #7b6cf0; --good: #3f9b62; --warn: #c27d12; --bad: #c8475a;
+  --shadow: 0 10px 30px -14px rgba(42,36,104,.35);
+  --font-d: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-s: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-m: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #100e22; --bg-2: #17142f; --glass: rgba(34,30,66,.72); --glass-line: rgba(160,150,255,.16);
+  --ink: #ecebff; --muted: #a29fc9; --indigo: #2b2575; --indigo-2: #3a3394; --on-indigo: #f3f1ff; --on-indigo-muted: #b8b2ea;
+  --lime: #d6f25c; --lime-ink: #20240a; --violet: #9d91ff; --good: #6fd197; --warn: #f0b547; --bad: #ff8a9a;
+  --shadow: 0 14px 34px -16px rgba(0,0,0,.6); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #100e22; --bg-2: #17142f; --glass: rgba(34,30,66,.72); --glass-line: rgba(160,150,255,.16);
+  --ink: #ecebff; --muted: #a29fc9; --indigo: #2b2575; --indigo-2: #3a3394; --on-indigo: #f3f1ff; --on-indigo-muted: #b8b2ea;
+  --lime: #d6f25c; --lime-ink: #20240a; --violet: #9d91ff; --good: #6fd197; --warn: #f0b547; --bad: #ff8a9a;
+  --shadow: 0 14px 34px -16px rgba(0,0,0,.6); color-scheme: dark }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; font-family: var(--font-d); color: var(--ink); font-size: 15px; line-height: 1.45;
+  background: radial-gradient(1200px 600px at 85% -10%, color-mix(in srgb, var(--violet) 22%, transparent), transparent 60%), radial-gradient(900px 500px at -10% 110%, color-mix(in srgb, var(--lime) 18%, transparent), transparent 60%), var(--bg);
+  background-attachment: fixed; min-height: 100vh;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 40px; }
+.shell { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 16px; }
+@media (max-width: 760px) { .shell { grid-template-columns: minmax(0, 1fr); } }
+
+/* rail */
+.rail { position: sticky; top: calc(16px + env(safe-area-inset-top, 0px)); align-self: start; background: var(--indigo); border-radius: 26px; padding: 16px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: calc(100vh - 32px); box-shadow: var(--shadow); }
+.logo { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; color: var(--lime); font-weight: 800; font-size: 20px; letter-spacing: -.04em; margin-bottom: 10px; background: color-mix(in srgb, var(--on-indigo) 8%, transparent); }
+.rail .railink { width: 46px; height: 46px; border-radius: 14px; color: var(--lime); display: grid; place-items: center; position: relative; flex: none; }
+.rail .railink:hover .tip { opacity: 1; }
+.rail .railink .tip { position: absolute; left: 56px; white-space: nowrap; background: var(--ink); color: var(--bg); font-size: 12px; padding: 4px 8px; border-radius: 6px; opacity: 0; pointer-events: none; z-index: 5; }
+.rail button { width: 46px; height: 46px; border-radius: 14px; border: 0; background: transparent; color: var(--on-indigo-muted); cursor: pointer; display: grid; place-items: center; position: relative; transition: background .2s, color .2s; }
+.rail button:hover { color: var(--on-indigo); background: color-mix(in srgb, var(--on-indigo) 10%, transparent); }
+.rail button[aria-current="page"] { background: var(--lime); color: var(--lime-ink); }
+.rail button .tip { position: absolute; left: 56px; white-space: nowrap; background: var(--ink); color: var(--bg); font-size: 12px; padding: 4px 8px; border-radius: 6px; opacity: 0; pointer-events: none; transition: opacity .15s; z-index: 5; }
+.rail button:hover .tip, .rail button:focus-visible .tip { opacity: 1; }
+.rail .spacer { flex: 1; }
+.rail svg { width: 21px; height: 21px; }
+@media (max-width: 760px) {
+  .rail { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; flex-direction: row; min-height: 0; border-radius: 20px; padding: 8px; overflow-x: auto; justify-content: space-between; }
+  .logo { margin: 0 4px 0 0; } .rail .spacer { display: none; } .rail button .tip { display: none; }
+}
+
+main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
+.c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; } .c3 { grid-column: span 3; }
+@media (max-width: 1100px) { .c3, .c4 { grid-column: span 6; } .c5, .c7, .c8 { grid-column: span 12; } }
+@media (max-width: 640px) { .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; } .c3 { grid-column: span 6; } .stat { padding: 14px; } }
+
+.card { background: var(--glass); border: 1px solid var(--glass-line); border-radius: 24px; padding: 18px; box-shadow: var(--shadow); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); min-width: 0; display: flex; flex-direction: column; gap: 12px; animation: rise .5s both; }
+.card:nth-child(2) { animation-delay: .05s } .card:nth-child(3) { animation-delay: .1s } .card:nth-child(4) { animation-delay: .15s } .card:nth-child(5) { animation-delay: .2s } .card:nth-child(6) { animation-delay: .25s }
+@keyframes rise { from { transform: translateY(10px); } to { transform: none; } }
+.card.dark { background: var(--indigo); color: var(--on-indigo); border-color: transparent; }
+.card.dark .muted { color: var(--on-indigo-muted); }
+.head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+h1 { margin: 0; font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.15; text-wrap: balance; }
+h1 em { font-family: var(--font-s); font-style: italic; font-weight: 400; color: var(--lime); font-size: 1.15em; }
+h2 { margin: 0; font-size: 1.05rem; font-weight: 700; letter-spacing: -.01em; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.mono { font-family: var(--font-m); font-variant-numeric: tabular-nums; }
+.pill { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, var(--violet) 14%, transparent); color: var(--violet); white-space: nowrap; }
+.card.dark .pill { background: color-mix(in srgb, var(--on-indigo) 12%, transparent); color: var(--on-indigo); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 3px color-mix(in srgb, var(--lime) 30%, transparent); }
+.btn { font: inherit; font-weight: 700; font-size: 14px; border: 0; border-radius: 999px; padding: 10px 18px; cursor: pointer; background: var(--lime); color: var(--lime-ink); display: inline-flex; align-items: center; gap: 8px; transition: transform .12s; text-decoration: none; }
+.btn:hover { transform: translateY(-1px); } .btn:active { transform: none; }
+.btn.ghost { background: color-mix(in srgb, var(--violet) 12%, transparent); color: var(--ink); }
+.card.dark .btn.ghost { background: color-mix(in srgb, var(--on-indigo) 12%, transparent); color: var(--on-indigo); }
+.btn.sm { padding: 6px 12px; font-size: 13px; }
+.iconbtn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--glass-line); background: var(--glass); color: var(--ink); cursor: pointer; display: grid; place-items: center; font-size: 18px; line-height: 1; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+
+/* hero */
+.hero { padding: 24px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; background: radial-gradient(500px 220px at 90% 0%, var(--indigo-2), transparent 70%), var(--indigo); }
+@media (max-width: 640px) { .hero { grid-template-columns: minmax(0, 1fr); } }
+.hero .sub { max-width: 62ch; }
+.hero .side { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+@media (max-width: 640px) { .hero .side { align-items: flex-start; } }
+.quip { font-family: var(--font-s); font-style: italic; font-size: 1.1rem; color: var(--on-indigo-muted); }
+
+/* week */
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.day { text-align: center; padding: 8px 0; border-radius: 14px; display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted); border: 0; background: transparent; font-family: inherit; cursor: pointer; }
+.day b { font-size: 17px; color: var(--ink); font-weight: 700; }
+.day.today { background: var(--indigo); color: var(--on-indigo-muted); } .day.today b { color: var(--on-indigo); }
+.day .marks { display: flex; gap: 3px; justify-content: center; height: 6px; }
+.day .marks i { width: 5px; height: 5px; border-radius: 50%; background: var(--violet); }
+.day.today .marks i { background: var(--lime); }
+
+/* stats */
+.stat .n { font-size: clamp(1.8rem, 3.4vw, 2.5rem); font-weight: 800; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat .lbl { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.stat .ico { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: color-mix(in srgb, var(--violet) 14%, transparent); color: var(--violet); }
+.stat .ico svg { width: 16px; height: 16px; }
+
+/* projects */
+.proj { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--glass-line); }
+.proj:last-child { border-bottom: 0; }
+.badge { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: var(--lime-ink); }
+.bar { height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--violet) 14%, transparent); overflow: hidden; margin-top: 6px; }
+.bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--violet), var(--indigo-2)); transition: width .6s; }
+.proj .t { font-weight: 700; font-size: 14px; overflow-wrap: anywhere; }
+.proj .s { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.pct { font-family: var(--font-m); font-size: 13px; font-weight: 500; }
+
+/* focus list */
+.focus { display: flex; flex-direction: column; gap: 6px; }
+.focus label { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 14px; background: color-mix(in srgb, var(--violet) 6%, transparent); cursor: pointer; }
+.focus input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--indigo-2); }
+.focus input:checked + span { text-decoration: line-through; color: var(--muted); }
+.x { border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 16px; padding: 0 4px; }
+.addrow { display: flex; gap: 8px; }
+.addrow input { flex: 1; min-width: 0; }
+input, select, textarea { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg-2); border: 1px solid var(--glass-line); border-radius: 12px; padding: 9px 12px; width: 100%; }
+textarea { resize: vertical; min-height: 70px; }
+
+/* print queue */
+.prints { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.print { border-radius: 18px; padding: 12px; background: var(--bg-2); border: 1px solid var(--glass-line); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.print .swatch { height: 54px; border-radius: 12px; display: grid; place-items: center; font-family: var(--font-m); font-size: 12px; color: var(--lime-ink); font-weight: 500; }
+.print .t { font-weight: 700; font-size: 13px; overflow-wrap: anywhere; }
+.chip { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--indigo); color: var(--on-indigo); align-self: flex-start; }
+.chip.printing { background: var(--lime); color: var(--lime-ink); }
+.chip.done { background: color-mix(in srgb, var(--good) 22%, transparent); color: var(--good); }
+.chip.idea { background: color-mix(in srgb, var(--violet) 16%, transparent); color: var(--violet); }
+
+/* feed */
+.tabs { display: flex; gap: 14px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.tabs button { border: 0; background: none; font: inherit; color: inherit; padding: 0 0 4px; cursor: pointer; border-bottom: 2px solid transparent; }
+.tabs button[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); }
+.feed { display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; }
+.ev { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; align-items: start; padding: 8px; border-radius: 14px; background: color-mix(in srgb, var(--violet) 5%, transparent); }
+.ev .av { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font-size: 12px; font-weight: 800; color: var(--lime-ink); }
+.ev .txt { font-size: 13px; overflow-wrap: anywhere; }
+.ev .when { font-size: 11px; color: var(--muted); font-family: var(--font-m); }
+
+/* list views */
+.rows { display: flex; flex-direction: column; gap: 10px; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 14px; border-radius: 18px; background: var(--bg-2); border: 1px solid var(--glass-line); }
+.row .t { font-weight: 700; overflow-wrap: anywhere; }
+.row .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.row .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.form { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.form label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.form .wide { grid-column: 1 / -1; }
+input[type=range] { padding: 0; accent-color: var(--indigo-2); background: transparent; border: 0; }
+.empty { border: 2px dashed var(--glass-line); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; color: var(--muted); }
+.empty b { color: var(--ink); font-size: 15px; }
+.tag-ex { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--warn); border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; margin-left: 6px; vertical-align: 2px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--indigo); color: var(--on-indigo); padding: 10px 16px; border-radius: 999px; font-weight: 600; font-size: 14px; z-index: 20; box-shadow: var(--shadow); }
+/* arc ring */
+.arc { position: relative; width: 132px; height: 132px; flex: none; }
+.arc svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.arc .track { fill: none; stroke: color-mix(in srgb, var(--on-indigo) 12%, transparent); stroke-width: 10; }
+.arc .val { fill: none; stroke: var(--lime); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--lime) 60%, transparent)); }
+.arc .spin { fill: none; stroke: color-mix(in srgb, var(--lime) 35%, transparent); stroke-width: 1.5; stroke-dasharray: 3 9; transform-origin: 50% 50%; animation: spin 18s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.arc .mid { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.arc .mid b { font-size: 28px; font-weight: 800; letter-spacing: -.03em; color: var(--on-indigo); line-height: 1; }
+.arc .mid span { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--on-indigo-muted); margin-top: 4px; }
+.logo.reactor { background: radial-gradient(circle, var(--lime) 0 18%, transparent 19% 34%, color-mix(in srgb, var(--lime) 55%, transparent) 35% 40%, transparent 41%), color-mix(in srgb, var(--on-indigo) 8%, transparent); box-shadow: 0 0 18px -4px var(--lime); }
+/* shift card */
+.shift { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.shift .clock { font-family: var(--font-m); font-size: 26px; font-weight: 500; letter-spacing: -.02em; }
+.onshift { background: linear-gradient(135deg, color-mix(in srgb, var(--lime) 30%, var(--glass)), var(--glass)); }
+/* focus protocol */
+.switch { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--on-indigo); background: color-mix(in srgb, var(--on-indigo) 10%, transparent); border: 0; border-radius: 999px; padding: 6px 12px 6px 6px; font-family: inherit; }
+.switch i { width: 30px; height: 18px; border-radius: 999px; background: color-mix(in srgb, var(--on-indigo) 25%, transparent); position: relative; transition: background .2s; }
+.switch i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--on-indigo); transition: transform .2s; }
+.switch[aria-pressed="true"] i { background: var(--lime); } .switch[aria-pressed="true"] i::after { transform: translateX(12px); background: var(--lime-ink); }
+.focusbig { font-size: clamp(1.3rem, 2.6vw, 1.8rem); font-weight: 800; letter-spacing: -.02em; }
+/* section skins */
+.hero.garage { background: var(--indigo); position: relative; overflow: hidden; }
+.hero.garage::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: repeating-linear-gradient(-45deg, var(--lime) 0 12px, #1d1a3a 12px 24px); }
+.hero.dr { background: radial-gradient(600px 240px at 90% 10%, #6b1f2a, transparent 70%), #17121c; }
+.hero.dr h1 { font-family: var(--font-m); letter-spacing: .04em; text-transform: uppercase; }
+.hero.dr .pill { background: rgba(255,90,90,.16); color: #ff9a9a; }
+.hero.dr .btn { background: #e2574c; color: #fff; }
+.daycount { font-family: var(--font-m); font-size: 13px; color: #ff9a9a; }
+/* J.A.R.V.I.S. assistant */
+.jv-fab { position: fixed; left: 0; top: 0; transform: translate(var(--jx, calc(100vw - 106px)), var(--jy, calc(100vh - 106px))); transition: transform 1.4s cubic-bezier(.45,.05,.2,1); touch-action: none; z-index: 30; width: 88px; height: 88px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; background: radial-gradient(circle, #0b1a30, #03070f 70%); box-shadow: 0 12px 30px -8px rgba(0,60,120,.6), 0 0 0 1px rgba(62,200,255,.35), 0 0 24px -4px rgba(62,200,255,.55); }
+.jv-fab.dragging { transition: none; cursor: grabbing; }
+.jv-fab.flying { box-shadow: 0 0 0 1px rgba(62,200,255,.5), 0 0 40px 2px rgba(62,200,255,.6); }
+.jv-spot { outline: 2px solid rgba(62,200,255,.9); outline-offset: 4px; box-shadow: 0 0 0 8px rgba(62,200,255,.15), var(--shadow) !important; transition: outline-color .4s; }
+.jv-fab canvas { width: 100%; height: 100%; display: block; border-radius: 50%; animation: bob 5s ease-in-out infinite; pointer-events: none; }
+.jv-fab.flip .hint { right: auto; left: 96px; }
+.jv-fab .hint.bubble { white-space: normal; width: max-content; max-width: min(280px, calc(100vw - 140px)); text-align: left; line-height: 1.35; border: 1px solid rgba(62,200,255,.45); box-shadow: 0 0 22px -6px rgba(62,200,255,.7), var(--shadow); animation: pop .25s ease-out; }
+@keyframes pop { from { opacity: 0; transform: translateY(-50%) scale(.9); } to { opacity: 1; transform: translateY(-50%) scale(1); } }
+.jv-fab .hint { position: absolute; right: 96px; top: 50%; transform: translateY(-50%); white-space: nowrap; background: var(--indigo); color: var(--on-indigo); font-size: 13px; font-weight: 600; padding: 8px 12px; border-radius: 14px; box-shadow: var(--shadow); }
+@keyframes bob { 50% { transform: translateY(-6px); } }
+.jv { position: fixed; right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 31; width: min(400px, calc(100vw - 36px)); height: min(600px, calc(100vh - 36px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))); display: flex; flex-direction: column; border-radius: 28px; overflow: hidden; background: var(--indigo); color: var(--on-indigo); box-shadow: 0 30px 60px -20px rgba(20,16,60,.7); }
+.jv-top { display: grid; grid-template-columns: 130px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 14px 14px 10px; background: radial-gradient(300px 140px at 20% 0%, var(--indigo-2), transparent 70%); }
+.jv-top canvas { width: 130px; height: 130px; display: block; border-radius: 50%; background: radial-gradient(circle, #0b1a30, #03070f 72%); }
+.jv-name { font-weight: 800; letter-spacing: .08em; font-size: 15px; }
+.jv-state { font-family: var(--font-m); font-size: 11px; color: var(--lime); letter-spacing: .06em; text-transform: uppercase; }
+.jv-top .iconbtn { background: color-mix(in srgb, var(--on-indigo) 10%, transparent); color: var(--on-indigo); border: 0; }
+.jv-log { flex: 1; overflow-y: auto; padding: 6px 14px 10px; display: flex; flex-direction: column; gap: 8px; background: color-mix(in srgb, #000 12%, transparent); }
+.msg { max-width: 88%; padding: 9px 12px; border-radius: 16px; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; white-space: pre-wrap; }
+.msg.j { align-self: flex-start; background: color-mix(in srgb, var(--on-indigo) 10%, transparent); border-bottom-left-radius: 4px; }
+.msg.u { align-self: flex-end; background: var(--lime); color: var(--lime-ink); border-bottom-right-radius: 4px; }
+.msg.act { align-self: flex-start; font-family: var(--font-m); font-size: 11px; color: var(--lime); background: none; padding: 0 4px; }
+.jv-sugs { display: flex; gap: 6px; overflow-x: auto; padding: 8px 14px 0; scrollbar-width: none; }
+.jv-sugs button { flex: none; font: inherit; font-size: 12px; font-weight: 600; border: 1px solid color-mix(in srgb, var(--on-indigo) 25%, transparent); background: transparent; color: var(--on-indigo); border-radius: 999px; padding: 5px 10px; cursor: pointer; }
+.jv-in { display: flex; gap: 8px; padding: 10px 14px 14px; align-items: flex-end; }
+.jv-in textarea { flex: 1; min-height: 42px; max-height: 120px; resize: none; background: color-mix(in srgb, var(--on-indigo) 10%, transparent); color: var(--on-indigo); border: 1px solid color-mix(in srgb, var(--on-indigo) 18%, transparent); border-radius: 16px; font-size: 15px; }
+.jv-in textarea::placeholder { color: var(--on-indigo-muted); }
+.jv-in .round { width: 42px; height: 42px; border-radius: 50%; border: 0; cursor: pointer; display: grid; place-items: center; flex: none; }
+.round.mic { background: color-mix(in srgb, var(--on-indigo) 14%, transparent); color: var(--on-indigo); }
+.round.mic[aria-pressed="true"] { background: #e2574c; color: #fff; animation: pulse 1.2s infinite; }
+.round.send { background: var(--lime); color: var(--lime-ink); }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(226,87,76,.25); } }
+.jv-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; padding: 0 14px 10px; font-size: 11px; color: var(--on-indigo-muted); }
+.hfbtn { width: 100%; font: inherit; font-size: 13px; font-weight: 700; padding: 8px 12px; border-radius: 999px; cursor: pointer; border: 1px solid rgba(62,200,255,.45); background: transparent; color: #8fe6ff; }
+.hfbtn[aria-pressed="true"] { background: rgba(62,200,255,.16); color: #dff6ff; box-shadow: 0 0 18px -4px rgba(62,200,255,.8); }
+.hftag { top: auto !important; bottom: 100%; transform: none !important; right: 0 !important; margin-bottom: 8px; }
+.vt { width: 100%; color: var(--on-indigo); font-size: 12px; }
+.vt summary { cursor: pointer; font-weight: 700; color: #8fe6ff; padding: 2px 0 6px; }
+.vt label { display: grid !important; grid-template-columns: 82px minmax(0, 1fr) 36px; gap: 8px; align-items: center; margin: 4px 0; }
+.vt select { width: 100% !important; }
+.vt input[type=range] { width: 100%; padding: 0; accent-color: #3ee6ff; background: transparent; border: 0; }
+.vt-row { display: flex; gap: 8px; margin-top: 6px; }
+.vt-row button { font: inherit; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 6px 12px; cursor: pointer; border: 1px solid rgba(62,200,255,.45); background: transparent; color: #dff6ff; }
+.vt-note { margin-top: 6px; color: var(--on-indigo-muted); }
+.jv-foot label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; white-space: nowrap; }
+.jv-foot input[type=checkbox] { width: 16px; height: 16px; padding: 0; accent-color: var(--lime); }
+.jv-foot select { width: auto; padding: 2px 6px; font-size: 11px; background: color-mix(in srgb, var(--on-indigo) 10%, transparent); color: var(--on-indigo); border: 0; border-radius: 6px; }
+@media (max-width: 520px) { .jv { right: 0; left: 0; bottom: 0; width: 100%; border-radius: 24px 24px 0 0; height: min(78vh, 620px); padding-bottom: env(safe-area-inset-bottom, 0px); } }
+.storeline { font-size: 12px; color: var(--muted); font-family: var(--font-m); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* ===== SHOP MODE: on shift the deck becomes J.A.R.V.I.S.'s holographic HUD ===== */
+:root[data-mode="shop"] {
+  --bg: #04070e; --bg-2: rgba(10,26,44,.7); --glass: rgba(8,20,36,.72); --glass-line: rgba(62,230,255,.22);
+  --ink: #dff6ff; --muted: #7fa3b8; --indigo: rgba(6,16,30,.92); --indigo-2: #0c2442; --on-indigo: #dff6ff; --on-indigo-muted: #8fb4c8;
+  --lime: #3ee6ff; --lime-ink: #00141c; --violet: #7c8cff; --good: #5cffc8; --warn: #ffcf5c; --bad: #ff6b8a;
+  --shadow: 0 0 0 1px rgba(62,230,255,.08), 0 18px 40px -20px rgba(0,180,255,.35); --font-h: 'Orbitron', 'Plus Jakarta Sans', sans-serif; color-scheme: dark;
+}
+:root[data-mode="shop"] body {
+  background:
+    radial-gradient(900px 500px at 70% -10%, rgba(0,170,255,.22), transparent 60%),
+    radial-gradient(700px 500px at 0% 100%, rgba(124,140,255,.16), transparent 60%),
+    linear-gradient(rgba(62,230,255,.06) 1px, transparent 1px) 0 0 / 44px 44px,
+    linear-gradient(90deg, rgba(62,230,255,.06) 1px, transparent 1px) 0 0 / 44px 44px, var(--bg);
+  background-attachment: fixed;
+}
+:root[data-mode="shop"] body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 40; background: repeating-linear-gradient(180deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px); }
+:root[data-mode="shop"] .card { border-radius: 4px; clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  background: linear-gradient(var(--lime), var(--lime)) left top / 28px 2px no-repeat, linear-gradient(var(--lime), var(--lime)) right bottom / 28px 2px no-repeat, var(--glass);
+  border: 1px solid var(--glass-line); box-shadow: inset 0 0 30px -10px rgba(62,230,255,.25); }
+:root[data-mode="shop"] .rail { border-radius: 6px; background: rgba(6,16,30,.85); border: 1px solid var(--glass-line); box-shadow: 0 0 30px -10px rgba(62,230,255,.4); }
+:root[data-mode="shop"] .rail button[aria-current="page"] { background: transparent; color: var(--lime); box-shadow: inset 0 0 0 1px var(--lime), 0 0 14px -2px var(--lime); }
+:root[data-mode="shop"] h1 { font-family: var(--font-h); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: clamp(1.3rem, 2.6vw, 1.9rem); text-shadow: 0 0 18px rgba(62,230,255,.35); }
+:root[data-mode="shop"] h1 em { font-family: inherit; font-style: normal; font-size: 1em; color: var(--lime); }
+:root[data-mode="shop"] h2 { font-family: var(--font-m); font-size: 12px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--lime); }
+:root[data-mode="shop"] h2::before { content: "// "; opacity: .6; }
+:root[data-mode="shop"] .quip { font-family: var(--font-m); font-style: normal; font-size: .88rem; color: var(--lime); }
+:root[data-mode="shop"] .quip::before { content: "J.A.R.V.I.S. › "; opacity: .6; }
+:root[data-mode="shop"] .pill { border-radius: 3px; font-family: var(--font-m); letter-spacing: .06em; background: rgba(62,230,255,.1); color: var(--lime); border: 1px solid var(--glass-line); }
+:root[data-mode="shop"] .btn { border-radius: 4px; background: transparent; color: var(--lime); box-shadow: inset 0 0 0 1px var(--lime), 0 0 16px -4px var(--lime); font-family: var(--font-m); text-transform: uppercase; letter-spacing: .08em; font-size: 12px; }
+:root[data-mode="shop"] .btn:hover { background: rgba(62,230,255,.12); }
+:root[data-mode="shop"] .btn.ghost { box-shadow: inset 0 0 0 1px var(--glass-line); color: var(--ink); }
+:root[data-mode="shop"] .switch { border-radius: 4px; font-family: var(--font-m); }
+:root[data-mode="shop"] .day.today { background: rgba(62,230,255,.15); box-shadow: inset 0 0 0 1px var(--lime); }
+:root[data-mode="shop"] .jv, :root[data-mode="shop"] .jv-fab { background: rgba(4,12,24,.95); box-shadow: 0 0 0 1px var(--glass-line), 0 0 40px -8px rgba(62,230,255,.5); }
+:root[data-mode="shop"] .jv { border-radius: 6px; }
+:root[data-mode="shop"] .msg.u { background: rgba(62,230,255,.18); color: var(--ink); }
+:root[data-mode="shop"] .onshift { background: linear-gradient(var(--lime), var(--lime)) left top / 28px 2px no-repeat, linear-gradient(var(--lime), var(--lime)) right bottom / 28px 2px no-repeat, var(--glass); }
+:root[data-mode="shop"] .shift .clock { font-family: var(--font-h); font-size: 36px; font-weight: 700; color: var(--lime); text-shadow: 0 0 18px rgba(62,230,255,.6); }
+:root[data-mode="shop"] .arc { display: none; }
+.holo-core { display: none; }
+:root[data-mode="shop"] .holo-core { display: block; width: 240px; height: 240px; flex: none; position: relative; }
+:root[data-mode="shop"] .holo-core canvas { width: 100%; height: 100%; display: block; }
+:root[data-mode="shop"] .holo-core .ro { position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); white-space: nowrap; font-family: var(--font-m); font-size: 10px; letter-spacing: .18em; color: var(--lime); }
+.readouts { display: none; }
+:root[data-mode="shop"] .readouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.readouts div { border: 1px solid var(--glass-line); border-radius: 3px; padding: 8px 10px; background: rgba(62,230,255,.05); min-width: 0; }
+.readouts span { display: block; font-family: var(--font-m); font-size: 10px; letter-spacing: .16em; color: var(--muted); text-transform: uppercase; }
+.readouts b { font-family: var(--font-h); font-size: 18px; color: var(--ink); letter-spacing: .04em; }
+.shoponly { display: none !important; }
+:root[data-mode="shop"] .shoponly { display: flex !important; }
+:root[data-mode="shop"] .grid.shoponly { display: grid !important; }
+:root[data-mode="shop"] .offshoponly { display: none !important; }
+.checks { display: flex; flex-direction: column; gap: 4px; }
+.checks label { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: center; padding: 8px 10px; border-radius: 3px; background: var(--bg-2); border: 1px solid transparent; cursor: pointer; font-size: 14px; }
+.checks label:hover { border-color: var(--glass-line); }
+.checks input { width: 18px; height: 18px; accent-color: var(--lime); }
+.checks input:checked + span { color: var(--muted); text-decoration: line-through; }
+.shoplinks { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.shoplinks a { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 3px; background: var(--bg-2); border: 1px solid var(--glass-line); color: var(--ink); text-decoration: none; font-weight: 700; font-size: 14px; }
+.shoplinks a small { font-weight: 400; color: var(--muted); font-size: 12px; font-family: var(--font-m); }
+.shoplinks a:hover { border-color: var(--lime); box-shadow: 0 0 16px -6px var(--lime); }
+@media (max-width: 640px) { .shift { grid-template-columns: minmax(0, 1fr); } :root[data-mode="shop"] .holo-core { width: 180px; height: 180px; } :root[data-mode="shop"] .readouts { grid-template-columns: minmax(0, 1fr); } }
+
+/* the holographic hand-over */
+.door { position: fixed; inset: 0; z-index: 50; pointer-events: none; opacity: 0; display: grid; place-items: center; background: radial-gradient(circle at 50% 50%, rgba(0,40,70,.92), rgba(2,6,12,.97) 70%); overflow: hidden; }
+.door .ring { position: absolute; left: 50%; top: 50%; width: 40vmax; height: 40vmax; margin: -20vmax 0 0 -20vmax; border-radius: 50%; border: 2px solid #3ee6ff; box-shadow: 0 0 40px #3ee6ff, inset 0 0 40px rgba(62,230,255,.5); transform: scale(0); opacity: 0; }
+.door .scan { position: absolute; left: 0; right: 0; height: 2px; top: 0; background: #3ee6ff; box-shadow: 0 0 24px 6px rgba(62,230,255,.6); opacity: 0; }
+.door .txt { position: relative; text-align: center; font-family: 'Orbitron', 'JetBrains Mono', monospace; color: #dff6ff; padding: 0 16px; }
+.door #doortext { display: block; font-size: clamp(1.6rem, 6vw, 3.6rem); font-weight: 700; letter-spacing: .14em; text-shadow: 0 0 24px rgba(62,230,255,.8); }
+.door #doorsub { display: block; margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: .2em; color: #3ee6ff; min-height: 1.4em; }
+.door.down { animation: holoIn .4s ease-out forwards; }
+.door.down .ring { animation: ringOut 1.1s cubic-bezier(.2,.8,.2,1) forwards; }
+.door.down .scan { animation: scan 1s linear .1s forwards; }
+.door.up { animation: holoOut .55s ease-in forwards; }
+@keyframes holoIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes holoOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes ringOut { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes scan { 0% { top: 0; opacity: 1; } 100% { top: 100%; opacity: .2; } }
+@media (prefers-reduced-motion: reduce) { .door { display: none; } }
+</style>
+
+<div class="shell">
+  <nav class="rail" aria-label="Sections">
+    <div class="logo reactor" aria-hidden="true"></div>
+    <button type="button" data-view="overview" aria-label="Overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span class="tip">Overview</span></button>
+    <button type="button" data-view="projects" aria-label="Projects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h6"/><circle cx="18" cy="16" r="3"/></svg><span class="tip">Projects</span></button>
+    <button type="button" data-view="garage" aria-label="Garage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l2-5a2 2 0 0 1 2-1.4h10A2 2 0 0 1 19 8l2 5v4h-2"/><path d="M5 17H3v-4h18"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/></svg><span class="tip">Garage</span></button>
+    <button type="button" data-view="prints" aria-label="Print queue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v4H4z"/><path d="M12 8v5"/><path d="M9 13h6l-3 4z"/><path d="M3 21h18"/></svg><span class="tip">Print queue</span></button>
+    <button type="button" data-view="ideas" aria-label="Ideas vault"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg><span class="tip">Ideas vault</span></button>
+    <button type="button" data-view="deadreckoning" aria-label="DEAD RECKONING"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="2"/></svg><span class="tip">DEAD RECKONING</span></button>
+    <span class="spacer"></span>
+  </nav>
+  <main id="main" aria-live="polite"></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+<div class="door" id="door" aria-hidden="true"><span class="ring"></span><span class="scan"></span><div class="txt"><span id="doortext">SHOP MODE</span><span id="doorsub"></span></div></div>
+
+<button class="jv-fab" type="button" id="jvfab" aria-label="Talk to J.A.R.V.I.S."><canvas id="jvc1" width="176" height="176"></canvas><span class="hint" id="jvhint">Tap to talk, Sir</span><span class="hint hftag" id="hftag" hidden>Listening for “Hey Jarvis”</span></button>
+<section class="jv" id="jvpanel" hidden aria-label="J.A.R.V.I.S.">
+  <div class="jv-top"><canvas id="jvc2" width="260" height="260" aria-hidden="true"></canvas>
+    <div style="min-width:0"><div class="jv-name">J.A.R.V.I.S.</div><div class="jv-state" id="jvstate">Standby</div><div class="small" style="color:var(--on-indigo-muted)">Your command centre assistant</div></div>
+    <button class="iconbtn" type="button" id="jvclose" aria-label="Close">×</button></div>
+  <div class="jv-log" id="jvlog" aria-live="polite"></div>
+  <div class="jv-sugs" id="jvsugs"></div>
+  <form class="jv-in" id="jvform">
+    <button class="round mic" type="button" id="jvmic" aria-label="Speak" aria-pressed="false" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+    <textarea id="jvtext" rows="1" placeholder="Ask me anything, Sir" aria-label="Message J.A.R.V.I.S."></textarea>
+    <button class="round send" type="submit" aria-label="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </form>
+  <div class="jv-foot" style="padding-bottom:4px"><button class="hfbtn" type="button" id="hfbtn" aria-pressed="false" hidden>Hands-free “Hey Jarvis”</button></div>
+  <div class="jv-foot"><label><input type="checkbox" id="jvvoice" checked> Speak replies</label>
+    <details class="vt" id="vt"><summary>Voice tuning</summary>
+      <label>Device voice <select id="vt-voice"></select></label>
+      <label>Pitch <input id="vt-pitch" type="range" min="0.6" max="1.3" step="0.02"><span id="vt-pv" class="mono"></span></label>
+      <label>Pace <input id="vt-rate" type="range" min="0.75" max="1.25" step="0.01"><span id="vt-rv" class="mono"></span></label>
+      <div class="vt-row"><button type="button" id="vt-test">Test voice</button><button type="button" id="vt-preset">J.A.R.V.I.S. preset</button></div>
+      <div class="vt-note" id="vt-note"></div></details>
+    <label>Chatter <select id="jvchatter"><option value="talk">Talkative</option><option value="quiet">Bubbles only</option><option value="silent">Silent</option></select></label>
+    <label>Voice <select id="jvvoicepick"><option value="british">British device voice (Edge: Ryan Natural)</option><option value="claude-gb">Claude voice, British</option><option value="rounded">Rounded</option><option value="glassy">Glassy</option><option value="buttery">Buttery</option><option value="airy">Airy</option></select></label></div>
+</section>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+let toastT; const toast = m => { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2200); };
+
+/* ---------- reference ---------- */
+const AREAS = {
+  vehicle: { name: 'Vehicle', c: '#d6f25c' }, print: { name: '3D printing', c: '#b8acff' }, business: { name: 'Business', c: '#9fe3c2' },
+  game: { name: 'DEAD RECKONING', c: '#ffb38a' }, jarvis: { name: 'Command centre', c: '#8fd3ff' }, work: { name: 'Shop', c: '#f6d36b' }, shift: { name: 'Shift', c: '#f6d36b' }
+};
+const QUIPS = {
+  any: ['All systems nominal. One of them is you.', 'I have taken the liberty of not judging the print queue.', 'A fine day to finish something, Sir. Statistically.', 'Your ideas vault is growing faster than your free time.', 'Coffee level unknown. Proceed with caution.', 'Should you need me, I shall be here. Indexing your ambitions.'],
+  morning: ['Good morning. The coffee is not my department, but I approve.', 'Torque wrenches calibrated, Sir. Metaphorically.'],
+  night: ['It is late, Sir. The zombies will still be there tomorrow.', 'Burning the midnight oil again. I have logged it under "passion".', 'Sleep is also a maintenance interval, Sir.'],
+  shift: ['On shift. I shall keep the side projects quiet until you clock out.', 'Shop mode engaged. Pull the PSR before you touch anything, Sir.', 'Machines first, empire later.'],
+  busy: ['Several fronts open at once. Very Napoleonic, Sir.', 'Busy week. I have cleared your calendar of nothing, as there was nothing to clear.'],
+  quiet: ['A quiet board. Either discipline or the calm before a print failure.', 'Nothing moving. I await your instructions with professional patience.'],
+  game: ['The undead in DEAD RECKONING remain unbothered by deadlines.', 'A survival game made by a man who survives Monday shifts. Authentic.']
+};
+function pickQuip(ctx) {
+  const h = new Date().getHours(), pool = [...QUIPS.any];
+  if (h >= 5 && h < 11) pool.push(...QUIPS.morning);
+  if (h >= 22 || h < 5) pool.push(...QUIPS.night, ...QUIPS.night);
+  if (ctx.onShift) return QUIPS.shift[(new Date().getMinutes() >> 2) % QUIPS.shift.length];
+  if (ctx.active >= 3) pool.push(...QUIPS.busy); else if (!ctx.active) pool.push(...QUIPS.quiet);
+  if (ctx.game) pool.push(...QUIPS.game);
+  return pool[(new Date().getDate() * 7 + h) % pool.length];
+}
+const SHOPCHECKS = [
+  'Pull a Product Status Report (PSR) before the repair',
+  'Key out, lockout / tagout as the job requires',
+  'Chock tracks or wheels, lower attachments to the ground',
+  'Record active and logged codes',
+  'Photos before teardown',
+  'Log steps and findings on the work order as you go',
+  'Pull a PSR after the repair',
+  'Clean up, final walk-around and test run'
+];
+let modeLock = false;
+function applyMode() { if (modeLock) return; const on = !!(S.items.get('shift') || {}).on; document.documentElement.dataset.mode = on ? 'shop' : ''; }
+function setShift(on) {
+  const s = { ...(S.items.get('shift') || {}), id: 'shift', type: 'shift' };
+  if (on === !!s.on) return;
+  const door = document.getElementById('door'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (on) { s.on = true; s.since = Date.now(); s.checks = []; } else { s.on = false; s.last = Date.now() - s.since; s.ended = Date.now(); }
+  if (reduce || !door) { save(s, on ? 'Shift started: shop mode' : 'Shift ended after ' + fmtDur(s.last)); applyMode(); render(); toast(on ? 'Shop mode engaged' : 'Shift logged. Welcome back, Sir.'); return; }
+  modeLock = true;
+  document.getElementById('doortext').textContent = on ? 'SHOP MODE' : 'STANDING DOWN';
+  const sub = document.getElementById('doorsub'), line = on ? 'J.A.R.V.I.S. › SHOP SYSTEMS ONLINE' : 'J.A.R.V.I.S. › SHIFT LOGGED · ' + fmtDur(s.last);
+  sub.textContent = '';
+  door.className = 'door down';
+  let i = 0; const typer = setInterval(() => { sub.textContent = line.slice(0, ++i) + (i < line.length ? '▍' : ''); if (i >= line.length) clearInterval(typer); }, 28);
+  setTimeout(() => {
+    save(s, on ? 'Shift started: shop mode' : 'Shift ended after ' + fmtDur(s.last));
+    modeLock = false; applyMode(); render(); scrollTo(0, 0);
+    setTimeout(() => { door.className = 'door up'; toast(on ? 'Shop mode engaged' : 'Shift logged. Welcome back, Sir.'); setTimeout(() => door.className = 'door', 600); }, 700);
+  }, 900);
+}
+let prefs = { focus: false }; try { prefs = { ...prefs, ...JSON.parse(localStorage.getItem('cc.prefs') || '{}') }; } catch (e) {}
+const savePrefs = () => { try { localStorage.setItem('cc.prefs', JSON.stringify(prefs)); } catch (e) {} };
+const fmtDur = ms => { const m = Math.floor(ms / 60000); return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
+const STATUS = { idea: 'Idea', active: 'Active', paused: 'Paused', done: 'Done' };
+const PSTATE = { queued: 'Queued', printing: 'Printing', done: 'Done' };
+const ISTAGE = { raw: 'Raw', research: 'Researching', numbers: 'Running numbers', go: 'Worth a go', shelved: 'Shelved' };
+const VIEWS = ['overview', 'projects', 'garage', 'prints', 'ideas', 'deadreckoning'];
+
+/* ---------- storage: private per-user db, else this browser ---------- */
+const S = { items: new Map(), log: [] };
+let coll = null, logDoc = null, mode = 'local', loaded = false;
+const lsGet = () => { try { const d = JSON.parse(localStorage.getItem('cc.items') || '[]'); d.forEach(o => S.items.set(o.id, o)); S.log = JSON.parse(localStorage.getItem('cc.log') || '[]'); } catch (e) {} };
+const lsPut = () => { try { localStorage.setItem('cc.items', JSON.stringify([...S.items.values()])); localStorage.setItem('cc.log', JSON.stringify(S.log)); } catch (e) {} };
+const writing = {};
+async function save(o, logText) {
+  o.updated = Date.now(); if (!o.created) o.created = o.updated; S.items.set(o.id, o);
+  if (logText) logIt(logText, o.area || o.type);
+  if (mode !== 'db') { lsPut(); render(); return; }
+  render();
+  if (writing[o.id]) { writing[o.id].again = true; return; }
+  writing[o.id] = { again: false };
+  try { do { writing[o.id].again = false; await coll.doc(o.id).set(JSON.parse(JSON.stringify(S.items.get(o.id)))); } while (writing[o.id].again); }
+  catch (e) { toast(e.code === 'quota_exceeded' ? 'Storage is full. Delete a few old entries.' : 'Couldn\'t save. Check your connection.'); }
+  finally { delete writing[o.id]; }
+}
+async function del(id) {
+  const o = S.items.get(id); S.items.delete(id); if (o) logIt('Removed ' + o.title, o.area || o.type);
+  if (mode === 'db') { try { await coll.doc(id).delete(); } catch (e) { toast('Couldn\'t delete.'); } } else lsPut();
+  render();
+}
+let logTimer;
+function logIt(text, area) {
+  S.log.unshift({ at: Date.now(), text, area }); S.log = S.log.slice(0, 60);
+  if (mode === 'db') { clearTimeout(logTimer); logTimer = setTimeout(() => logDoc.set({ events: S.log }).catch(() => {}), 700); } else lsPut();
+}
+const items = type => [...S.items.values()].filter(o => o.type === type).sort((a, b) => (b.updated || 0) - (a.updated || 0));
+
+/* ---------- starter board (marked as starters) ---------- */
+function loadStarters() {
+  const st = { starter: true };
+  [
+    { type: 'project', area: 'game', title: 'DEAD RECKONING: core survival loop', next: 'Prototype scavenge → craft → defend cycle', pct: 15, status: 'active' },
+    { type: 'project', area: 'print', title: 'Shop organiser prints', next: 'Measure the bench drawer and model inserts', pct: 30, status: 'active' },
+    { type: 'project', area: 'vehicle', title: 'Vehicle project', next: 'List parts needed and price them', pct: 10, status: 'active' },
+    { type: 'project', area: 'business', title: 'First side-business idea', next: 'Pick one idea and run the numbers', pct: 5, status: 'idea' },
+    { type: 'project', area: 'jarvis', title: 'J.A.R.V.I.S. command centre', next: 'Decide what the next panel should do', pct: 40, status: 'active' },
+    { type: 'print', title: 'Socket rail holder', material: 'PETG', hours: '3.5', state: 'queued' },
+    { type: 'print', title: 'Cable clips (x10)', material: 'PLA', hours: '1.2', state: 'printing' },
+    { type: 'idea', title: 'Custom 3D-printed parts for compact equipment owners', stage: 'research', note: 'Check what can be printed safely vs. what must be OEM' },
+    { type: 'idea', title: 'DEAD RECKONING devlog channel', stage: 'raw', note: '' },
+    { type: 'game', title: 'Movement + camera feel', state: 'active', note: 'First-person controller tuned' },
+    { type: 'game', title: 'Inventory & crafting', state: 'idea', note: '' },
+    { type: 'task', title: 'Pick tonight\'s one thing', done: false },
+    { type: 'task', title: 'Clear one item from the print queue', done: false }
+  ].forEach(o => save({ id: uid(), ...o, ...st }));
+  logIt('Starter board loaded. Edit or delete anything that isn\'t yours.', 'jarvis');
+  toast('Starter board loaded');
+}
+
+/* ---------- helpers ---------- */
+const icon = { proj: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h6"/></svg>', print: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v4H4zM12 8v5M9 13h6l-3 4zM3 21h18"/></svg>', idea: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>', car: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13l2-5a2 2 0 0 1 2-1.4h10A2 2 0 0 1 19 8l2 5v4H3z"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/></svg>' };
+const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'just now' : m < 60 ? m + 'm ago' : m < 1440 ? Math.round(m / 60) + 'h ago' : Math.round(m / 1440) + 'd ago'; };
+const ex = o => o.starter ? '<span class="tag-ex">starter</span>' : '';
+function greet() { const h = new Date().getHours(); return h < 5 ? 'Still up, Sir' : h < 12 ? 'Good morning, Sir' : h < 17 ? 'Good afternoon, Sir' : 'Good evening, Sir'; }
+function countUp(root) {
+  root.querySelectorAll('[data-count]').forEach(el => {
+    const to = +el.dataset.count, suf = el.dataset.suf || '';
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = to + suf; return; }
+    const t0 = performance.now(), d = 700;
+    const step = t => { const k = Math.min(1, (t - t0) / d), v = Math.round(to * (1 - Math.pow(1 - k, 3))); el.textContent = v + suf; if (k < 1) requestAnimationFrame(step); };
+    el.textContent = '0' + suf; requestAnimationFrame(step);
+  });
+}
+
+/* ---------- views ---------- */
+let view = (location.hash || '#overview').slice(1); if (!VIEWS.includes(view)) view = 'overview';
+let feedTab = 'all', weekPick = null;
+document.querySelectorAll('.rail button[data-view]').forEach(b => b.onclick = () => { location.hash = b.dataset.view; });
+addEventListener('hashchange', () => { const v = location.hash.slice(1); view = VIEWS.includes(v) ? v : 'overview'; render(); scrollTo(0, 0); setTimeout(() => { if (typeof flyTo === 'function' && $('#jvpanel').hidden) flyTo(document.querySelector('.hero h1'), true); setTimeout(() => say(navLine(view)), 1200); }, 120); });
+
+function render() {
+  applyMode();
+  document.querySelectorAll('.rail button[data-view]').forEach(b => b.setAttribute('aria-current', b.dataset.view === view ? 'page' : 'false'));
+  const m = $('#main');
+  if (view === 'overview') overview(m);
+  else if (view === 'projects') listView(m, 'project');
+  else if (view === 'garage') listView(m, 'vehicle');
+  else if (view === 'prints') listView(m, 'print');
+  else if (view === 'ideas') listView(m, 'idea');
+  else listView(m, 'game');
+  countUp(m);
+}
+
+function overview(m) {
+  const P = items('project'), PR = items('print'), I = items('idea'), T = items('task'), V = items('vehicle');
+  const active = P.filter(p => p.status === 'active'), queued = PR.filter(p => p.state !== 'done'), printing = PR.find(p => p.state === 'printing');
+  const goIdeas = I.filter(i => i.stage === 'go' || i.stage === 'numbers');
+  const tasksLeft = T.filter(t => !t.done).length;
+  const verdict = active.length >= 3 ? 'a <em>busy</em> week' : active.length ? 'a <em>steady</em> week' : 'a <em>quiet</em> week';
+  const today = new Date(); const dow = (today.getDay() + 6) % 7; const mon = new Date(today); mon.setDate(today.getDate() - dow);
+  const dayMarks = d => { const s = new Date(d); s.setHours(0, 0, 0, 0); const e = s.getTime() + 864e5; return S.log.filter(x => x.at >= s.getTime() && x.at < e).length; };
+  const shift = S.items.get('shift') || { on: false };
+  const quip = pickQuip({ onShift: shift.on, active: active.length, game: items('game').length });
+  const empty = !S.items.size || (S.items.size === 1 && S.items.has('shift'));
+  const overall = active.length ? Math.round(active.reduce((s, p) => s + (p.pct || 0), 0) / active.length) : 0;
+  const C = 2 * Math.PI * 54;
+  const top = [...active].sort((a, b) => (b.pct || 0) - (a.pct || 0) || (b.updated || 0) - (a.updated || 0))[0];
+
+  m.innerHTML = `
+  <section class="card dark hero">
+    <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="pill"><span class="dot"></span> J.A.R.V.I.S. online</span>
+        <button class="switch" type="button" id="focusbtn" aria-pressed="${prefs.focus}"><i></i>Focus Protocol</button></div>
+      <h1>${shift.on ? 'Shop mode, Sir. <em>Machines first.</em>' : greet() + '. You\'re having ' + verdict + '.'}</h1>
+      <p class="sub muted" style="margin:0">${shift.on ? `On the clock since ${new Date(shift.since).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}. Pre-job checklist ${(shift.checks || []).length}/${SHOPCHECKS.length}. Side projects are parked until you clock out.` : empty ? 'The board is empty. Load the starter board or add your first project, and I\'ll keep score.' :
+        `${active.length} project${active.length === 1 ? '' : 's'} moving, ${queued.length} print${queued.length === 1 ? '' : 's'} in the queue${printing ? ' (one on the bed now)' : ''}, ${goIdeas.length} idea${goIdeas.length === 1 ? '' : 's'} worth a proper look, and ${tasksLeft} thing${tasksLeft === 1 ? '' : 's'} on today's list.`}</p>
+      <div class="quip">${shift.on ? esc(quip) : '"' + esc(quip) + '"'}</div>
+      ${shift.on ? `<div class="readouts"><div><span>On the clock</span><b id="ro-clock">${fmtDur(Date.now() - shift.since)}</b></div><div><span>Pre-job checks</span><b>${(shift.checks || []).length}/${SHOPCHECKS.length}</b></div><div><span>Shop notes</span><b>${items('task').filter(t => t.area === 'work' && !t.done).length} open</b></div></div>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" type="button" id="herotalk">Talk to J.A.R.V.I.S.</button>
+        ${empty ? '<button class="btn ghost" type="button" id="starter">Load starter board</button>' : '<button class="btn ghost" type="button" data-go="projects">New project</button>'}
+      </div>
+    </div>
+    <div class="side">
+      ${shift.on ? `<div class="holo-core" aria-hidden="true"><canvas id="jvc3" width="480" height="480"></canvas><span class="ro">J.A.R.V.I.S. · SHOP SYSTEMS ONLINE</span></div>` : ''}
+      <div class="arc" role="img" aria-label="Overall progress across active projects: ${overall} percent">
+        <svg viewBox="0 0 132 132"><circle class="spin" cx="66" cy="66" r="63"/><circle class="track" cx="66" cy="66" r="54"/><circle class="val" id="arcval" cx="66" cy="66" r="54" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg>
+        <div class="mid"><b data-count="${overall}" data-suf="%">${overall}%</b><span>All projects</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card shift ${shift.on ? 'onshift' : ''}">
+    <div style="min-width:0"><div class="head" style="justify-content:flex-start;gap:10px"><h2>${shift.on ? 'On shift' : 'Off shift'}</h2><span class="pill">Technician B · CCE · D435</span></div>
+      <div class="small muted">${shift.on ? 'Clocked in ' + new Date(shift.since).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + '. Side projects are on hold.' : (shift.last ? 'Last shift ' + fmtDur(shift.last) + ' long, ended ' + ago(shift.ended) + '.' : 'Start a shift and I\'ll keep time and keep the side projects quiet.')}</div></div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end">${shift.on ? `<span class="clock" id="shiftclock">${fmtDur(Date.now() - shift.since)}</span>` : ''}<button class="btn ${shift.on ? 'ghost' : ''}" type="button" id="shiftbtn">${shift.on ? 'End shift' : 'Start shift'}</button></div>
+  </section>
+
+  <div class="grid shoponly">
+    <section class="card c7"><div class="head"><h2>Pre-job checklist</h2><span class="small muted">${(shift.checks || []).length}/${SHOPCHECKS.length} done this shift</span></div>
+      <div class="checks">${SHOPCHECKS.map((c, i) => `<label><input type="checkbox" data-shopcheck="${i}" ${(shift.checks || []).includes(i) ? 'checked' : ''}><span>${esc(c)}</span></label>`).join('')}</div>
+      <div class="small muted">Resets when you start your next shift. Specs and procedures come from SIS or the OEM manual, not from me.</div></section>
+    <section class="card c5"><div class="head"><h2>Shop links</h2></div>
+      <div class="shoplinks">
+        <a href="https://sis2.cat.com/" target="_blank" rel="noopener">Cat SIS 2.0<small>Parts, schematics, troubleshooting</small></a>
+        <a href="https://partscatalog.deere.com/" target="_blank" rel="noopener">Deere Parts<small>Search by PIN</small></a>
+        <a href="https://www.bobcat.com/na/en/parts-service/parts-catalog" target="_blank" rel="noopener">Bobcat Parts<small>Search by serial</small></a>
+      </div>
+      <div class="head"><h2>Shop notes</h2></div>
+      <div class="focus">${items('task').filter(t => t.area === 'work').map(t => `<label><input type="checkbox" data-task="${t.id}" ${t.done ? 'checked' : ''}><span>${esc(t.title)}</span><button class="x" type="button" data-del="${t.id}" aria-label="Remove">×</button></label>`).join('') || '<span class="small muted">Quick notes for this shift: parts to grab, call-backs, reminders.</span>'}</div>
+      <form class="addrow" id="shopnoteform"><input id="shopnote" placeholder="e.g. Grab seal kit from parts counter" aria-label="Shop note"><button class="btn sm" type="submit">Add</button></form></section>
+  </div>
+
+  ${prefs.focus ? `<section class="card"><div class="head"><h2>Focus Protocol</h2><span class="pill">Everything else is hidden</span></div>
+    ${top ? `<div class="focusbig">${esc(top.title)}</div><div class="muted">Next: ${esc(top.next || 'not set')}</div><div class="bar" style="height:12px"><i style="width:${top.pct || 0}%"></i></div><div class="small muted">${top.pct || 0}% done. I shall hold your calls, Sir.</div>` : '<div class="muted">No active project to focus on. Add one under Projects.</div>'}
+  </section>` : ''}
+
+  <div class="offshoponly" ${prefs.focus ? 'hidden' : 'style="display:flex;flex-direction:column;gap:16px"'}>
+  <div class="grid">
+    <section class="card stat c3"><span class="lbl"><span class="ico">${icon.proj}</span>Active projects</span><span class="n" data-count="${active.length}">${active.length}</span><span class="small muted">${P.length} on the board</span></section>
+    <section class="card stat c3"><span class="lbl"><span class="ico">${icon.print}</span>Print queue</span><span class="n" data-count="${queued.length}">${queued.length}</span><span class="small muted">${queued.reduce((h, p) => h + (parseFloat(p.hours) || 0), 0).toFixed(1)} h of printing</span></section>
+    <section class="card stat c3"><span class="lbl"><span class="ico">${icon.idea}</span>Ideas vault</span><span class="n" data-count="${I.length}">${I.length}</span><span class="small muted">${goIdeas.length} worth a proper look</span></section>
+    <section class="card stat c3"><span class="lbl"><span class="ico">${icon.car}</span>Garage</span><span class="n" data-count="${V.length}">${V.length}</span><span class="small muted">${V.filter(v => v.due).length} with work due</span></section>
+  </div>
+
+  <div class="grid">
+    <section class="card c7">
+      <div class="head"><h2>Projects</h2><button class="iconbtn" type="button" data-go="projects" aria-label="Open projects">+</button></div>
+      ${P.length ? P.slice(0, 6).map(p => { const a = AREAS[p.area] || AREAS.jarvis; return `<div class="proj"><span class="badge" style="background:${a.c}">${esc(a.name.slice(0, 2).toUpperCase())}</span>
+        <div style="min-width:0"><div class="t">${esc(p.title)}${ex(p)}</div><div class="s">Next: ${esc(p.next || 'not set')}</div><div class="bar"><i style="width:${p.pct || 0}%"></i></div></div>
+        <span class="pct">${p.pct || 0}%</span></div>`; }).join('') : '<div class="empty"><b>No projects yet.</b>Add the vehicle build, a print project, a business idea or the next DEAD RECKONING milestone.</div>'}
+    </section>
+    <section class="card c5">
+      <div class="head"><h2>${today.toLocaleDateString([], { month: 'long', year: 'numeric' })}</h2><span class="pill">Week ${Math.ceil(((today - new Date(today.getFullYear(), 0, 1)) / 864e5 + new Date(today.getFullYear(), 0, 1).getDay() + 1) / 7)}</span></div>
+      <div class="week">${[...Array(7)].map((_, i) => { const d = new Date(mon); d.setDate(mon.getDate() + i); const n = Math.min(3, dayMarks(d)); return `<button type="button" class="day ${d.toDateString() === today.toDateString() ? 'today' : ''}" data-day="${d.toDateString()}">${d.toLocaleDateString([], { weekday: 'short' })}<b>${d.getDate()}</b><span class="marks">${'<i></i>'.repeat(n)}</span></button>`; }).join('')}</div>
+      <div class="head"><h2>Today's list</h2><span class="small muted">${tasksLeft} left</span></div>
+      <div class="focus">${T.length ? T.map(t => `<label><input type="checkbox" data-task="${t.id}" ${t.done ? 'checked' : ''}><span>${esc(t.title)}${ex(t)}</span><button class="x" type="button" data-del="${t.id}" aria-label="Remove">×</button></label>`).join('') : '<span class="small muted">Nothing on the list. Suspiciously calm.</span>'}</div>
+      <form class="addrow" id="taskform"><input id="tasknew" placeholder="Add something for today" aria-label="New task"><button class="btn sm" type="submit">Add</button></form>
+    </section>
+  </div>
+
+  <div class="grid">
+    <section class="card c7">
+      <div class="head"><h2>Print queue</h2><button class="iconbtn" type="button" data-go="prints" aria-label="Open print queue">+</button></div>
+      ${PR.length ? `<div class="prints">${PR.slice(0, 6).map(p => `<div class="print"><div class="swatch" style="background:${p.state === 'printing' ? 'var(--lime)' : 'color-mix(in srgb, var(--violet) 30%, var(--bg-2))'}">${esc(p.material || '?')} · ${esc(p.hours || '?')}h</div><div class="t">${esc(p.title)}${ex(p)}</div><span class="chip ${p.state}">${PSTATE[p.state] || p.state}</span></div>`).join('')}</div>` : '<div class="empty"><b>Queue\'s empty.</b>The printer is idle and quietly judging you.</div>'}
+    </section>
+    <section class="card c5">
+      <div class="head"><h2>Activity</h2></div>
+      <div class="tabs">${[['all', 'All'], ['game', 'Game'], ['print', 'Prints'], ['vehicle', 'Garage']].map(([k, n]) => `<button type="button" data-feed="${k}" aria-pressed="${feedTab === k}">${n}</button>`).join('')}</div>
+      <div class="feed">${(() => { const sel = S.log.filter(e => (feedTab === 'all' || e.area === feedTab) && (!weekPick || new Date(e.at).toDateString() === weekPick));
+        return sel.length ? sel.slice(0, 25).map(e => { const a = AREAS[e.area] || AREAS.jarvis; return `<div class="ev"><span class="av" style="background:${a.c}">${esc(a.name.slice(0, 1))}</span><div><div class="txt">${esc(e.text)}</div><div class="when">${ago(e.at)}</div></div></div>`; }).join('') : '<span class="small muted">Nothing logged yet. Everything you change shows up here.</span>'; })()}</div>
+      ${weekPick ? `<button class="btn ghost sm" type="button" id="clearday">Showing ${esc(weekPick)} · show all</button>` : ''}
+    </section>
+  </div>
+  </div>
+  <div class="storeline">${mode === 'db' ? 'Saved to your Claude account · private to you' : loaded ? 'Saved in this browser only' : 'Connecting storage…'}</div>`;
+
+  m.querySelectorAll('[data-go]').forEach(b => b.onclick = () => location.hash = b.dataset.go);
+  requestAnimationFrame(() => { const a = $('#arcval'); if (a) a.style.strokeDashoffset = String(C * (1 - overall / 100)); });
+  if ($('#herotalk')) $('#herotalk').onclick = () => { if (typeof openPanel === 'function') openPanel(); };
+  $('#focusbtn').onclick = () => { prefs.focus = !prefs.focus; savePrefs(); toast(prefs.focus ? 'Focus Protocol engaged' : 'Focus Protocol off'); render(); };
+  $('#shiftbtn').onclick = () => setShift(!(S.items.get('shift') || {}).on);
+  m.querySelectorAll('[data-shopcheck]').forEach(c => c.onchange = () => {
+    const s = { ...S.items.get('shift') }, i = +c.dataset.shopcheck, set = new Set(s.checks || []);
+    c.checked ? set.add(i) : set.delete(i); s.checks = [...set].sort((a, b) => a - b);
+    save(s, c.checked ? 'Checked: ' + SHOPCHECKS[i] : null);
+  });
+  if ($('#shopnoteform')) $('#shopnoteform').onsubmit = e => { e.preventDefault(); const v = $('#shopnote').value.trim(); if (!v) return; save({ id: uid(), type: 'task', area: 'work', title: v, done: false }, 'Shop note: ' + v); };
+  if ($('#shiftclock')) { clearInterval(window.__clk); window.__clk = setInterval(() => { const c = $('#shiftclock'), s = S.items.get('shift'); if (!c || !s || !s.on) return clearInterval(window.__clk); c.textContent = fmtDur(Date.now() - s.since); }, 15000); }
+  if ($('#starter')) $('#starter').onclick = loadStarters;
+  m.querySelectorAll('[data-task]').forEach(c => c.onchange = () => { const t = S.items.get(c.dataset.task); t.done = c.checked; save(t, (t.done ? 'Ticked off: ' : 'Reopened: ') + t.title); });
+  m.querySelectorAll('[data-del]').forEach(b => b.onclick = e => { e.preventDefault(); del(b.dataset.del); });
+  $('#taskform').onsubmit = e => { e.preventDefault(); const v = $('#tasknew').value.trim(); if (!v) return; save({ id: uid(), type: 'task', title: v, done: false }, 'Added to today: ' + v); };
+  m.querySelectorAll('[data-feed]').forEach(b => b.onclick = () => { feedTab = b.dataset.feed; weekPick = null; render(); });
+  m.querySelectorAll('[data-day]').forEach(b => b.onclick = () => { weekPick = b.dataset.day; render(); });
+  if ($('#clearday')) $('#clearday').onclick = () => { weekPick = null; render(); };
+}
+
+const CFG = {
+  project: { h: 'Projects', sub: 'Everything you\'re building, fixing or plotting, with the next step for each.', add: 'Add project',
+    fields: [['title', 'Project', 'text'], ['area', 'Area', AREAS], ['status', 'Status', STATUS], ['next', 'Next step', 'text', 'wide'], ['pct', 'Progress', 'range']],
+    meta: o => [(AREAS[o.area] || {}).name, STATUS[o.status], (o.pct || 0) + '%'], line: o => o.next ? 'Next: ' + o.next : '' },
+  vehicle: { h: 'Garage', sub: 'Your vehicles and builds: what\'s due, what\'s planned, what\'s on order.', add: 'Add vehicle',
+    fields: [['title', 'Vehicle', 'text'], ['miles', 'Mileage / hours', 'text'], ['due', 'Work due', 'text'], ['parts', 'Parts on order', 'text'], ['note', 'Notes', 'textarea', 'wide']],
+    meta: o => [o.miles && 'At ' + o.miles, o.parts && 'Parts: ' + o.parts], line: o => [o.due && 'Due: ' + o.due, o.note].filter(Boolean).join(' · ') },
+  print: { h: 'Print queue', sub: 'What\'s queued, what\'s on the bed, and what came off it.', add: 'Add print',
+    fields: [['title', 'Print', 'text'], ['material', 'Material', 'text'], ['hours', 'Est. hours', 'text'], ['state', 'Status', PSTATE], ['note', 'Notes (settings, file, fit)', 'textarea', 'wide']],
+    meta: o => [o.material, o.hours && o.hours + ' h', PSTATE[o.state]], line: o => o.note || '' },
+  idea: { h: 'Ideas vault', sub: 'Business ideas from raw to worth a go. Write it down before it escapes.', add: 'Add idea',
+    fields: [['title', 'Idea', 'text'], ['stage', 'Stage', ISTAGE], ['note', 'Why it might work / what to check', 'textarea', 'wide']],
+    meta: o => [ISTAGE[o.stage]], line: o => o.note || '' },
+  game: { h: 'DEAD RECKONING', sub: 'First-person zombie survival. Milestones, systems and what to build next.', add: 'Add milestone',
+    fields: [['title', 'Milestone or system', 'text'], ['state', 'Status', STATUS], ['note', 'Notes', 'textarea', 'wide']],
+    meta: o => [STATUS[o.state]], line: o => o.note || '' }
+};
+let editing = null;
+function listView(m, type) {
+  const c = CFG[type], L = items(type), e = editing && editing.type === type ? editing : null;
+  const field = ([k, lbl, kind, cls]) => {
+    const v = e ? e[k] ?? '' : '';
+    let ctl;
+    if (kind === 'textarea') ctl = `<textarea id="f-${k}">${esc(v)}</textarea>`;
+    else if (kind === 'range') ctl = `<input id="f-${k}" type="range" min="0" max="100" step="5" value="${v || 0}"><span class="mono small" id="f-${k}-v">${v || 0}%</span>`;
+    else if (typeof kind === 'object') ctl = `<select id="f-${k}">${Object.entries(kind).map(([a, b]) => `<option value="${a}" ${v === a ? 'selected' : ''}>${esc(b.name || b)}</option>`).join('')}</select>`;
+    else ctl = `<input id="f-${k}" value="${esc(v)}">`;
+    return `<label class="${cls || ''}">${lbl}${ctl}</label>`;
+  };
+  m.innerHTML = `
+  <section class="card dark hero ${type === 'vehicle' ? 'garage' : type === 'game' ? 'dr' : ''}"><div style="display:flex;flex-direction:column;gap:8px;min-width:0"><span class="pill">${L.length} on file</span><h1>${esc(c.h)}</h1><p class="sub muted" style="margin:0">${esc(c.sub)}</p>
+    ${type === 'game' && L.length ? `<span class="daycount">DAY ${Math.max(1, Math.ceil((Date.now() - Math.min(...L.map(o => o.created || o.updated || Date.now()))) / 864e5))} OF DEVELOPMENT · ${L.filter(o => o.state === 'done').length}/${L.length} SYSTEMS DONE</span>` : ''}</div>
+    <div class="side"><button class="btn" type="button" id="addnew">${esc(c.add)}</button></div></section>
+  <section class="card" id="editor" ${e ? '' : 'hidden'}><div class="head"><h2>${e && S.items.has(e.id) ? 'Edit' : 'New'}</h2></div>
+    <form class="form" id="itemform">${c.fields.map(field).join('')}<div class="wide" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="submit">Save</button><button class="btn ghost" type="button" id="cancel">Cancel</button></div></form></section>
+  <section class="card"><div class="rows">${L.length ? L.map(o => `<div class="row"><div style="min-width:0"><div class="t">${esc(o.title)}${ex(o)}</div>${c.line(o) ? `<div class="small muted">${esc(c.line(o))}</div>` : ''}
+      <div class="meta">${c.meta(o).filter(Boolean).map(x => `<span class="pill">${esc(x)}</span>`).join('')}</div>${type === 'project' ? `<div class="bar"><i style="width:${o.pct || 0}%"></i></div>` : ''}</div>
+      <div class="acts">${type === 'print' && o.state !== 'done' ? `<button class="btn sm" type="button" data-adv="${o.id}">${o.state === 'queued' ? 'Start print' : 'Mark done'}</button>` : ''}<button class="btn ghost sm" type="button" data-edit="${o.id}">Edit</button><button class="btn ghost sm" type="button" data-rm="${o.id}">Delete</button></div></div>`).join('')
+      : `<div class="empty"><b>Nothing here yet.</b>Use “${esc(c.add)}” to put the first one on file.</div>`}</div></section>`;
+  $('#addnew').onclick = () => { editing = { id: uid(), type, ...(type === 'project' ? { area: 'vehicle', status: 'active', pct: 0 } : {}), ...(type === 'print' ? { state: 'queued' } : {}), ...(type === 'idea' ? { stage: 'raw' } : {}), ...(type === 'game' ? { state: 'active' } : {}) }; render(); setTimeout(() => $('#f-title') && $('#f-title').focus(), 30); };
+  if ($('#cancel')) $('#cancel').onclick = () => { editing = null; render(); };
+  if ($('#f-pct')) $('#f-pct').oninput = ev => $('#f-pct-v').textContent = ev.target.value + '%';
+  $('#itemform').onsubmit = ev => {
+    ev.preventDefault();
+    const o = { ...editing }; c.fields.forEach(([k, , kind]) => { const el = $('#f-' + k); if (el) o[k] = kind === 'range' ? +el.value : el.value.trim(); });
+    if (!o.title) { toast('Give it a name first, Sir.'); return; }
+    const isNew = !S.items.has(o.id); delete o.starter; editing = null;
+    save(o, (isNew ? 'Added ' : 'Updated ') + o.title + (type === 'project' ? ' (' + (o.pct || 0) + '%)' : ''));
+    toast(isNew ? 'Added' : 'Saved');
+  };
+  m.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => { editing = { ...S.items.get(b.dataset.edit) }; render(); scrollTo(0, 0); });
+  m.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { if (b.dataset.armed !== '1') { b.dataset.armed = '1'; b.textContent = 'Sure?'; return; } del(b.dataset.rm); });
+  m.querySelectorAll('[data-adv]').forEach(b => b.onclick = () => { const o = S.items.get(b.dataset.adv); o.state = o.state === 'queued' ? 'printing' : 'done'; save(o, (o.state === 'printing' ? 'Started printing ' : 'Finished printing ') + o.title); });
+}
+
+/* ---------- J.A.R.V.I.S.: animated face, voice, chat, board actions ---------- */
+const J = { state: 'idle', talk: 0, look: { x: 0, y: 0 }, aim: { x: 0, y: 0 }, blink: 0, nextBlink: performance.now() + 3000, sample: null, tts: null, dict: null, turns: [], busy: false };
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const setState = (s, label) => { J.state = s; const el = $('#jvstate'); if (el) el.textContent = label || { idle: 'Standby', think: 'Processing…', speak: 'Speaking', listen: 'Listening…' }[s]; };
+addEventListener('pointermove', e => { J.aim.x = (e.clientX / innerWidth - .5) * 2; J.aim.y = (e.clientY / innerHeight - .5) * 2; });
+function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function drawFace(cv, t) {
+  const c = cv.getContext('2d'), W = cv.width, H = cv.height, R = W / 2, big = W >= 220;
+  if (reduceMotion) t = 4000;
+  const st = J.state, speak = st === 'speak', listen = st === 'listen', think = st === 'think';
+  const CY = '62,200,255', AM = '255,176,72';
+  c.clearRect(0, 0, W, H);
+  c.save(); c.translate(R, R + (reduceMotion ? 0 : Math.sin(t / 1100) * R * .02));
+  J.look.x += (J.aim.x - J.look.x) * .05; J.look.y += (J.aim.y - J.look.y) * .05;
+  J.talk += ((speak ? 1 : listen ? .55 : think ? .3 : .12) - J.talk) * .08;
+  const S = R * .58;                                   // sphere radius
+  c.globalCompositeOperation = 'lighter';
+  // ambient glow
+  let g = c.createRadialGradient(0, 0, 0, 0, 0, R);
+  g.addColorStop(0, `rgba(${CY},${.22 + J.talk * .25})`); g.addColorStop(.55, `rgba(${CY},.06)`); g.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = g; c.fillRect(-R, -R, W, H);
+  // listening ripples
+  if (listen || J.ripple > 0) {
+    for (let k = 0; k < 3; k++) {
+      const p = ((t / 1400) + k / 3) % 1, r = S * (1 + p * .75);
+      c.strokeStyle = `rgba(${CY},${(1 - p) * .55})`; c.lineWidth = R * .012;
+      c.beginPath(); c.arc(0, 0, r, 0, Math.PI * 2); c.stroke();
+    }
+  }
+  // wireframe sphere: latitudes + rotating longitudes
+  const rot = t / 4000 + J.look.x * .6, tilt = .28 + J.look.y * .15;
+  c.lineWidth = Math.max(.6, R * .006);
+  for (let i = -4; i <= 4; i++) {
+    const phi = i / 5 * (Math.PI / 2), y = S * Math.sin(phi), rx = S * Math.cos(phi);
+    c.strokeStyle = `rgba(${CY},.13)`; c.beginPath(); c.ellipse(0, y * Math.cos(tilt), rx, rx * Math.sin(tilt) + .1, 0, 0, Math.PI * 2); c.stroke();
+  }
+  for (let i = 0; i < 9; i++) {
+    const th = rot + i * Math.PI / 9, rx = Math.abs(S * Math.cos(th));
+    c.strokeStyle = `rgba(${CY},${.06 + .12 * Math.abs(Math.sin(th))})`; c.beginPath(); c.ellipse(0, 0, rx + .1, S, 0, 0, Math.PI * 2); c.stroke();
+  }
+  // sphere rim
+  c.strokeStyle = `rgba(${CY},.55)`; c.lineWidth = R * .014; c.beginPath(); c.arc(0, 0, S, 0, Math.PI * 2); c.stroke();
+  // waveform ribbons through the core
+  const amp = S * (.08 + J.talk * .42);
+  c.shadowColor = `rgba(${CY},.9)`; c.shadowBlur = R * .05;
+  for (let k = 0; k < 11; k++) {
+    const ph = t / (speak ? 160 : 520) + k * .55, f = 1.8 + k * .22, a = amp * (.45 + .55 * Math.sin(t / 700 + k));
+    c.strokeStyle = k % 3 === 0 ? `rgba(220,245,255,${.5 + J.talk * .4})` : `rgba(${CY},${.35 + J.talk * .35})`; c.lineWidth = Math.max(.7, R * (k % 3 === 0 ? .01 : .006));
+    c.beginPath();
+    for (let x = -S; x <= S; x += S / 40) {
+      const env = Math.cos((x / S) * Math.PI / 2) ** 1.6;
+      const y = Math.sin(x / S * f * Math.PI + ph) * a * env * (speak ? (.7 + .3 * Math.sin(t / 90 + x)) : 1);
+      x === -S ? c.moveTo(x, y) : c.lineTo(x, y);
+    }
+    c.stroke();
+  }
+  c.shadowBlur = 0;
+  // core
+  g = c.createRadialGradient(0, 0, 0, 0, 0, S * .45);
+  g.addColorStop(0, 'rgba(255,255,255,.95)'); g.addColorStop(.18, `rgba(${CY},${.8})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = g; c.beginPath(); c.arc(0, 0, S * (.42 + J.talk * .08 + Math.sin(t / 300) * .015), 0, Math.PI * 2); c.fill();
+  // orbits with travelling light (amber + cyan)
+  const orbits = [[R * .9, R * .26, -.35, AM, 1], [R * .82, R * .2, .5, CY, -1.3], [R * .95, R * .34, .15, AM, .8]];
+  orbits.forEach(([rx, ry, ang, col, dir], n) => {
+    c.save(); c.rotate(ang + Math.sin(t / 5000 + n) * .06);
+    c.strokeStyle = `rgba(${col},.35)`; c.lineWidth = Math.max(.6, R * .007);
+    c.beginPath(); c.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); c.stroke();
+    const speed = speak ? 900 : think ? 700 : 2600, head = (t / speed) * dir + n * 2;
+    for (let s = 0; s < 14; s++) {
+      const a = head - s * .045, x = rx * Math.cos(a), y = ry * Math.sin(a);
+      c.fillStyle = `rgba(${col},${(1 - s / 14) * .9})`; c.beginPath(); c.arc(x, y, R * (.022 - s * .0013), 0, Math.PI * 2); c.fill();
+    }
+    c.restore();
+  });
+  // voice line under the sphere on the larger displays
+  if (big) {
+    const y0 = R * .86;
+    c.strokeStyle = `rgba(${CY},${.35 + J.talk * .5})`; c.lineWidth = R * .008; c.beginPath();
+    for (let x = -R * .8; x <= R * .8; x += R / 60) {
+      const env = Math.exp(-((x / (R * .45)) ** 2));
+      const y = y0 + Math.sin(x / R * 30 + t / 80) * R * .06 * J.talk * env * (.6 + .4 * Math.sin(t / 130 + x));
+      x === -R * .8 ? c.moveTo(x, y) : c.lineTo(x, y);
+    }
+    c.stroke();
+  }
+  c.restore();
+  c.globalCompositeOperation = 'source-over';
+}
+function loop(t) { const a = $('#jvc1'), b = $('#jvc2'), c3 = $('#jvc3'); if (a) drawFace(a, t); if (b && !$('#jvpanel').hidden) drawFace(b, t); if (c3) drawFace(c3, t); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+
+function addMsg(who, text) { const d = document.createElement('div'); d.className = 'msg ' + who; d.textContent = text; $('#jvlog').appendChild(d); $('#jvlog').scrollTop = 1e9; return d; }
+function boardSummary() {
+  const P = items('project'), sh = S.items.get('shift');
+  return [
+    'Shift: ' + (sh && sh.on ? 'ON since ' + new Date(sh.since).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : 'off'),
+    'Focus Protocol: ' + (prefs.focus ? 'on' : 'off'),
+    'Projects: ' + (P.map(p => `${p.title} [${(AREAS[p.area] || {}).name}, ${STATUS[p.status]}, ${p.pct || 0}%, next: ${p.next || 'none'}] id=${p.id}`).join('; ') || 'none'),
+    'Today\'s list: ' + (items('task').map(t => (t.done ? '[x] ' : '[ ] ') + t.title + ' id=' + t.id).join('; ') || 'empty'),
+    'Print queue: ' + (items('print').map(p => `${p.title} (${p.material || '?'}, ${p.hours || '?'}h, ${PSTATE[p.state]}) id=${p.id}`).join('; ') || 'empty'),
+    'Ideas: ' + (items('idea').map(i => `${i.title} (${ISTAGE[i.stage]})`).join('; ') || 'none'),
+    'Garage: ' + (items('vehicle').map(v => `${v.title}${v.due ? ' due: ' + v.due : ''}`).join('; ') || 'none'),
+    'DEAD RECKONING: ' + (items('game').map(g => `${g.title} (${STATUS[g.state]})`).join('; ') || 'none')
+  ].join('\n');
+}
+const RULES = () => `You are J.A.R.V.I.S., the voice of Brandon's personal command centre. Address him as "Sir" naturally, not in every sentence. Composed, concise, precise, subtly British and loyal; lightly dry wit, never at his expense in a hurtful way. Never call him "big dog". If asked, be honest that you are Claude, an AI by Anthropic, playing J.A.R.V.I.S.; never claim abilities you don't have (you cannot see his devices, the shop, or the internet).
+He is a Technician B on Cat compact construction equipment at a Cat dealer (dealer code D435) and also works on John Deere and Bobcat machines. His interests: vehicle projects, 3D printing, business ideas, and his first-person zombie survival game DEAD RECKONING. Speak expert to expert. For safety-critical repair questions drop the wit and be direct and exact, and never invent specifications, torque values, pressures or procedures; say to confirm against SIS / the OEM manual.
+When his shift is on, the page is in SHOP MODE: be brisk and practical, keep side-project chatter to a minimum unless he raises it, and remind him of PSR before/after only when relevant.
+Your replies are SPOKEN ALOUD, so write for the ear: natural conversational British English with contractions (I've, you're, that's), varied sentence length, and the odd natural lead-in (Right, Ah, Well) used sparingly. No abbreviations, symbols, markdown or lists; say numbers the way a person would. Keep it to 1-3 sentences and lead with the answer.
+You can change his board with the tools. Use them when he asks you to add, update, tick off, start or end something; confirm briefly what you did. Don't invent items he didn't ask for.
+Current time: ${new Date().toLocaleString()}.
+BOARD:
+${boardSummary()}`;
+const TOOLS = [
+  { name: 'add_task', description: 'Add an item to today\'s list. Returns the new id.', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] },
+    execute: ({ title }) => { const o = { id: uid(), type: 'task', title: String(title).slice(0, 140), done: false }; save(o, 'J.A.R.V.I.S. added to today: ' + o.title); act('Added to today: ' + o.title); return { id: o.id }; } },
+  { name: 'complete_task', description: 'Tick off (or reopen) an item on today\'s list by id.', inputSchema: { type: 'object', properties: { id: { type: 'string' }, done: { type: 'boolean' } }, required: ['id'] },
+    execute: ({ id, done }) => { const t = S.items.get(String(id)); if (!t || t.type !== 'task') throw new Error('No such task'); t.done = done !== false; save(t, (t.done ? 'Ticked off: ' : 'Reopened: ') + t.title); act((t.done ? 'Ticked off: ' : 'Reopened: ') + t.title); return 'ok'; } },
+  { name: 'add_project', description: 'Create a project. area is one of vehicle, print, business, game, jarvis, work.', inputSchema: { type: 'object', properties: { title: { type: 'string' }, area: { type: 'string', enum: ['vehicle', 'print', 'business', 'game', 'jarvis', 'work'] }, next: { type: 'string' } }, required: ['title', 'area'] },
+    execute: ({ title, area, next }) => { const o = { id: uid(), type: 'project', title: String(title).slice(0, 140), area: AREAS[area] ? area : 'jarvis', status: 'active', pct: 0, next: next ? String(next) : '' }; save(o, 'J.A.R.V.I.S. added project ' + o.title); act('New project: ' + o.title); return { id: o.id }; } },
+  { name: 'update_project', description: 'Update a project by id: progress percent (0-100), next step and/or status (idea, active, paused, done).', inputSchema: { type: 'object', properties: { id: { type: 'string' }, pct: { type: 'number' }, next: { type: 'string' }, status: { type: 'string', enum: ['idea', 'active', 'paused', 'done'] } }, required: ['id'] },
+    execute: ({ id, pct, next, status }) => { const p = S.items.get(String(id)); if (!p || p.type !== 'project') throw new Error('No such project'); if (pct !== undefined) p.pct = Math.max(0, Math.min(100, Math.round(Number(pct) / 5) * 5)); if (next !== undefined) p.next = String(next); if (status && STATUS[status]) p.status = status; save(p, 'Updated ' + p.title + ' (' + (p.pct || 0) + '%)'); act('Updated ' + p.title); return 'ok'; } },
+  { name: 'add_print', description: 'Queue a 3D print.', inputSchema: { type: 'object', properties: { title: { type: 'string' }, material: { type: 'string' }, hours: { type: 'string' } }, required: ['title'] },
+    execute: ({ title, material, hours }) => { const o = { id: uid(), type: 'print', title: String(title), material: material ? String(material) : '', hours: hours ? String(hours) : '', state: 'queued' }; save(o, 'Queued print: ' + o.title); act('Queued print: ' + o.title); return { id: o.id }; } },
+  { name: 'add_idea', description: 'Save a business idea to the ideas vault.', inputSchema: { type: 'object', properties: { title: { type: 'string' }, note: { type: 'string' } }, required: ['title'] },
+    execute: ({ title, note }) => { const o = { id: uid(), type: 'idea', title: String(title), stage: 'raw', note: note ? String(note) : '' }; save(o, 'New idea: ' + o.title); act('Idea saved: ' + o.title); return { id: o.id }; } },
+  { name: 'set_shift', description: 'Start (on=true) or end (on=false) his work shift timer.', inputSchema: { type: 'object', properties: { on: { type: 'boolean' } }, required: ['on'] },
+    execute: ({ on }) => { const was = !!(S.items.get('shift') || {}).on; if (!!on !== was) { setShift(!!on); act(on ? 'Shift started: shop mode' : 'Shift ended'); } return on ? 'Shop mode on' : 'Shop mode off'; } },
+  { name: 'set_focus_protocol', description: 'Turn Focus Protocol on or off (hides everything but his top project).', inputSchema: { type: 'object', properties: { on: { type: 'boolean' } }, required: ['on'] },
+    execute: ({ on }) => { prefs.focus = !!on; savePrefs(); render(); act('Focus Protocol ' + (on ? 'on' : 'off')); return 'ok'; } }
+];
+function act(t) {
+  addMsg('act', '› ' + t);
+  setTimeout(() => say('Done, Sir. ' + t + '.', { bubbleOnly: true }), 1500);
+  setTimeout(() => {                                                  // fly to what he just changed
+    const k = t.toLowerCase();
+    const sel = k.includes('today') || k.includes('ticked') || k.includes('reopened') ? '#taskform' : k.includes('project') || k.includes('updated') ? '.proj' : k.includes('print') ? '.prints, .print' : k.includes('idea') ? null : k.includes('shift') ? '.shift' : k.includes('focus') ? '#focusbtn' : null;
+    if (sel && view === 'overview') flyTo(cardFor(sel));
+  }, 350);
+}
+const voicePick = () => { const d = window.speechSynthesis ? 'british' : 'rounded'; try { return localStorage.getItem('cc.voice') || d; } catch (e) { return d; } };
+/* the browser's own speech engine: plays while the microphone stays open */
+const SYN = window.speechSynthesis || null;
+/* voice tuning: device voice, pitch and pace, saved per browser */
+const VPREF = () => { try { return { name: '', pitch: 1, rate: 1, ...JSON.parse(localStorage.getItem('cc.vtune2') || '{}') }; } catch (e) { return { name: '', pitch: 1, rate: 1 }; } };
+const saveV = v => { try { localStorage.setItem('cc.vtune2', JSON.stringify(v)); } catch (e) {} };
+const JARVIS_ORDER = ['Ryan Online (Natural)', 'Thomas Online (Natural)', 'Oliver Online (Natural)', 'Elliot Online (Natural)', 'Ethan Online (Natural)', 'Noah Online (Natural)', 'Alfie Online (Natural)',
+  'Microsoft Ryan', 'Microsoft George', 'Google UK English Male', 'Daniel', 'Arthur', 'Microsoft Thomas', 'Oliver'];
+function britishVoice() {
+  if (!SYN) return null;
+  const vs = SYN.getVoices(); if (!vs.length) return null;
+  const want = VPREF().name; if (want) { const v = vs.find(x => x.name === want); if (v) return v; }
+  for (const p of JARVIS_ORDER) { const v = vs.find(x => x.name.includes(p)); if (v) return v; }
+  return vs.find(x => /en[-_]GB/i.test(x.lang)) || vs.find(x => /^en/i.test(x.lang)) || null;
+}
+function fillVoiceLab() {
+  const sel = $('#vt-voice'); if (!sel || !SYN) return;
+  const vs = SYN.getVoices().filter(v => /^en/i.test(v.lang)).sort((a, b) => (/GB/i.test(b.lang) - /GB/i.test(a.lang)) || a.name.localeCompare(b.name));
+  const cur = britishVoice(), pref = VPREF();
+  sel.innerHTML = vs.length ? vs.map(v => `<option value="${esc(v.name)}" ${cur && v.name === cur.name ? 'selected' : ''}>${esc(v.name.replace(/^Microsoft /, '').replace(/ - English.*$/, ''))} · ${esc(v.lang)}</option>`).join('') : '<option>No voices found yet</option>';
+  $('#vt-pitch').value = pref.pitch; $('#vt-rate').value = pref.rate;
+  $('#vt-pv').textContent = (+pref.pitch).toFixed(2); $('#vt-rv').textContent = (+pref.rate).toFixed(2);
+  const best = vs.find(v => v.name.includes('Natural') && /GB/.test(v.lang));
+  $('#vt-note').textContent = best ? 'Best match found: ' + best.name.replace(/^Microsoft /, '').replace(/ - English.*$/, '') + '.' : 'For the closest match, open this page in Microsoft Edge on Windows and pick "Ryan Online (Natural)".';
+}
+if (SYN) { SYN.getVoices(); SYN.onvoiceschanged = () => { SYN.getVoices(); fillVoiceLab(); }; }
+J.speakingUntil = 0;
+/* make text sound spoken, not read */
+function forEar(t) {
+  return String(t || '')
+    .replace(/```[\s\S]*?```/g, ' ').replace(/[*_`#>]+/g, '')
+    .replace(/J\.A\.R\.V\.I\.S\.?/g, 'Jarvis')
+    .replace(/(\d+(?:\.\d+)?)\s*%/g, '$1 percent').replace(/\s&\s/g, ' and ')
+    .replace(/\be\.g\./gi, 'for example').replace(/\bi\.e\./gi, 'that is').replace(/\betc\./gi, 'and so on')
+    .replace(/\bPSR\b/g, 'P S R').replace(/\bSMU\b/g, 'S M U').replace(/\bTA1\b/g, 'T A one').replace(/\bSIS\b/g, 'sis').replace(/\bCCE\b/g, 'C C E')
+    .replace(/(\d+(?:\.\d+)?)\s?h\b/g, '$1 hours').replace(/\s*[›»→]\s*/g, '. ').replace(/\s*[—–]\s*/g, ', ')
+    .replace(/\s+/g, ' ').trim();
+}
+const isNatural = v => !!(v && /Natural|Neural|Online/i.test(v.name));
+function speakBrowser(text) {
+  return new Promise(res => {
+    try {
+      SYN.cancel();
+      const u = new SpeechSynthesisUtterance(forEar(text).slice(0, 1500)), v = britishVoice();
+      if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-GB';
+      const vp = VPREF(); u.rate = +vp.rate || 1; u.pitch = +vp.pitch || 1;
+      u.onstart = () => { setState('speak'); J.speakingUntil = Date.now() + 60000; };
+      const done = () => { J.speakingUntil = Date.now() + 900; if (J.state === 'speak') setState('idle', J.hf && J.mode === 'hf' ? 'Waiting for "Hey Jarvis"' : undefined); res(); };
+      u.onend = done; u.onerror = done;
+      SYN.speak(u);
+      setTimeout(() => { if (!SYN.speaking && !SYN.pending && J.state !== 'speak') done(); }, 1500);
+    } catch (e) { res(); }
+  });
+}
+const useBrowserVoice = () => !!SYN && (voicePick() === 'british' || (J.hf && J.mode === 'hf' && !window.JV_HOSTED) || !J.tts);
+async function speak(text) {
+  if (!$('#jvvoice').checked || !text) { setState('idle'); return; }
+  if (useBrowserVoice()) { await speakBrowser(text); return; }
+  if (!J.tts) { setState('idle'); return; }
+  try { await J.tts.speak(forEar(text).slice(0, 1900), { voice: voicePick() === 'claude-gb' ? 'rounded' : voicePick(), language: 'en-GB', rate: 1 }); }
+  catch (e) { if (e && e.code === 'not_granted') { $('#jvvoice').checked = false; } }
+  finally { if (J.state === 'speak') setState('idle'); }
+}
+async function ask(text) {
+  if (!text || J.busy) return;
+  if (!J.sample) { addMsg('j', 'I need this page open in Claude to think, Sir. Here I am merely decorative.'); return; }
+  J.busy = true; addMsg('u', text); J.turns.push({ role: 'user', content: text }); J.turns = J.turns.slice(-16);
+  const bubble = addMsg('j', '…'); setState('think');
+  try {
+    const { text: out } = await J.sample([{ role: 'user', content: RULES() }, { role: 'assistant', content: 'Understood, Sir.' }, ...J.turns], { cache: false, modelTier: 'quick', tools: TOOLS, onText: ({ text: t }) => { bubble.textContent = t; $('#jvlog').scrollTop = 1e9; } });
+    const reply = (out || '').trim() || 'Done, Sir.';
+    bubble.textContent = reply; J.turns.push({ role: 'assistant', content: reply });
+    await releaseMicForSpeech();
+    setState('speak'); await speak(reply);
+    if (J.hf && J.mode === 'hf') setState('idle', 'Waiting for "Hey Jarvis"'); else if (J.hfPaused) { setState('idle', 'Tap or press Space to keep listening'); updateHF(); }
+  } catch (e) {
+    const msg = { rate_limited: 'I am being rationed, Sir. Give me a minute.', not_granted: 'You declined to let me think. Fair. Allow it from the page permissions when you want me back.', refused: 'I would rather not answer that one, Sir.' }[e && e.code] || 'Something went sideways on my end. Try again, Sir.';
+    bubble.textContent = e && e.text ? e.text : msg; setState('idle');
+  } finally { J.busy = false; }
+}
+let greeted = false;
+function openPanel() {
+  $('#jvpanel').hidden = false; $('#jvfab').hidden = true; $('#jvhint').hidden = true;
+  if (!greeted) {
+    greeted = true;
+    const sh = S.items.get('shift'), act2 = items('project').filter(p => p.status === 'active').length;
+    const g = `${greet()}. ${sh && sh.on ? 'You are on shift, so I shall keep this brief.' : act2 ? act2 + ' projects on the go. Shall I pick one for tonight?' : 'The board is empty. Tell me what we are building.'}`;
+    addMsg('j', g); J.turns.push({ role: 'assistant', content: g }); if (!(J.hf && J.mode === 'hf')) { setState('speak'); speak(g); }
+  }
+  $('#jvsugs').innerHTML = ['What should I work on tonight?', 'Add "order filament" to today', 'Start my shift', 'Give me a DEAD RECKONING idea', 'Focus Protocol on'].map(s => `<button type="button">${esc(s)}</button>`).join('');
+  $('#jvsugs').querySelectorAll('button').forEach(b => b.onclick = () => ask(b.textContent));
+  setTimeout(() => $('#jvtext').focus(), 50);
+}
+// ---------- he roams the page ----------
+const fab = $('#jvfab'), SZ = 88;
+const roamOK = () => !reduceMotion;
+J.pos = { x: innerWidth - SZ - 18, y: innerHeight - SZ - 18 }; J.parkedUntil = 0;
+function placeFab(x, y, fly) {
+  const m = 12, maxX = innerWidth - SZ - m, maxY = innerHeight - SZ - m - 6;
+  J.pos = { x: Math.max(m, Math.min(maxX, x)), y: Math.max(m + 60, Math.min(maxY, y)) };
+  fab.style.setProperty('--jx', J.pos.x + 'px'); fab.style.setProperty('--jy', J.pos.y + 'px');
+  fab.classList.toggle('flip', J.pos.x < innerWidth / 2);
+  if (fly) { fab.classList.add('flying'); clearTimeout(J.flyT); J.flyT = setTimeout(() => fab.classList.remove('flying'), 1500); }
+}
+function home() { placeFab(innerWidth - SZ - 18, innerHeight - SZ - 18); }
+// ---------- he talks as he flies ----------
+J.interacted = false; J.lastIdle = 0; J.bubbleT = null;
+addEventListener('pointerdown', () => J.interacted = true, { capture: true });
+addEventListener('keydown', () => J.interacted = true, { capture: true });
+const chatter = () => { try { return localStorage.getItem('cc.chatter') || 'talk'; } catch (e) { return 'talk'; } };
+function bubble(text, ms) {
+  const h = $('#jvhint'); if (!h) return;
+  h.textContent = text; h.hidden = false; h.classList.add('bubble');
+  clearTimeout(J.bubbleT); J.bubbleT = setTimeout(() => { h.hidden = true; h.classList.remove('bubble'); }, ms || Math.min(9000, 2500 + text.length * 55));
+}
+function say(text, opts) {
+  const mode = chatter();
+  if (mode === 'silent' || !text || !$('#jvpanel').hidden) return;
+  text = text.charAt(0).toUpperCase() + text.slice(1);
+  bubble(text);
+  const typing = document.activeElement && document.activeElement.matches('input, textarea, select');
+  const voiceOK = mode === 'talk' && J.interacted && !typing && !J.busy && J.state !== 'speak' && J.state !== 'listen' && !(opts && opts.bubbleOnly) && $('#jvvoice').checked;
+  if (voiceOK) speak(text);
+}
+const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+const numWord = n => ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'][n] || String(n);
+function navLine(v) {
+  const P = items('project').filter(p => p.status === 'active'), top = [...P].sort((a, b) => (b.pct || 0) - (a.pct || 0))[0];
+  const Q = items('print').filter(p => p.state !== 'done'), hrs = Q.reduce((h, p) => h + (parseFloat(p.hours) || 0), 0);
+  const I = items('idea'), V = items('vehicle'), G = items('game'), sh = S.items.get('shift');
+  const L = {
+    overview: sh && sh.on ? ['Back at the shop display, Sir.', 'Machines first. I am watching the clock.'] : ['Back at the briefing, Sir.', 'Home base. Everything where you left it.'],
+    projects: P.length ? [`${numWord(P.length)} active projects. ${top.title} leads at ${top.pct || 0} percent.`, `Projects. ${top.title} is out in front, Sir.`] : ['No active projects. A blank canvas, Sir.'],
+    garage: V.length ? [`The garage. ${plural(V.length, 'vehicle')} on file${V.some(x => x.due) ? ', and something is due' : ''}.`] : ['The garage is empty, Sir. Suspiciously tidy.'],
+    prints: Q.length ? [`Print queue: ${numWord(Q.length)} waiting, ${hrs.toFixed(1)} hours of printing.`, 'The printer awaits, Sir. Patiently. Mostly.'] : ['Print queue is clear. The printer is idle and quietly judging you.'],
+    ideas: I.length ? [`The ideas vault. ${plural(I.length, 'idea')}, Sir. Some of them even sensible.`] : ['The ideas vault is empty. I refuse to believe that.'],
+    deadreckoning: G.length ? [`DEAD RECKONING. ${G.filter(g => g.state === 'done').length} of ${G.length} systems done. Mind the undead, Sir.`] : ['DEAD RECKONING. Nothing logged yet, and the zombies are getting restless.']
+  }[v] || ['Here, Sir.'];
+  return L[Math.floor(Math.random() * L.length)];
+}
+function idleLine() {
+  const sh = S.items.get('shift'), P = items('project').filter(p => p.status === 'active'), T = items('task').filter(t => !t.done);
+  const lines = [];
+  if (sh && sh.on) {
+    lines.push(`Pre-job checklist at ${(sh.checks || []).length} of ${SHOPCHECKS.length}, Sir.`, `On the clock for ${fmtDur(Date.now() - sh.since).replace(':', ' hours ')} minutes.`, 'Pull the PSR before you touch anything, Sir.');
+  } else {
+    const low = [...P].sort((a, b) => (a.pct || 0) - (b.pct || 0))[0];
+    if (low) lines.push(`${low.title} is sitting at ${low.pct || 0} percent, Sir. Shall we nudge it?`);
+    if (T.length) lines.push(`${numWord(T.length)} thing${T.length === 1 ? '' : 's'} left on today's list.`);
+    const printing = items('print').find(p => p.state === 'printing'); if (printing) lines.push(`${printing.title} is still on the bed, Sir.`);
+    lines.push(pickQuip({ onShift: false, active: P.length, game: items('game').length }));
+  }
+  return lines[Math.floor(Math.random() * lines.length)];
+}
+
+function wander() {
+  if (!roamOK() || !$('#jvpanel').hidden || Date.now() < J.parkedUntil || J.dragging) return;
+  const edge = Math.random() < .5 ? 14 : innerWidth - SZ - 14;            // keep to the edges, off the content
+  const narrow = innerWidth < 760;
+  const x = narrow ? edge : (Math.random() < .7 ? edge : 120 + Math.random() * (innerWidth - 240 - SZ));
+  placeFab(x, 90 + Math.random() * (innerHeight - SZ - 140), true);
+  if (Date.now() - J.lastIdle > 75000 && Math.random() < .5 && view === 'overview') { J.lastIdle = Date.now(); setTimeout(() => say(idleLine()), 1300); }
+}
+function flyTo(el, quiet) {
+  if (!el) return;
+  if (!roamOK() || !$('#jvpanel').hidden) { spot(el); return; }
+  const box = () => { if (/^H[1-3]$/.test(el.tagName)) { const rg = document.createRange(); rg.selectNodeContents(el); return rg.getBoundingClientRect(); } return el.getBoundingClientRect(); };
+  const go = () => { const r = box(); const right = r.right + SZ + 10 < innerWidth; placeFab(right ? r.right + 14 : r.left - SZ * .65, r.top + r.height / 2 - SZ / 2, true); if (!quiet) spot(el); };
+  const r = el.getBoundingClientRect();
+  if (r.top < 60 || r.bottom > innerHeight) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(go, 450); } else go();
+  J.parkedUntil = Date.now() + 9000;
+}
+function spot(el) { el.classList.add('jv-spot'); setTimeout(() => el.classList.remove('jv-spot'), 2200); }
+const cardFor = sel => { const e = document.querySelector(sel); return e && (e.closest('.card') || e); };
+// drag him anywhere; a short tap still opens the panel
+let dragStart = null;
+fab.addEventListener('pointerdown', e => { dragStart = { x: e.clientX, y: e.clientY, px: J.pos.x, py: J.pos.y, moved: false }; fab.setPointerCapture(e.pointerId); });
+fab.addEventListener('pointermove', e => {
+  if (!dragStart) return; const dx = e.clientX - dragStart.x, dy = e.clientY - dragStart.y;
+  if (!dragStart.moved && Math.hypot(dx, dy) < 6) return;
+  dragStart.moved = true; J.dragging = true; fab.classList.add('dragging'); placeFab(dragStart.px + dx, dragStart.py + dy);
+});
+fab.addEventListener('pointerup', () => { if (dragStart && dragStart.moved) { J.parkedUntil = Date.now() + 60000; fab.dataset.dragged = '1'; } dragStart = null; J.dragging = false; fab.classList.remove('dragging'); });
+fab.addEventListener('pointercancel', () => { dragStart = null; J.dragging = false; fab.classList.remove('dragging'); });
+$('#jvfab').onclick = () => { if (fab.dataset.dragged) { delete fab.dataset.dragged; return; } if (J.hfPaused) startHF(); openPanel(); };
+addEventListener('resize', () => placeFab(J.pos.x, J.pos.y));
+// enter: fly in from off-screen, then roam
+if (roamOK()) { fab.style.transition = 'none'; placeFab(innerWidth + 120, innerHeight * .4); requestAnimationFrame(() => requestAnimationFrame(() => { fab.style.transition = ''; home(); })); setInterval(wander, 13000); } else home();
+setTimeout(() => { const h = $('#jvhint'); if (h && !h.classList.contains('bubble')) h.hidden = true; }, 9000);
+$('#jvclose').onclick = () => { $('#jvpanel').hidden = true; $('#jvfab').hidden = false; if (J.tts) J.tts.stop().catch(() => {}); if (J.dict && J.mode === 'ptt' && J.dict.active()) J.dict.stop(); if (!(J.hf && J.mode === 'hf')) setState('idle'); };
+$('#jvform').onsubmit = e => { e.preventDefault(); const v = $('#jvtext').value.trim(); $('#jvtext').value = ''; ask(v); };
+$('#jvtext').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#jvform').requestSubmit(); } };
+$('#jvvoicepick').value = voicePick();
+$('#jvchatter').value = chatter();
+const SAMPLE = "Evening, Sir. Everything's running smoothly. I've had a look at your projects, and I'm afraid the print queue is, well... still a print queue.";
+$('#vt').addEventListener('toggle', () => { if ($('#vt').open) fillVoiceLab(); });
+$('#vt-voice').onchange = e => { const v = VPREF(); v.name = e.target.value; saveV(v); };
+$('#vt-pitch').oninput = e => { const v = VPREF(); v.pitch = +e.target.value; saveV(v); $('#vt-pv').textContent = v.pitch.toFixed(2); };
+$('#vt-rate').oninput = e => { const v = VPREF(); v.rate = +e.target.value; saveV(v); $('#vt-rv').textContent = v.rate.toFixed(2); };
+$('#vt-test').onclick = () => { if (useBrowserVoice()) { if (!SYN) { toast('This browser has no device voices. Try Edge or Chrome.'); return; } speakBrowser(SAMPLE); } else { setState('speak'); speak(SAMPLE); } };
+$('#vt-preset').onclick = () => {
+  const vs = SYN ? SYN.getVoices() : []; let pick = '';
+  for (const p of JARVIS_ORDER) { const v = vs.find(x => x.name.includes(p)); if (v) { pick = v.name; break; } }
+  const pv = (SYN ? SYN.getVoices() : []).find(x => x.name === pick); saveV({ name: pick, pitch: isNatural(pv) ? 1 : .94, rate: isNatural(pv) ? 1 : .97 }); try { localStorage.setItem('cc.voice', 'british'); } catch (e) {} $('#jvvoicepick').value = 'british';
+  fillVoiceLab(); toast(pick ? 'Preset: ' + pick.replace(/^Microsoft /, '').replace(/ - English.*$/, '') : 'No British voice on this device'); if (SYN) speakBrowser(SAMPLE);
+};
+$('#jvchatter').onchange = e => { try { localStorage.setItem('cc.chatter', e.target.value); } catch (er) {} toast(e.target.value === 'talk' ? 'He will chat as he flies' : e.target.value === 'quiet' ? 'Speech bubbles only' : 'Silent running, Sir'); };
+$('#jvvoicepick').onchange = e => { try { localStorage.setItem('cc.voice', e.target.value); } catch (er) {} if (J.tts) { setState('speak'); speak('Voice changed, Sir. Better?'); } };
+$('#jvmic').onclick = () => {
+  if (!J.dict) return;
+  if (J.mode === 'hf') { stopHF(); return; }
+  if (J.dict.active()) { J.dict.stop(); return; }
+  if (J.tts) J.tts.stop().catch(() => {});
+  J.mode = 'ptt';
+  J.dict.start().catch(e => { J.mode = null; if (e && e.code === 'not_granted') { $('#jvmic').hidden = true; J.dict = null; } });
+};
+
+/* ---------- "Hey Jarvis": hands-free listening ---------- */
+const WAKE = /\b(?:hey|hi|okay|ok|yo|right)?\s*(?:jarvis|jarvas|jervis|jarvie|jarvis's)\b/;
+const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+J.hf = false; J.hfPaused = false; J.hfWake = 0; J.mode = null;
+function startHF() {
+  if (!J.dict) { toast('Hands-free needs Chrome or Edge, or the Claude desktop app.'); return; }
+  if (J.tts) J.tts.stop().catch(() => {});
+  J.hf = true; J.hfPaused = false; J.mode = 'hf'; updateHF();
+  J.dict.start().catch(e => { J.mode = null; J.hf = false; updateHF(); if (e && e.code === 'not_granted') toast('Microphone is off for this page. Turn it on in the page permissions.'); else if (e && e.code !== 'stopped') toast('Couldn\'t start listening. Tap to try again.'); });
+}
+function stopHF() { J.hf = false; J.hfPaused = false; if (J.dict && J.mode === 'hf') J.dict.stop(); J.mode = null; updateHF(); setState('idle'); }
+function updateHF() {
+  const b = $('#hfbtn'), on = J.hf && J.mode === 'hf';
+  if (b) { b.setAttribute('aria-pressed', String(on)); b.textContent = on ? 'Hands-free: on' : J.hfPaused ? 'Hands-free: tap to resume' : 'Hands-free “Hey Jarvis”'; }
+  const tag = $('#hftag'); if (tag) { if (on || J.hfPaused) $('#jvhint').hidden = true; tag.hidden = !(on || J.hfPaused); tag.textContent = on ? 'Listening for “Hey Jarvis”' : 'Tap or press Space to keep listening'; }
+  if (on && !J.busy && J.state !== 'listen') setState('idle', 'Waiting for "Hey Jarvis"');
+}
+function hearHF(text) {
+  if (!text) return;
+  const raw = text.trim(), n = norm(raw), m = WAKE.exec(n);
+  // while he talks, the mic also hears him: only "Jarvis, stop" / "Hey Jarvis …" get through
+  const talking = J.state === 'speak' || Date.now() < J.speakingUntil;
+  if (talking) {
+    if (!m) return;
+    if (SYN) SYN.cancel(); if (J.tts) J.tts.stop().catch(() => {});
+    J.speakingUntil = 0;
+    if (/\b(stop|quiet|enough|shut up|cancel|that's all)\b/.test(n)) { setState('idle', 'Waiting for "Hey Jarvis"'); addMsg('act', '› Interrupted'); return; }
+  }
+  if (J.busy) return;
+  if (m) {
+    // the words after the wake phrase are the request
+    const w = raw.toLowerCase().search(/jarv|jerv/);
+    const cmd = (w >= 0 ? raw.slice(w).replace(/^\S+[\s,.!?:;-]*/, '') : '').trim();
+    if (cmd.replace(/[^a-z0-9]/gi, '').length > 2) { J.hfWake = 0; hfCommand(cmd); }
+    else { J.hfWake = Date.now(); setState('listen', 'Yes, Sir?'); if ($('#jvpanel').hidden) openPanel(true); addMsg('j', 'Yes, Sir?'); }
+  } else if (J.hfWake && Date.now() - J.hfWake < 12000) { J.hfWake = 0; hfCommand(raw); }
+  else if (J.state === 'listen') setState('idle', 'Waiting for "Hey Jarvis"');
+}
+function hfCommand(cmd) { if ($('#jvpanel').hidden) openPanel(true); ask(cmd); }
+// before speaking, hand the microphone back so the voice can play
+async function releaseMicForSpeech() {
+  // only needed when the browser has no speech engine of its own
+  if (!SYN && J.hf && J.mode === 'hf' && J.tts && $('#jvvoice').checked) { J.hfPaused = true; try { await J.dict.stop(); } catch (e) {} updateHF(); }
+}
+$('#hfbtn').onclick = () => { (J.hf && J.mode === 'hf') ? stopHF() : startHF(); };
+document.addEventListener('keydown', e => {
+  if (e.key !== ' ' || !J.hfPaused) return;
+  const a = document.activeElement; if (a && a.matches('input, textarea, select, button')) return;
+  e.preventDefault(); startHF();
+});
+
+/* ---------- boot ---------- */
+(async () => {
+  const cl = window.claude; if (!cl || !cl.use) return;
+  cl.use('sample').then(s => { J.sample = s; }).catch(() => {});
+  cl.use('tts').then(t => { if (!t) { if (!SYN) { $('#jvvoice').closest('label').hidden = true; $('#jvvoicepick').closest('label').hidden = true; } else { [...$('#jvvoicepick').options].forEach(o => { if (o.value !== 'british') o.remove(); }); $('#jvvoicepick').value = 'british'; } return; } J.tts = t; t.onState(({ state }) => { if (state === 'speaking') setState('speak'); else if (state === 'idle' && J.state === 'speak') setState('idle'); }); }).catch(() => {});
+  cl.use('dictation').then(d => {
+    if (!d) return; J.dict = d; $('#jvmic').hidden = false; $('#hfbtn').hidden = false;
+    let heard = '';
+    d.onPartial(({ text }) => {
+      if (J.mode === 'hf') {
+        if (!text || !WAKE.test(norm(text))) return;
+        if (J.state === 'speak' || Date.now() < J.speakingUntil) { if (SYN) SYN.cancel(); J.speakingUntil = 0; }   // barge-in: stop talking when called
+        if (!J.busy) setState('listen', 'Yes, Sir?');
+        return;
+      }
+      if (text) $('#jvtext').value = (heard + ' ' + text).trim();
+    });
+    d.onFinal(({ text }) => {
+      if (J.mode === 'hf') { hearHF(text); return; }
+      heard = (heard + text).trim(); $('#jvtext').value = heard;
+    });
+    d.onState(({ state, reason }) => {
+      const on = state !== 'idle';
+      if (J.mode === 'hf') {
+        if (on) { if (!J.busy) setState('idle', 'Waiting for "Hey Jarvis"'); }
+        else { J.mode = null; if (reason !== 'stopped') { J.hf = false; J.hfPaused = true; toast(reason === 'time_limit' ? 'Hands-free ran for an hour. Tap J.A.R.V.I.S. to start again.' : 'Hands-free paused. Tap J.A.R.V.I.S. to resume.'); } }
+        updateHF(); return;
+      }
+      $('#jvmic').setAttribute('aria-pressed', String(on));
+      if (on) { heard = ''; setState('listen'); } else { setState('idle'); const v = $('#jvtext').value.trim(); if (v) { $('#jvtext').value = ''; ask(v); } }
+    });
+  }).catch(() => {});
+})();
+lsGet(); loaded = true; render();
+(async () => {
+  const cl = window.claude; if (!cl || !cl.use) return;
+  try {
+    const [db, user] = await Promise.all([cl.use('db'), cl.use('user')]);
+    const id = user ? await user.id() : null;
+    if (!db || !id) return;
+    const base = db.doc('data/users/' + id + '/hub');
+    coll = base.collection('items'); logDoc = db.doc('data/users/' + id + '/hub/meta/log');
+    mode = 'db';
+    const local = [...S.items.values()], localLog = S.log.slice();
+    let first = true;
+    coll.onSnapshot(snap => {
+      const seen = new Set();
+      snap.docs.forEach(d => { seen.add(d.id); if (!writing[d.id]) S.items.set(d.id, { ...d.data(), id: d.id }); });
+      if (first) { first = false; local.forEach(o => { if (!seen.has(o.id)) save(o); }); try { localStorage.removeItem('cc.items'); } catch (e) {} }
+      [...S.items.keys()].forEach(k => { if (!seen.has(k) && !writing[k]) S.items.delete(k); });
+      const a = document.activeElement; if (!(a && a.closest && a.closest('form'))) render();
+    }, () => { mode = 'local'; render(); });
+    logDoc.onSnapshot(d => { if (d.exists) { S.log = (d.data().events || []); } else if (localLog.length) { S.log = localLog; logDoc.set({ events: localLog }).catch(() => {}); } const a = document.activeElement; if (!(a && a.closest && a.closest('form'))) render(); }, () => {});
+  } catch (e) {}
+})();
+})();
+</script>
+
+</body></html>

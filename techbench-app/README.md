@@ -42,7 +42,7 @@ Open **Parts**, or **Look up parts for this machine** on a Cat job, which fills 
 
 ## Set it up (one time)
 
-You need two free accounts: **Supabase** (database, sign-in, photo storage) and **GitHub Pages** (hosting, on this repository). The report writer also needs an **Anthropic API key**.
+You need two free accounts: **Supabase** (database, sign-in, photo storage) and **Cloudflare Pages** (hosting, from this private repository). The report writer also needs an **Anthropic API key**.
 
 1. **Supabase project.** At supabase.com create a project. Then:
    - SQL Editor → paste `supabase/migrations/001_techbench.sql` → Run, then the same for `002_parts.sql` (lets imported parts rows sync).
@@ -54,12 +54,36 @@ You need two free accounts: **Supabase** (database, sign-in, photo storage) and 
    supabase secrets set ANTHROPIC_API_KEY=<your key> --project-ref <your-ref>
    ```
    It uses Claude Opus 5.5 at medium effort, with automatic fallback if a request is declined. Without it, the app still works: **Write this segment with Claude** shows a **Copy prompt for Claude** box, you paste the prompt into Claude, and paste the reply back.
-3. **Hosting.** In this GitHub repository:
-   - Settings → Secrets and variables → Actions → **Variables**: add `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
-   - Settings → Pages → Source: **GitHub Actions**.
-   - Merge this branch into `main` (or run the *Deploy Tech Bench app* workflow). The app is published at `https://<github-user>.github.io/task-dashboard/`.
+3. **Hosting on Cloudflare Pages** (dash.cloudflare.com → Workers & Pages → Create → Pages → Connect to Git):
+   - Repository: `task-dashboard`. Production branch: `main`.
+   - Framework preset: **None**. Build command: `bash techbench-app/dev/build-site.sh`. Build output directory: `site`.
+   - Environment variables: none needed; the committed `config.js` files already point at the Supabase project. Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` only to point a deploy at a different project.
+   - Save and deploy. Tech Bench is at `https://<project>.pages.dev/`, J.A.R.V.I.S. at `/jarvis/`, the PSR Tool at `/psr/`. Every push to `main` redeploys.
 
 The anon key is designed to be public; the security rules above are what protect the data.
+
+## J.A.R.V.I.S. command centre with the ElevenLabs voice
+
+`jarvis/` is the hosted copy of the J.A.R.V.I.S. command centre (the same page as the claude.ai artifact, built by `node dev/build-jarvis.js <artifact html>`). Hosted, it can do what the claude.ai frame blocks: Claude writes each reply through `supabase/functions/jarvis-chat`, and ElevenLabs speaks it through `supabase/functions/jarvis-voice`, while the browser keeps listening for "Hey Jarvis".
+
+| Setting | Value |
+|---|---|
+| Voice ID | `fONmGZvf9jMdFhjqnd2L` (override with secret `JARVIS_VOICE_ID`) |
+| Model | `eleven_flash_v2_5` |
+| Endpoint | `POST https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream?output_format=mp3_44100_128` |
+| Voice settings | stability 0.62, similarity_boost 0.80, style 0.05, speed 0.96, use_speaker_boost true |
+| Key | `ELEVENLABS_API_KEY`, read from the Supabase function secrets, never sent to the page |
+
+Deploy (once Supabase is set up as above):
+```
+supabase functions deploy jarvis-voice --project-ref <ref>
+supabase functions deploy jarvis-chat --project-ref <ref>
+supabase secrets set ELEVENLABS_API_KEY=<key from the workspace that holds the jarvis voice> --project-ref <ref>
+supabase secrets set ANTHROPIC_API_KEY=<key> --project-ref <ref>
+```
+Optionally lock the functions to your site: `supabase secrets set JARVIS_ALLOWED_ORIGIN=https://<project>.pages.dev`. Then open `https://<project>.pages.dev/jarvis/` and sign in with your Tech Bench account. Use Edge or Chrome for "Hey Jarvis" hands-free.
+
+Tests: `node --experimental-strip-types tests/jarvis-voice-fn.mjs` (exact ElevenLabs request), `MOCK_TONE=<mp3> node tests/jarvis-hosted.js` (sign-in, Claude tool call, spoken reply).
 
 ## Install
 
