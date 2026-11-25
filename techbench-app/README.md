@@ -83,7 +83,9 @@ supabase secrets set ANTHROPIC_API_KEY=<key> --project-ref <ref>
 ```
 Optionally lock the functions to your site: `supabase secrets set JARVIS_ALLOWED_ORIGIN=https://<project>.pages.dev`. Then open `https://<project>.pages.dev/jarvis/` and sign in with your Tech Bench account. Use Edge or Chrome for "Hey Jarvis" hands-free.
 
-Tests: `node --experimental-strip-types tests/jarvis-voice-fn.mjs` (exact ElevenLabs request), `MOCK_TONE=<mp3> node tests/jarvis-hosted.js` (sign-in, Claude tool call, spoken reply).
+If the ElevenLabs key is missing or rejected, he keeps talking in the device voice (Edge: Ryan Online (Natural)) and shows a one-time notice. If the Anthropic key is missing, he says so in the chat instead of failing silently.
+
+Tests: `node --experimental-strip-types tests/jarvis-voice-fn.mjs` (exact ElevenLabs request), `MOCK_TONE=<mp3> node tests/jarvis-hosted.js` (sign-in, Claude tool call, spoken reply), `node tests/jarvis-fallback.js` (bad ElevenLabs key, missing Anthropic key).
 
 ## Install
 

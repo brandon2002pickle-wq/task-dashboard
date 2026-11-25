@@ -128,3 +128,6 @@ yarn-error.log*
 
 # Cloudflare Pages build output
 /site/
+
+# ElevenLabs test output
+output.mp3

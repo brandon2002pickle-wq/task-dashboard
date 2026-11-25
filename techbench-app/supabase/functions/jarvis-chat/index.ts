@@ -16,6 +16,7 @@ const json = (body: unknown, status = 200) =>
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
+  if (!Deno.env.get("ANTHROPIC_API_KEY")) return json({ error: "ANTHROPIC_API_KEY is not set on the backend." }, 500);
 
   let body: { system?: string; messages?: Anthropic.Beta.BetaMessageParam[]; tools?: Anthropic.Beta.BetaTool[] };
   try { body = await req.json(); } catch { return json({ error: "Body must be JSON" }, 400); }
@@ -40,6 +41,7 @@ Deno.serve(async (req) => {
     if (err instanceof Anthropic.RateLimitError) return json({ error: "Rate limited" }, 429);
     if (err instanceof Anthropic.AuthenticationError) return json({ error: "ANTHROPIC_API_KEY is missing or invalid." }, 500);
     if (err instanceof Anthropic.APIError) return json({ error: `Claude API error ${err.status}` }, 502);
+    console.error("jarvis-chat:", err instanceof Error ? err.message : err);
     return json({ error: "jarvis-chat failed" }, 500);
   }
 });

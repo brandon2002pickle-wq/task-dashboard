@@ -17,7 +17,14 @@
       const rr = await fetch(URL0 + '/auth/v1/token?grant_type=refresh_token', { method: 'POST', headers: { apikey: ANON, 'Content-Type': 'application/json' }, body: JSON.stringify({ refresh_token: getS().refresh_token }) });
       if (rr.ok) { setS(await rr.json()); r = await go(); } else { setS(null); showSignIn(); }
     }
-    if (!r.ok) { let m = 'HTTP ' + r.status; try { const j = await r.json(); m = j.error || j.message || m; } catch (e) {} const e = new Error(m); e.code = r.status === 429 ? 'rate_limited' : r.status === 401 ? 'not_granted' : 'upstream_error'; throw e; }
+    if (!r.ok) {
+      let m = 'HTTP ' + r.status; try { const j = await r.json(); m = j.error || j.message || m; } catch (e) {}
+      const e = new Error(m); e.code = r.status === 429 ? 'rate_limited' : r.status === 401 ? 'not_granted' : 'upstream_error';
+      if (r.status === 401) { setS(null); showSignIn(); e.text = 'Please sign in again, Sir.'; }
+      else if (r.status === 404) e.text = 'My ' + (path.includes('voice') ? 'voice' : 'brain') + ' function isn\'t deployed to Supabase yet, Sir.';
+      else if (/ANTHROPIC_API_KEY/.test(m)) e.text = 'My brain isn\'t connected yet, Sir. The Anthropic key needs adding to the Supabase function secrets as ANTHROPIC_API_KEY.';
+      throw e;
+    }
     return raw ? r : r.json();
   }
 
@@ -74,11 +81,37 @@
   /* ---- tts: ElevenLabs through jarvis-voice ---- */
   const ttsHandlers = new Set(); let audio = null, current = null;
   const emit = (state, reason) => ttsHandlers.forEach(h => { try { h({ state, reason }); } catch (e) {} });
+  // If ElevenLabs is unavailable (key missing or rejected, quota, offline) he keeps talking in the device voice.
+  let elDown = false, warned = false;
+  function deviceVoice(text) {
+    const syn = window.speechSynthesis; if (!syn) return Promise.reject({ code: 'upstream_error' });
+    return new Promise(res => {
+      syn.cancel();
+      const u = new SpeechSynthesisUtterance(String(text));
+      let pref = {}; try { pref = JSON.parse(localStorage.getItem('cc.vtune2') || '{}'); } catch (e) {}
+      const vs = syn.getVoices();
+      const v = vs.find(x => x.name === pref.name) || vs.find(x => /Ryan.*Natural/i.test(x.name)) || vs.find(x => /en-GB/i.test(x.lang) && /male|ryan|george|daniel|arthur/i.test(x.name)) || vs.find(x => /en-GB/i.test(x.lang));
+      if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-GB';
+      u.pitch = pref.pitch || 1; u.rate = pref.rate || 1;
+      u.onstart = () => emit('speaking');
+      u.onend = u.onerror = () => { emit('idle', 'completed'); res({ playedMs: 0 }); };
+      syn.speak(u);
+    });
+  }
   const tts = {
     async speak(text) {
       tts.stop();
       emit('starting');
-      const r = await authFetch('/functions/v1/jarvis-voice', { text: String(text).slice(0, 1200) }, true);
+      if (elDown) return deviceVoice(text);
+      let r;
+      try { r = await authFetch('/functions/v1/jarvis-voice', { text: String(text).slice(0, 1200) }, true); }
+      catch (e) {
+        if (e.code === 'not_granted') { emit('idle', 'not_granted'); throw e; }
+        elDown = true;
+        console.warn('ElevenLabs voice unavailable, using the device voice:', e.message);
+        if (!warned && window.toast) { warned = true; try { window.toast('ElevenLabs voice unavailable, using the device voice'); } catch (er) {} }
+        return deviceVoice(text);
+      }
       const url = URL.createObjectURL(await r.blob());
       return new Promise((res, rej) => {
         audio = new Audio(url); current = { res, rej };
@@ -88,7 +121,7 @@
         audio.play().catch(() => { emit('idle', 'no_gesture'); current = null; rej({ code: 'no_gesture' }); });
       });
     },
-    async stop() { if (audio) { audio.pause(); audio = null; } if (current) { emit('idle', 'stopped'); current.rej({ code: 'stopped' }); current = null; } },
+    async stop() { if (window.speechSynthesis && elDown) window.speechSynthesis.cancel(); if (audio) { audio.pause(); audio = null; } if (current) { emit('idle', 'stopped'); current.rej({ code: 'stopped' }); current = null; } },
     onState(h) { ttsHandlers.add(h); return () => ttsHandlers.delete(h); }
   };
 

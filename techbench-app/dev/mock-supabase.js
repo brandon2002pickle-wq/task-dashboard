@@ -140,7 +140,7 @@ const api = http.createServer(async (req, res) => {
 
   // ---- Functions
   if (p === '/functions/v1/jarvis-chat' && req.method === 'POST') {
-    const b = j(); ctl.chatCalls = (ctl.chatCalls || []).concat([{ system: (b.system || '').slice(0, 60), n: b.messages.length, tools: (b.tools || []).map(t => t.name) }]);
+    const b = j(); if (ctl.chatFail) return send(res, 500, { error: ctl.chatFail }); ctl.chatCalls = (ctl.chatCalls || []).concat([{ system: (b.system || '').slice(0, 60), n: b.messages.length, tools: (b.tools || []).map(t => t.name) }]);
     const last = b.messages[b.messages.length - 1];
     if (Array.isArray(last.content) && last.content[0] && last.content[0].type === 'tool_result') return send(res, 200, { content: [{ type: 'text', text: 'Shift started, Sir. Shop mode is yours.' }], stop_reason: 'end_turn' });
     if (/shift/i.test(String(last.content))) return send(res, 200, { content: [{ type: 'thinking', thinking: '', signature: 'sig' }, { type: 'tool_use', id: 'tu_1', name: 'set_shift', input: { on: true } }], stop_reason: 'tool_use' });
@@ -148,6 +148,7 @@ const api = http.createServer(async (req, res) => {
   }
   if (p === '/functions/v1/jarvis-voice' && req.method === 'POST') {
     const b = j(); ctl.voiceTexts = (ctl.voiceTexts || []).concat([b.text]);
+    if (ctl.voiceFail) return send(res, 502, { error: ctl.voiceFail });
     const f = process.env.MOCK_TONE; if (!f || !fs.existsSync(f)) return send(res, 500, { error: 'no tone' });
     return send(res, 200, fs.readFileSync(f), { 'Content-Type': 'audio/mpeg' });
   }
