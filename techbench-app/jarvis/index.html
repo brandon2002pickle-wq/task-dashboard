@@ -532,6 +532,33 @@ input[type=range] { padding: 0; accent-color: var(--indigo-2); background: trans
 .ct-btn:hover { border-color: var(--h-glow); box-shadow: 0 0 14px -4px var(--h-glow); }
 .ct-btn.primary { background: linear-gradient(135deg, rgba(var(--h-rgb,133,119,255),.85), rgba(var(--h-hi,200,195,255),.6)); color: #0b0820; border-color: transparent; font-weight: 700; }
 .cosmos-foot { position: absolute; z-index: 4; left: 0; right: 0; bottom: max(14px, env(safe-area-inset-bottom, 0px)); text-align: center; font-size: 10px; letter-spacing: .16em; color: var(--h-mute); text-transform: uppercase; padding: 0 16px; pointer-events: none; }
+/* background music */
+.musicpop { position: absolute; z-index: 6; top: calc(max(18px, env(safe-area-inset-top, 0px)) + 120px); right: max(22px, env(safe-area-inset-right, 0px)); width: min(360px, calc(100vw - 32px));
+  background: rgba(8,6,20,.86); border: 1px solid var(--h-dim); border-radius: 16px; padding: 14px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 20px 50px -20px rgba(0,0,0,.9); color: var(--h-ink); }
+.musicpop h4 { margin: 0 0 8px; font-family: 'Orbitron', var(--font-m); font-size: 12px; letter-spacing: .18em; color: #fff; }
+.musicpop p { margin: 6px 0; font-size: 11px; line-height: 1.5; color: var(--h-mute); }
+.musicpop iframe { width: 100%; height: 175px; border: 0; border-radius: 12px; overflow: hidden; background: transparent; }
+.musicpop .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+.musicpop label { display: flex; gap: 8px; align-items: center; font-size: 11px; color: var(--h-ink); }
+.musicpop input[type=range] { flex: 1; accent-color: var(--h-glow); background: transparent; border: 0; padding: 0; }
+.musicpop .file { position: relative; overflow: hidden; }
+.musicpop .file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.musicpop { max-height: calc(100vh - 160px); overflow-y: auto; }
+.tracks { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; counter-reset: t; }
+.tracks li { counter-increment: t; }
+.tracks button { width: 100%; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; text-align: left; font: inherit; font-size: 11px; color: var(--h-ink); background: none; border: 0; border-radius: 8px; padding: 6px 8px; cursor: pointer; }
+.tracks button::before { content: counter(t); color: var(--h-mute); font-size: 10px; }
+.tracks button:hover { background: rgba(var(--h-rgb, 133,119,255), .12); }
+.tracks button[aria-current="true"] { background: rgba(var(--h-rgb, 133,119,255), .22); }
+.tracks button[aria-current="true"]::before { content: "♪"; color: var(--h-glow); }
+.tracks b { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tracks span { display: block; color: var(--h-mute); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tracks em { font-style: normal; font-size: 10px; color: var(--h-mute); }
+.tracks em.own { color: var(--h-acc); }
+.musicpop .ctl .ct-btn { padding: 7px 11px; }
+.musicpop .now { font-size: 11px; color: var(--h-acc); min-height: 1.4em; margin-top: 8px; }
+#ct-music[aria-pressed="true"] { border-color: var(--h-glow); box-shadow: 0 0 14px -4px var(--h-glow); }
+@media (max-width: 760px) { .musicpop { top: auto; bottom: max(16px, env(safe-area-inset-bottom, 0px)); right: 16px; left: 16px; width: auto; } }
 /* every board is a drawer over the galaxy */
 .shell { position: fixed; z-index: 15; top: 0; right: 0; bottom: 0; width: min(1080px, 100vw); max-width: none; margin: 0; overflow-y: auto; overscroll-behavior: contain;
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px));
@@ -573,11 +600,23 @@ body:not(.drawer-open) .jv-fab { display: none; }
   <div class="cosmos-top">
     <div><div class="ct-name" id="ct-name">J.A.R.V.I.S. · BRANDON'S COMMAND CENTRE</div><h1 id="ct-greet"></h1><p id="ct-quip"></p></div>
     <div class="ct-right"><b id="ct-clock"></b><span id="ct-date"></span>
-      <div class="ct-actions"><button type="button" class="ct-btn primary" id="ct-shift">Start shift</button><button type="button" class="ct-btn" id="ct-map">Diagram</button><button type="button" class="ct-btn" id="ct-all">All boards</button></div></div>
+      <div class="ct-actions"><button type="button" class="ct-btn primary" id="ct-shift">Start shift</button><button type="button" class="ct-btn" id="ct-map">Diagram</button><button type="button" class="ct-btn" id="ct-all">All boards</button><button type="button" class="ct-btn" id="ct-music" aria-pressed="false" aria-expanded="false">♪ Music</button></div></div>
   </div>
   <button class="cosmos-core" id="cosmos-core" type="button" aria-label="Talk to J.A.R.V.I.S."><canvas id="cosmos-gal" width="1000" height="1000"></canvas></button>
   <div class="core-tag"><b>J.A.R.V.I.S.</b><span id="ct-state">Tap to talk · say "Hey Jarvis"</span></div>
   <nav id="planets" aria-label="Your areas"></nav>
+  <section class="musicpop" id="musicpop" hidden aria-label="Background music">
+    <h4>♪ PICKLE'S SHOP MIX · AFTER DARK</h4>
+    <div id="am-wrap"></div>
+    <p id="am-note">Tap a track for Apple Music's player (full song when this browser is signed in to Apple Music, otherwise a preview).</p>
+    <div class="row ctl"><button type="button" class="ct-btn" id="mu-prev" aria-label="Previous track">⏮</button><button type="button" class="ct-btn" id="mu-play">Play</button><button type="button" class="ct-btn" id="mu-next" aria-label="Next track">⏭</button><button type="button" class="ct-btn" id="mu-shuf" aria-pressed="false">Shuffle</button></div>
+    <ol class="tracks" id="mu-list"></ol>
+    <div class="row"><span class="ct-btn file">Add my own copies…<input type="file" id="mu-file" accept="audio/*" multiple aria-label="Choose your own copies of the songs"></span><button type="button" class="ct-btn" id="mu-forget" hidden>Forget files</button></div>
+    <div class="row"><label style="flex:1">Volume <input type="range" id="mu-vol" min="0" max="1" step="0.01"></label></div>
+    <div class="row"><label><input type="checkbox" id="mu-duck" checked> Quieter while J.A.R.V.I.S. talks or listens</label></div>
+    <div class="row"><label><input type="checkbox" id="mu-auto"> Start with the page (on first tap)</label></div>
+    <div class="now" id="mu-now"></div>
+  </section>
   <div class="cosmos-foot">Tap a planet to open it · tap J.A.R.V.I.S. to talk · "Hey Jarvis, pull up the diagram"</div>
 </div>
 <button class="drawer-x" id="drawerx" type="button">✕ Back to the galaxy</button>
@@ -1255,6 +1294,7 @@ function cosmosState() {
   $('#ct-state').textContent = J.state === 'speak' ? 'Speaking' : J.state === 'listen' ? 'Listening' : J.state === 'think' ? 'Thinking' : hf ? 'Listening for "Hey Jarvis"' : 'Tap to talk · say "Hey Jarvis"';
 }
 function cosmosLoop(t) {
+  muTick();
   const open = document.body.classList.contains('drawer-open'), narrow = innerWidth < 760;
   const tt = reduceMotion ? 4000 : t;
   if (!(open && narrow) && !document.hidden) {
@@ -1298,6 +1338,119 @@ $('#ct-map').onclick = () => openHud('diagram');
 $('#ct-shift').onclick = () => { const sh = S.items.get('shift'); setShift(!(sh && sh.on)); setTimeout(cosmosFill, 1700); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('drawer-open') && !(typeof HUD !== 'undefined' && HUD.open) && $('#jvpanel').hidden) closeDrawer(); });
 addEventListener('resize', cosmosGeom);
+
+/* ===== BACKGROUND MUSIC: Pickle's Shop Mix · After Dark ===== */
+const MIX = [
+  ['addiction', 'LONOWN & Asenssia', '3:28', 'album/addiction/1895030608?i=6762825656'],
+  ['worry', 'LONOWN & riserayss', '3:00', 'album/worry/1838749429?i=1838749852'],
+  ['starly & jessie (Mashup)', 'LONOWN & riserayss', '5:18', 'album/starly-jessie-mashup/1846119876?i=1846119886'],
+  ['Sleepwalker', 'akiaura & LONOWN & STM', '3:32', 'album/sleepwalker/1687940983?i=1687941340'],
+  ['Kerosene', 'Crystal Castles', '3:12', 'album/kerosene/1667362419?i=1667362425'],
+  ['Goth', 'Sidewalks and Skeletons', '3:27', 'album/goth/976085565?i=976085576'],
+  ['snowfall (Slowed + Reverb)', 'Øneheart & reidenshi', '2:30', 'album/snowfall-slowed-reverb/1681659745?i=1681659747'],
+  ['QKThr', 'Aphex Twin', '1:27', 'album/qkthr/282559693?i=282559931'],
+  ['Resonance', 'Home', '3:32', 'album/resonance/1789601131?i=1789601140'],
+  ['After Dark', 'Mr.Kitty', '4:19', 'album/after-dark/1176303860?i=1176303886'],
+  ['Genesis', 'Grimes', '4:15', 'album/genesis/499874506?i=499875049'],
+  ['Vanished', 'Crystal Castles', '4:02', 'album/vanished/1132754123?i=1132754196'],
+  ['Memory Reboot (Ambient Remix)', 'VØJ & Narvent & .diedlonely', '2:50', 'album/memory-reboot-ambient-remix/1730590148?i=1730590151']
+].map(([t, a, d, path]) => ({ t, a, d, am: 'https://embed.music.apple.com/us/' + path }));
+const AM_EMBED = MIX[0].am;
+const MU = { audio: null, ctx: null, an: null, buf: null, vol: .35, duck: true, auto: false, shuffle: false, level: 1, files: {}, cur: 0, src: '' };
+try { const p = JSON.parse(localStorage.getItem('cc.music') || '{}'); ['vol', 'duck', 'auto', 'shuffle', 'cur'].forEach(k => { if (p[k] !== undefined) MU[k] = p[k]; }); } catch (e) {}
+const muSave = () => { try { localStorage.setItem('cc.music', JSON.stringify({ vol: MU.vol, duck: MU.duck, auto: MU.auto, shuffle: MU.shuffle, cur: MU.cur })); } catch (e) {} };
+function muDB(mode, fn) {      // song files stay on this device only
+  return new Promise((res, rej) => { let r; try { r = indexedDB.open('cc-music', 1); } catch (e) { return rej(e); }
+    r.onupgradeneeded = () => r.result.createObjectStore('t'); r.onerror = () => rej(r.error);
+    r.onsuccess = () => { const tx = r.result.transaction('t', mode), st = tx.objectStore('t'), q = fn(st); tx.oncomplete = () => res(q && q.result); tx.onerror = () => rej(tx.error); }; });
+}
+const muNorm = s => String(s).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/ø/g, 'o').replace(/\(.*?\)|\[.*?\]/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim();
+/* which mix track a file is: by title in the file name (artist optional) */
+function matchTrack(name) {
+  const n = ' ' + muNorm(name) + ' ';
+  let best = -1, score = 0;
+  MIX.forEach((m, i) => { const t = muNorm(m.t), a = muNorm(m.a.split('&')[0]); let sc = 0;
+    if (n.includes(' ' + t + ' ')) sc = 2 + t.length / 100; if (sc && n.includes(a)) sc += 1;
+    if (/slowed|reverb/.test(m.t.toLowerCase()) && sc && !/slowed|reverb/.test(n)) sc -= .5;
+    if (/mashup|ambient/.test(m.t.toLowerCase()) && sc && /mashup|ambient/.test(n)) sc += .5;
+    if (sc > score) { score = sc; best = i; } });
+  return best;
+}
+const owned = () => MIX.map((_, i) => i).filter(i => MU.files[i]);
+function muLoad(i, play) {
+  MU.cur = i; muSave();
+  const file = MU.files[i];
+  if (file) {
+    if (!MU.audio) { MU.audio = new Audio(); MU.audio.onplay = MU.audio.onpause = () => { muUI(); }; MU.audio.onended = () => muStep(1); }
+    if (MU.src) URL.revokeObjectURL(MU.src); MU.src = URL.createObjectURL(file); MU.audio.src = MU.src; MU.audio.volume = MU.vol * MU.level;
+    if (play) muPlay();
+  } else {
+    if (MU.audio) MU.audio.pause();
+    const fr = $('#am-wrap iframe'); if (fr) fr.src = MIX[i].am; else amFrame(MIX[i].am);
+  }
+  muUI();
+}
+function muStep(dir) {
+  const own = owned(); if (!own.length) { muLoad((MU.cur + dir + MIX.length) % MIX.length, false); return; }
+  let next;
+  if (MU.shuffle && own.length > 1) { do { next = own[Math.floor(Math.random() * own.length)]; } while (next === MU.cur); }
+  else { const pos = own.indexOf(MU.cur); next = own[((pos < 0 ? (dir > 0 ? -1 : 0) : pos) + dir + own.length) % own.length]; }
+  muLoad(next, true);
+}
+function muGraph() {           // bass level for the galaxy pulse
+  if (MU.ctx || !MU.audio) return; try { const AC = window.AudioContext || window.webkitAudioContext; MU.ctx = new AC();
+    const src = MU.ctx.createMediaElementSource(MU.audio); MU.an = MU.ctx.createAnalyser(); MU.an.fftSize = 512; MU.buf = new Uint8Array(MU.an.frequencyBinCount);
+    src.connect(MU.an); MU.an.connect(MU.ctx.destination); } catch (e) { MU.ctx = null; MU.an = null; }
+}
+async function muPlay() { if (!MU.audio || !MU.audio.src) { const own = owned(); if (own.length) { muLoad(own.includes(MU.cur) ? MU.cur : own[0], true); } return; }
+  muGraph(); try { if (MU.ctx && MU.ctx.state === 'suspended') await MU.ctx.resume(); await MU.audio.play(); } catch (e) { $('#mu-now').textContent = 'Tap Play to start the music.'; } }
+function amFrame(src) { const fr = document.createElement('iframe'); fr.src = src; fr.title = 'Apple Music player'; fr.setAttribute('allow', 'autoplay *; encrypted-media *; clipboard-write');
+  fr.setAttribute('sandbox', 'allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation'); $('#am-wrap').innerHTML = ''; $('#am-wrap').appendChild(fr); }
+function muUI() {
+  const own = owned(), on = !!(MU.audio && !MU.audio.paused && MU.files[MU.cur]), m = MIX[MU.cur];
+  $('#mu-list').innerHTML = MIX.map((x, i) => `<li><button type="button" data-i="${i}" aria-current="${i === MU.cur}"><span style="display:contents"></span><span><b>${esc(x.t)}</b><span>${esc(x.a)}</span></span><em class="${MU.files[i] ? 'own' : ''}">${MU.files[i] ? '● mine' : x.d}</em></button></li>`).join('');
+  $('#mu-list').querySelectorAll('button').forEach(b => b.onclick = () => muLoad(+b.dataset.i, true));
+  $('#mu-play').textContent = on ? 'Pause' : 'Play'; $('#mu-play').disabled = !own.length; $('#mu-prev').disabled = $('#mu-next').disabled = false;
+  $('#mu-shuf').setAttribute('aria-pressed', String(MU.shuffle)); $('#mu-forget').hidden = !own.length;
+  $('#mu-now').textContent = own.length ? (on ? '♪ Playing ' : 'Ready: ') + m.t + ' · ' + m.a + ' · ' + own.length + ' of ' + MIX.length + ' tracks on this device' : 'No files yet. Add your own copies to play the mix in order here; they stay on this device.';
+  $('#ct-music').setAttribute('aria-pressed', String(on)); $('#ct-music').textContent = on ? '♪ ' + (m.t.length > 14 ? m.t.slice(0, 13) + '…' : m.t) : '♪ Music';
+}
+/* every frame: duck under his voice, and measure the bass for the galaxy */
+function muTick() {
+  if (!MU.audio || MU.audio.paused) { J.beat = 0; return; }
+  const want = MU.duck && (J.state === 'speak' || J.state === 'listen' || J.state === 'think') ? .22 : 1;
+  MU.level += (want - MU.level) * .08; MU.audio.volume = Math.max(0, Math.min(1, MU.vol * MU.level));
+  if (MU.an) { MU.an.getByteFrequencyData(MU.buf); let e = 0; for (let i = 0; i < 6; i++) e += MU.buf[i]; e /= 6 * 255; MU.raw = e;
+    MU.avg = (MU.avg || e) * .96 + e * .04;                                   // kicks = bass above its own running average
+    J.beat = (J.beat || 0) * .75 + Math.min(1, Math.max(0, (e - MU.avg) * 5) + e * .25) * .25; }
+}
+$('#ct-music').onclick = () => { const p = $('#musicpop'), open = p.hidden; p.hidden = !open; $('#ct-music').setAttribute('aria-expanded', String(open)); if (open && !$('#am-wrap').firstChild) amFrame(MIX[MU.cur].am); };
+document.addEventListener('securitypolicyviolation', e => { if (/apple\.com/.test(e.blockedURI || '')) { $('#am-wrap').innerHTML = ''; $('#am-note').textContent = 'The Apple Music player is blocked inside Claude. It works on your hosted J.A.R.V.I.S. page; here, add your own copies of the songs.'; } });
+$('#mu-file').onchange = async e => {
+  const files = [...e.target.files]; if (!files.length) return; const placed = [], missed = [];
+  for (const file of files) { const i = matchTrack(file.name); if (i < 0) { missed.push(file.name); continue; } MU.files[i] = file; placed.push(i);
+    try { await muDB('readwrite', st => st.put({ blob: file, name: file.name }, 'mix-' + i)); } catch (er) {} }
+  e.target.value = '';
+  muUI(); if (placed.length) muLoad(placed.sort((a, b) => a - b)[0], true);
+  if (missed.length) $('#mu-now').textContent = 'Not in the mix (name didn\'t match a title): ' + missed.join(', ');
+};
+$('#mu-play').onclick = () => { if (MU.audio && !MU.audio.paused) MU.audio.pause(); else muPlay(); };
+$('#mu-next').onclick = () => muStep(1);
+$('#mu-prev').onclick = () => { if (MU.audio && MU.audio.currentTime > 4 && MU.files[MU.cur]) { MU.audio.currentTime = 0; return; } muStep(-1); };
+$('#mu-shuf').onclick = () => { MU.shuffle = !MU.shuffle; muSave(); muUI(); };
+$('#mu-forget').onclick = async () => { try { await muDB('readwrite', st => st.clear()); } catch (e) {} if (MU.audio) MU.audio.pause(); MU.files = {}; J.beat = 0; muUI(); };
+$('#mu-vol').value = MU.vol; $('#mu-vol').oninput = e => { MU.vol = +e.target.value; muSave(); };
+$('#mu-duck').checked = MU.duck; $('#mu-duck').onchange = e => { MU.duck = e.target.checked; muSave(); };
+$('#mu-auto').checked = MU.auto; $('#mu-auto').onchange = e => { MU.auto = e.target.checked; muSave(); };
+window.__ccMusic = () => ({ volume: MU.audio ? +MU.audio.volume.toFixed(3) : null, set: MU.vol, beat: +(J.beat || 0).toFixed(3), cur: MU.cur, title: MIX[MU.cur].t, own: owned(), playing: !!(MU.audio && !MU.audio.paused), state: J.state });   // read-only, for tests
+/* bring back files saved on this device (and the one-track file from before, matched into the mix) */
+muDB('readonly', st => st.getAll()).then(async rows => {
+  const keys = await muDB('readonly', st => st.getAllKeys());
+  (keys || []).forEach((k, n) => { const r = rows[n]; if (!r || !r.blob) return; let i = String(k).startsWith('mix-') ? +String(k).slice(4) : matchTrack(r.name || '');
+    if (k === 'track' && i < 0) i = 0; if (i >= 0) MU.files[i] = r.blob; });
+  if (!MU.files[MU.cur] && owned().length) MU.cur = owned()[0];
+  muUI(); if (owned().length) { muLoad(MU.cur, false); if (MU.auto) addEventListener('pointerdown', () => muPlay(), { once: true }); }
+}).catch(() => muUI());
 
 /* ===== J.A.R.V.I.S. HUD ===== */
 const HUD = { open: false, screen: 'core', hot: {}, raf: 0 };
@@ -1422,7 +1575,7 @@ function drawGalaxy(cv, t) {
   if (!cv) return; const RGB = hudRGB(), HI = hudHI(); const c = cv.getContext('2d'), W = cv.width, R = W / 2; c.clearRect(0, 0, W, W);
   const shopGal = document.documentElement.dataset.mode === 'shop';
   hudGal = galFor(shopGal);
-  const talk = J.talk || 0, spin = t / 26000, tilt = .42;
+  const talk = Math.max(J.talk || 0, (J.beat || 0) * .7), spin = t / 26000, tilt = .42;
   c.save(); c.translate(R, R);
   let g = c.createRadialGradient(0, 0, 0, 0, 0, R * .9); g.addColorStop(0, `rgba(${HI},${.55 + talk * .35})`); g.addColorStop(.12, `rgba(${RGB},${.35 + talk * .25})`); g.addColorStop(.5, `rgba(${RGB},.06)`); g.addColorStop(1, 'rgba(0,0,0,0)');
   c.fillStyle = g; c.beginPath(); c.ellipse(0, 0, R * .9, R * .9 * tilt * 1.6, 0, 0, 6.283); c.fill();
