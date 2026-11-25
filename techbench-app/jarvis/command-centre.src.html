@@ -371,6 +371,57 @@ input[type=range] { padding: 0; accent-color: var(--indigo-2); background: trans
     linear-gradient(var(--h-glow), var(--h-glow)) 100% 0 / 26px 2px no-repeat, linear-gradient(var(--h-glow), var(--h-glow)) 100% 0 / 2px 26px no-repeat,
     linear-gradient(var(--h-glow), var(--h-glow)) 0 100% / 26px 2px no-repeat, linear-gradient(var(--h-glow), var(--h-glow)) 0 100% / 2px 26px no-repeat,
     linear-gradient(var(--h-glow), var(--h-glow)) 100% 100% / 26px 2px no-repeat, linear-gradient(var(--h-glow), var(--h-glow)) 100% 100% / 2px 26px no-repeat; }
+/* his palette, not the film's: angelcore off shift, Stark workshop on shift */
+:root:not([data-mode="shop"]) .hud { --h-bg: #020208; --h-line: rgba(133,119,255,.6); --h-dim: rgba(133,119,255,.24); --h-glow: #8577ff; --h-ink: #ecebff; --h-mute: #9a97c9; --h-acc: #9fe8ac; --h-rgb: 133,119,255; --h-hi: 200,195,255;
+  background: radial-gradient(900px 600px at 50% 45%, #15105a 0%, #07062a 45%, #020208 80%), #020208; }
+:root[data-mode="shop"] .hud { --h-bg: #0a0705; --h-line: rgba(255,196,74,.6); --h-dim: rgba(255,196,74,.22); --h-glow: #ffc44a; --h-ink: #fff3dc; --h-mute: #c2ab84; --h-acc: #ff4b3e; --h-rgb: 255,196,74; --h-hi: 255,230,180;
+  background: radial-gradient(900px 600px at 50% 40%, #3a1408 0%, #1a0b06 45%, #0a0705 80%), #0a0705; }
+.hud .hud-clock b, .hud .hud-title, .hud .node h5, .hud .hud-big { text-shadow: 0 0 14px rgba(var(--h-rgb, 79,166,255),.75); }
+.hud .hud-clock b { color: rgb(var(--h-hi, 143,199,255)); }
+.hud .meter i::after { background: linear-gradient(90deg, rgba(var(--h-rgb,79,166,255),.7), rgb(var(--h-hi,124,196,255))); box-shadow: 0 0 8px rgb(var(--h-rgb,79,166,255)); }
+.hud .meter i { background: rgba(var(--h-rgb,79,166,255),.14); }
+.hud .hud-panel, .hud .node { background: rgba(var(--h-rgb,79,166,255),.06); box-shadow: 0 0 26px -10px rgba(var(--h-rgb,79,166,255),.7), inset 0 0 22px -12px rgba(var(--h-rgb,79,166,255),.7); }
+.hud .wires path { filter: drop-shadow(0 0 3px rgb(var(--h-rgb,79,166,255))); }
+.hud .wires path.hot, .hud .node li.hot { border-color: rgb(var(--h-hi,191,224,255)); }
+.hud .wires path.hot { stroke: rgb(var(--h-hi,191,224,255)); }
+.hud .node li.hot { background: rgba(var(--h-rgb,79,166,255),.26); box-shadow: 0 0 18px -2px rgba(var(--h-rgb,79,166,255),.9); }
+.hud .node li .tag { color: var(--h-acc, #6fe0a6); }
+.hud .node li .tag.link { color: var(--h-mute); }
+.hud .hud-chips span { box-shadow: 0 0 10px -4px var(--h-glow); }
+.hud::before { background: linear-gradient(rgba(var(--h-rgb,79,166,255),.05) 1px, transparent 1px) 0 0 / 40px 40px, linear-gradient(90deg, rgba(var(--h-rgb,79,166,255),.05) 1px, transparent 1px) 0 0 / 40px 40px; }
+/* operator card */
+.op { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 10px; align-items: center; margin-bottom: 12px; }
+.op .av { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-family: 'Orbitron', var(--font-m); font-weight: 700; font-size: 18px; color: #fff; border: 1.5px solid var(--h-glow); box-shadow: 0 0 16px -2px var(--h-glow), inset 0 0 12px -4px var(--h-glow); }
+.op b { display: block; font-family: 'Orbitron', var(--font-m); font-size: 13px; letter-spacing: .14em; color: #fff; }
+.op span { display: block; font-size: 10px; letter-spacing: .1em; color: var(--h-mute); text-transform: uppercase; line-height: 1.5; }
+.fleet { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 12px; }
+.fleet i { font-style: normal; font-size: 9px; letter-spacing: .12em; padding: 2px 6px; border: 1px solid var(--h-dim); color: var(--h-ink); }
+.orb-tag { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); text-align: center; white-space: nowrap; }
+.orb-tag b { display: block; font-family: 'Orbitron', var(--font-m); font-size: 12px; letter-spacing: .4em; color: #fff; text-shadow: 0 0 12px var(--h-glow); }
+.orb-tag span { font-size: 10px; letter-spacing: .2em; color: var(--h-acc); text-transform: uppercase; }
+.nextup { font-size: 12px; color: var(--h-ink); line-height: 1.4; margin-top: 6px; overflow-wrap: anywhere; }
+.n-op { grid-column: 1; grid-row: 1; align-self: end; }
+.n-op .op { margin: 0; }
+@media (max-width: 860px) { .n-op { grid-column: 1; grid-row: auto; order: 0; width: 100%; } }
+/* ---- galaxy ---- */
+.hud::before, .hud::after { display: none; }
+#hudstars { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+:root:not([data-mode="shop"]) .hud { background:
+  radial-gradient(55% 45% at 78% 22%, rgba(120,70,255,.30), transparent 70%),
+  radial-gradient(45% 40% at 18% 78%, rgba(40,200,190,.16), transparent 70%),
+  radial-gradient(40% 35% at 30% 20%, rgba(220,80,200,.12), transparent 70%),
+  radial-gradient(120% 100% at 50% 50%, #0b0826 0%, #04030f 60%, #010106 100%); }
+:root[data-mode="shop"] .hud { background:
+  radial-gradient(55% 45% at 78% 22%, rgba(255,120,40,.26), transparent 70%),
+  radial-gradient(45% 40% at 18% 78%, rgba(255,60,50,.16), transparent 70%),
+  radial-gradient(40% 35% at 35% 25%, rgba(255,200,90,.10), transparent 70%),
+  radial-gradient(120% 100% at 50% 50%, #1a0c06 0%, #0a0503 60%, #040201 100%); }
+.hud .hud-panel, .hud .node { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-radius: 14px; }
+.hud .node li { border-radius: 8px; }
+.hud .hud-x { border-radius: 999px; }
+.hud .hud-chips span { border-radius: 999px; }
+.wires circle { fill: rgb(var(--h-hi, 200,210,255)); filter: drop-shadow(0 0 6px rgb(var(--h-rgb, 120,140,255))); }
+.wires path { stroke-dasharray: 1 9; stroke-linecap: round; stroke-width: 2; }
 @keyframes hudIn { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: none; } }
 .hud-top { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; padding: 8px 14px 0; }
 .hud-title { font-family: 'Orbitron', var(--font-m); font-size: 13px; letter-spacing: .22em; color: var(--h-ink); text-shadow: 0 0 10px rgba(79,166,255,.7); }
@@ -399,7 +450,13 @@ input[type=range] { padding: 0; accent-color: var(--indigo-2); background: trans
 .meter div b { color: var(--h-ink); font-weight: 500; }
 .meter i { display: block; height: 4px; margin-top: 4px; background: rgba(79,166,255,.14); position: relative; overflow: hidden; }
 .meter i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--v, 0%); background: linear-gradient(90deg, #1f5fff, #7cc4ff); box-shadow: 0 0 8px #4fa6ff; transition: width .8s; }
-.hud-radar canvas { width: 100%; aspect-ratio: 1; display: block; }
+.build { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.build li div { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--h-ink); min-width: 0; }
+.build li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.build li b { color: var(--h-glow); font-weight: 500; flex: none; }
+.build li i { display: block; height: 4px; margin-top: 4px; border-radius: 4px; background: rgba(var(--h-rgb,79,166,255),.14); position: relative; overflow: hidden; }
+.build li i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--v); border-radius: 4px; background: linear-gradient(90deg, rgba(var(--h-rgb,79,166,255),.7), rgb(var(--h-hi,124,196,255))); }
+.build li small { display: block; margin-top: 3px; font-size: 10px; color: var(--h-mute); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hud-big { font-family: 'Orbitron', var(--font-m); font-size: 26px; color: #fff; text-shadow: 0 0 14px rgba(79,166,255,.8); }
 .hud-side { display: flex; flex-direction: column; gap: 14px; }
 /* diagram screen */
@@ -468,27 +525,29 @@ input[type=range] { padding: 0; accent-color: var(--indigo-2); background: trans
 </div>
 <div class="toast" id="toast" hidden></div>
 <section class="hud" id="hud" hidden aria-label="J.A.R.V.I.S. system display">
+  <canvas id="hudstars" aria-hidden="true"></canvas>
   <button class="hud-x" type="button" id="hudx">ESC · CLOSE</button>
   <div class="hud-top">
-    <div><div class="hud-title"><b>J.A.R.V.I.S.</b> — JUST A RATHER VERY INTELLIGENT SYSTEM</div>
-      <div class="hud-sub" id="hudsub">Objective · keep Brandon's work and projects moving</div>
+    <div><div class="hud-title"><b>J.A.R.V.I.S.</b> — BRANDON'S COMMAND CENTRE</div>
+      <div class="hud-sub" id="hudsub"></div>
       <div class="hud-chips"><span id="chip-on">Online</span><span id="chip-voice">Voice</span><span id="chip-mode">Off shift</span><span id="chip-sync">Local</span></div></div>
     <div class="hud-clock"><b id="hudclock">--:--:--</b><span id="huddate"></span><span id="hudsess"></span><span id="hudmodel"></span></div>
   </div>
   <div class="hud-body">
     <div class="hud-core" id="hudcore">
-      <div class="hud-panel"><h4>System metrics</h4><div id="hudmeters"></div></div>
-      <div class="hud-orb"><canvas id="hudorb" width="900" height="900" aria-hidden="true"></canvas></div>
+      <div class="hud-panel"><h4>You</h4><div id="hudop"></div><h4>Your numbers</h4><div id="hudmeters"></div></div>
+      <div class="hud-orb"><canvas id="hudorb" width="900" height="900" aria-hidden="true"></canvas><div class="orb-tag"><b>J.A.R.V.I.S.</b><span id="orbstate">Online</span></div></div>
       <div class="hud-side">
-        <div class="hud-panel hud-radar"><h4>Radar · projects</h4><canvas id="hudradar" width="400" height="400" aria-hidden="true"></canvas></div>
-        <div class="hud-panel"><h4 id="hudbigl">Active projects</h4><div class="hud-big" id="hudbig">0</div><div class="hud-sub" id="hudbigs"></div></div>
+        <div class="hud-panel"><h4>What you're building</h4><ol class="build" id="hudbuild"></ol></div>
+        <div class="hud-panel"><h4 id="hudbigl">Next up</h4><div class="hud-big" id="hudbig">0</div><div class="hud-sub" id="hudbigs"></div><div class="nextup" id="hudnext"></div></div>
       </div>
     </div>
     <div class="hud-map" id="hudmap" hidden>
       <svg class="wires" id="hudwires" aria-hidden="true"></svg>
+      <div class="node n-op" id="n-op"><h5>You</h5><small>Who it all works for</small><div id="hudop2"></div></div>
       <div class="node n-core" id="n-core"><h5>Reasoning core</h5><small>LLM · the engine</small><ul id="ul-core"></ul></div>
       <div class="node n-chan" id="n-chan"><h5>Channels</h5><small>How you talk to it</small><ul id="ul-chan"></ul></div>
-      <div class="node n-jv" id="n-jv"><h5>J.A.R.V.I.S.</h5><small>Orchestrator · specialist lanes</small><ul id="ul-lanes"></ul></div>
+      <div class="node n-jv" id="n-jv"><h5>J.A.R.V.I.S.</h5><small>Brandon's orchestrator · what's live in each lane</small><ul id="ul-lanes"></ul></div>
       <div class="node n-conn" id="n-conn"><h5>Connections</h5><small>Tools · links</small><ul id="ul-conn"></ul></div>
     </div>
   </div>
@@ -991,13 +1050,30 @@ const TOOLS = [
 /* ===== J.A.R.V.I.S. HUD ===== */
 const HUD = { open: false, screen: 'core', hot: {}, raf: 0 };
 const LANES = [
-  { id: 'tech', n: 'Tech', r: 'Service reports · diagnostics · PSR', area: 'work' },
-  { id: 'ops', n: 'Ops', r: 'Today\'s list · shift · focus', area: 'shift' },
-  { id: 'garage', n: 'Garage', r: 'Vehicle builds', area: 'vehicle' },
-  { id: 'maker', n: 'Maker', r: '3D print queue', area: 'print' },
-  { id: 'ventures', n: 'Ventures', r: 'Ideas vault · business', area: 'business' },
-  { id: 'dr', n: 'Dead Reckoning', r: 'Game development', area: 'game' }
+  { id: 'tech', n: 'Shop floor', r: 'Cat CCE · Deere · Bobcat' },
+  { id: 'ops', n: 'Today', r: 'List · shift · focus' },
+  { id: 'garage', n: 'Garage', r: 'Vehicle builds' },
+  { id: 'maker', n: 'Maker', r: '3D printing' },
+  { id: 'ventures', n: 'Ventures', r: 'Business ideas' },
+  { id: 'dr', n: 'Dead Reckoning', r: 'His zombie survival game' }
 ];
+const FLEET = ['Cat 299D3', 'Cat 272D3', 'JD 333G', 'Bobcat'];
+/* the one live thing in each lane, from his board */
+function laneNow(id) {
+  const sh = S.items.get('shift'), first = a => a[0], open = a => a.filter(x => x.status !== 'done' && x.state !== 'done' && !x.done);
+  const proj = area => first(open(items('project')).filter(p => p.area === area));
+  if (id === 'tech') { const p = proj('work'); return sh && sh.on ? 'On shift · ' + fmtDur(Date.now() - sh.since) + (p ? ' · ' + p.title : '') : (p ? p.title : 'Off shift · PSR before and after'); }
+  if (id === 'ops') { const t = first(items('task').filter(x => !x.done)); return t ? t.title : 'List clear'; }
+  if (id === 'garage') { const v = first(items('vehicle')) || proj('vehicle'); return v ? v.title + (v.due ? ' · due ' + v.due : v.next ? ' · ' + v.next : '') : 'No build logged'; }
+  if (id === 'maker') { const p = first(items('print').filter(x => x.state === 'printing')) || first(items('print').filter(x => x.state !== 'done')); return p ? p.title + (p.hours ? ' · ' + p.hours + ' h' : '') : 'Queue empty'; }
+  if (id === 'ventures') { const i = first(items('idea')); return i ? i.title : 'Vault empty'; }
+  if (id === 'dr') { const g = first(open(items('game'))) || proj('game'); return g ? g.title : 'Next milestone not set'; }
+  return '';
+}
+function opCard() {
+  const sh = S.items.get('shift');
+  return `<div class="op"><div class="av">B</div><div><b>BRANDON</b><span>Technician B · Cat CCE · D435</span><span>${sh && sh.on ? 'On shift · shop mode' : 'Off shift · builder mode'}</span></div></div><div class="fleet">${FLEET.map(m => `<i>${m}</i>`).join('')}</div>`;
+}
 const hosted = () => !!window.JV_HOSTED;
 function hudData() {
   return {
@@ -1029,7 +1105,11 @@ function hudFill() {
   const count = l => l.id === 'tech' ? (sh && sh.on ? 'on shift' : 'standing by') : l.id === 'ops' ? items('task').filter(t => !t.done).length + ' open' :
     l.id === 'maker' ? items('print').filter(p => p.state !== 'done').length + ' queued' : l.id === 'ventures' ? items('idea').length + ' ideas' :
     l.id === 'garage' ? items('vehicle').length + ' builds' : items('game').length + ' tasks';
-  $('#ul-lanes').innerHTML = LANES.map(l => `<li data-k="${l.id}"><b>${esc(l.n)}</b><em>${esc(l.r)} · ${esc(count(l))}</em></li>`).join('');
+  $('#ul-lanes').innerHTML = LANES.map(l => `<li data-k="${l.id}" title="${esc(l.r)}"><b>${esc(l.n)}</b><em>${esc(laneNow(l.id))} · ${esc(count(l))}</em></li>`).join('');
+  $('#hudop').innerHTML = opCard(); $('#hudop2').innerHTML = opCard();
+  $('#hudsub').textContent = sh && sh.on ? 'On the clock · machines first, by the book' : 'Off the clock · time to build something of your own';
+  $('#hudbuild').innerHTML = items('project').filter(p => p.status !== 'done').slice(0, 6).map(p => `<li><div><span>${esc(p.title)}</span><b>${+p.pct || 0}%</b></div><i style="--v:${Math.max(3, +p.pct || 0)}%"></i>${p.next ? `<small>${esc(p.next)}</small>` : ''}</li>`).join('') || '<li><div><span>Nothing on the go yet</span></div></li>';
+  $('#orbstate').textContent = (J.state === 'speak' ? 'Speaking' : J.state === 'listen' ? 'Listening' : J.state === 'think' ? 'Thinking' : 'Online') + ' · for Brandon' + (sh && sh.on ? ' · on shift ' + fmtDur(Date.now() - sh.since) : '');
   $('#chip-mode').textContent = sh && sh.on ? 'Shop mode' : 'Off shift';
   $('#chip-sync').textContent = mode === 'db' ? 'Synced' : 'Local';
   $('#chip-voice').textContent = J.hf && J.mode === 'hf' ? 'Listening' : 'Voice';
@@ -1038,18 +1118,22 @@ function hudFill() {
   const P = items('project'), act = P.filter(p => p.status === 'active'), avg = act.length ? Math.round(act.reduce((a, p) => a + (+p.pct || 0), 0) / act.length) : 0;
   const T = items('task'), done = T.filter(t => t.done).length, pr = items('print').filter(p => p.state !== 'done');
   const hrs = pr.reduce((a, p) => a + (parseFloat(p.hours) || 0), 0), shiftMin = sh && sh.on ? Math.floor((Date.now() - sh.since) / 60000) : 0;
-  const M = [['Project progress', avg + '%', avg], ['Today\'s list', done + '/' + T.length, T.length ? done / T.length * 100 : 0], ['Print queue', hrs.toFixed(1) + ' h', Math.min(100, hrs / 24 * 100)],
+  const M = [['Projects average', avg + '%', avg], ['Today\'s list', done + '/' + T.length, T.length ? done / T.length * 100 : 0], ['Print queue', hrs.toFixed(1) + ' h', Math.min(100, hrs / 24 * 100)],
     ['Ideas vault', items('idea').length, Math.min(100, items('idea').length * 10)], ['Shift', sh && sh.on ? fmtDur(Date.now() - sh.since) : 'off', Math.min(100, shiftMin / 600 * 100)], ['Voice link', J.state.toUpperCase(), J.state === 'idle' ? 30 : 100]];
   $('#hudmeters').innerHTML = M.map(([n, v, p]) => `<div class="meter"><div><span>${esc(n)}</span><b>${esc(v)}</b></div><i style="--v:${Math.max(2, Math.min(100, p))}%"></i></div>`).join('');
   hudApplyHot();
-  $('#hudbig').textContent = act.length; $('#hudbigs').textContent = P.length + ' on the board · ' + avg + '% average';
+  const top = [...act].sort((a, b) => (+b.pct || 0) - (+a.pct || 0))[0];
+  $('#hudbig').textContent = top ? (top.pct || 0) + '%' : act.length; $('#hudbigs').textContent = top ? top.title : 'No active project';
+  $('#hudnext').textContent = top && top.next ? 'Next: ' + top.next : act.length + ' active · ' + P.length + ' on the board';
 }
 function hudWires() {
   const svg = $('#hudwires'), box = $('#hudmap'); if (!svg || box.hidden || innerWidth <= 860) return;
   const r0 = box.getBoundingClientRect(), R = id => { const r = $(id).getBoundingClientRect(); return { l: r.left - r0.left, r: r.right - r0.left, t: r.top - r0.top, b: r.bottom - r0.top, cx: (r.left + r.right) / 2 - r0.left, cy: (r.top + r.bottom) / 2 - r0.top }; };
   const c = R('#n-core'), j = R('#n-jv'), ch = R('#n-chan'), co = R('#n-conn');
   svg.setAttribute('viewBox', `0 0 ${r0.width} ${r0.height}`);
-  svg.innerHTML = `<path id="w-core" d="M${c.cx} ${c.b} L${j.cx} ${j.t}"/><path id="w-chan" d="M${ch.r} ${ch.cy} L${j.l} ${j.cy}"/><path id="w-conn" d="M${j.r} ${j.cy} L${co.l} ${j.cy}"/>`;
+  const op = document.querySelector('#n-op') ? R('#n-op') : null;
+  const pts = [[c.cx, c.b], [j.cx, j.t], [ch.r, ch.cy], [j.l, j.cy], [j.r, j.cy], [co.l, j.cy]].concat(op ? [[op.cx, op.b], [ch.cx, ch.t]] : []);
+  svg.innerHTML = (op ? `<path id="w-op" d="M${op.cx} ${op.b} L${ch.cx} ${ch.t}"/>` : '') + `<path id="w-core" d="M${c.cx} ${c.b} L${j.cx} ${j.t}"/><path id="w-chan" d="M${ch.r} ${ch.cy} L${j.l} ${j.cy}"/><path id="w-conn" d="M${j.r} ${j.cy} L${co.l} ${j.cy}"/>` + pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.5"/>`).join('');
 }
 function hudHot(laneIds, connIds = []) {
   if (!HUD.open) return;
@@ -1065,40 +1149,68 @@ function hudApplyHot() {
     const el = document.querySelector(`#${kind === 'l' ? 'ul-lanes' : 'ul-conn'} li[data-k="${k}"]`); if (el) el.classList.add('hot'); }
 }
 let hudSphere = null;
+const hudRGB = () => (getComputedStyle($('#hud')).getPropertyValue('--h-rgb') || '79,166,255').trim();
+const hudHI = () => (getComputedStyle($('#hud')).getPropertyValue('--h-hi') || '160,210,255').trim();
+let hudGal = null;
 function drawHudOrb(t) {
-  const cv = $('#hudorb'); if (!cv) return; const c = cv.getContext('2d'), W = cv.width, R = W / 2; c.clearRect(0, 0, W, W);
-  if (!hudSphere) { hudSphere = []; const N = 900; for (let i = 0; i < N; i++) { const y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = i * 2.39996; hudSphere.push([Math.cos(th) * r, y, Math.sin(th) * r]); } }
-  const talk = J.talk || 0, rot = t / 9000, S = R * .52 * (1 + talk * .04);
+  const cv = $('#hudorb'); if (!cv) return; const RGB = hudRGB(), HI = hudHI(); const c = cv.getContext('2d'), W = cv.width, R = W / 2; c.clearRect(0, 0, W, W);
+  if (!hudGal) { hudGal = []; let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 1600; i++) { const arm = i % 3, d = Math.pow(rnd(), .7), spread = (rnd() - .5) * (.35 + d * .5);
+      hudGal.push({ d, ang: arm * 2.094 + d * 5.2 + spread, z: rnd(), s: .6 + rnd() * 1.6, warm: rnd() < .25 }); } }
+  const talk = J.talk || 0, spin = t / 26000, tilt = .42;
   c.save(); c.translate(R, R);
-  let g = c.createRadialGradient(0, 0, S * .1, 0, 0, R); g.addColorStop(0, `rgba(60,130,255,${.28 + talk * .25})`); g.addColorStop(.6, 'rgba(30,80,220,.08)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(-R, -R, W, W);
+  let g = c.createRadialGradient(0, 0, 0, 0, 0, R * .9); g.addColorStop(0, `rgba(${HI},${.55 + talk * .35})`); g.addColorStop(.12, `rgba(${RGB},${.35 + talk * .25})`); g.addColorStop(.5, `rgba(${RGB},.06)`); g.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = g; c.beginPath(); c.ellipse(0, 0, R * .9, R * .9 * tilt * 1.6, 0, 0, 6.283); c.fill();
   c.globalCompositeOperation = 'lighter';
-  for (const [x, y, z] of hudSphere) {
-    const ca = Math.cos(rot), sa = Math.sin(rot), X = x * ca - z * sa, Z = x * sa + z * ca, tilt = .35, Y = y * Math.cos(tilt) - Z * Math.sin(tilt), Z2 = y * Math.sin(tilt) + Z * Math.cos(tilt);
-    const wob = 1 + (talk * .06) * Math.sin(t / 90 + y * 9);
-    const a = .25 + (Z2 + 1) * .35; c.fillStyle = `rgba(${120 + Z2 * 60 | 0},${180 + Z2 * 40 | 0},255,${a})`;
-    c.beginPath(); c.arc(X * S * wob, Y * S * wob, R * (.0045 + (Z2 + 1) * .002), 0, 6.283); c.fill();
+  for (const p of hudGal) {
+    const ang = p.ang + spin * (1.6 - p.d), r = (.42 + p.d * .58) * R * .95 * (1 + talk * .05 * Math.sin(t / 120 + p.d * 12));
+    const x = Math.cos(ang) * r, y = Math.sin(ang) * r * tilt;
+    const tw = .45 + .55 * Math.abs(Math.sin(t / 900 + p.z * 40));
+    const a = (1 - p.d * .65) * tw * (.55 + talk * .4);
+    c.fillStyle = p.warm ? `rgba(255,220,240,${a})` : (p.d < .3 ? `rgba(${HI},${a})` : `rgba(${RGB},${a})`);
+    c.beginPath(); c.arc(x, y, p.s * (W / 900), 0, 6.283); c.fill();
   }
-  c.strokeStyle = 'rgba(79,166,255,.7)'; c.lineWidth = 2; c.beginPath(); c.arc(0, 0, R * .66, 0, 6.283); c.stroke();
-  c.strokeStyle = 'rgba(79,166,255,.35)'; c.lineWidth = 1; c.beginPath(); c.arc(0, 0, R * .71, 0, 6.283); c.stroke();
-  c.save(); c.rotate(-t / 14000); c.strokeStyle = 'rgba(140,200,255,.85)'; c.lineWidth = 4; c.beginPath(); c.arc(0, 0, R * .66, -.6, .5); c.stroke(); c.beginPath(); c.arc(0, 0, R * .66, 2.4, 3.1); c.stroke(); c.restore();
-  c.save(); c.rotate(t / 20000);
-  for (let i = 0; i < 120; i++) { const a = i / 120 * 6.283, big = i % 10 === 0; c.strokeStyle = big ? 'rgba(160,210,255,.9)' : 'rgba(79,166,255,.45)'; c.lineWidth = big ? 2 : 1;
-    c.beginPath(); c.moveTo(Math.cos(a) * R * .76, Math.sin(a) * R * .76); c.lineTo(Math.cos(a) * R * (big ? .82 : .79), Math.sin(a) * R * (big ? .82 : .79)); c.stroke(); }
-  for (let i = 0; i < 8; i++) { const a = i / 8 * 6.283; c.fillStyle = 'rgba(160,210,255,.9)'; c.save(); c.rotate(a); c.beginPath(); c.moveTo(0, -R * .9); c.lineTo(-R * .018, -R * .86); c.lineTo(R * .018, -R * .86); c.closePath(); c.fill(); c.restore(); }
-  c.restore(); c.restore();
-}
-function drawHudRadar(t) {
-  const cv = $('#hudradar'); if (!cv) return; const c = cv.getContext('2d'), W = cv.width, R = W / 2 - 4; c.clearRect(0, 0, W, W); c.save(); c.translate(W / 2, W / 2);
-  c.strokeStyle = 'rgba(79,166,255,.35)'; c.lineWidth = 1; [1, .66, .33].forEach(k => { c.beginPath(); c.arc(0, 0, R * k, 0, 6.283); c.stroke(); });
-  c.beginPath(); c.moveTo(-R, 0); c.lineTo(R, 0); c.moveTo(0, -R); c.lineTo(0, R); c.stroke();
-  const a = (t / 2200) % 6.283; const g = c.createConicGradient ? c.createConicGradient(a - .8, 0, 0) : null;
-  if (g) { g.addColorStop(0, 'rgba(79,166,255,0)'); g.addColorStop(.127, 'rgba(79,166,255,.45)'); g.addColorStop(.128, 'rgba(79,166,255,0)'); c.fillStyle = g; c.beginPath(); c.arc(0, 0, R, 0, 6.283); c.fill(); }
-  items('project').forEach((p, i) => { const ang = (i * 2.4) % 6.283, d = R * (.25 + .7 * (1 - (+p.pct || 0) / 100)), x = Math.cos(ang) * d, y = Math.sin(ang) * d;
-    const since = ((a - ang) % 6.283 + 6.283) % 6.283, glow = Math.max(.25, 1 - since / 3); c.fillStyle = `rgba(170,220,255,${glow})`; c.beginPath(); c.arc(x, y, 4, 0, 6.283); c.fill(); });
+  // the centre is J.A.R.V.I.S.: his own holographic orb, talking and listening, in the eye of the galaxy
+  c.globalCompositeOperation = 'source-over';
+  const halo = c.createRadialGradient(0, 0, R * .25, 0, 0, R * .52); halo.addColorStop(0, 'rgba(0,0,0,.6)'); halo.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = halo; c.beginPath(); c.arc(0, 0, R * .52, 0, 6.283); c.fill();
+  if (!HUD.ai) { HUD.ai = document.createElement('canvas'); HUD.ai.width = HUD.ai.height = 420; }
+  drawFace(HUD.ai, t);
+  const sz = R * 1.02 * (1 + talk * .04); c.drawImage(HUD.ai, -sz / 2, -sz / 2, sz, sz);
+  c.globalCompositeOperation = 'lighter';
+  // one faint orbit and a moon riding it
+  c.strokeStyle = `rgba(${RGB},.25)`; c.lineWidth = 1.5; c.beginPath(); c.ellipse(0, 0, R * .93, R * .93 * tilt, 0, 0, 6.283); c.stroke();
+  const ma = t / 9000; c.fillStyle = `rgba(${HI},.95)`; c.beginPath(); c.arc(Math.cos(ma) * R * .93, Math.sin(ma) * R * .93 * tilt, W / 160, 0, 6.283); c.fill();
   c.restore();
 }
-function hudLoop(t) { if (!HUD.open) return; if (HUD.screen === 'core') { drawHudOrb(reduceMotion ? 4000 : t); drawHudRadar(reduceMotion ? 4000 : t); }
-  const d = new Date(); $('#hudclock').textContent = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + '.' + String(Math.floor(d.getMilliseconds() / 10)).padStart(2, '0');
+/* starfield behind everything: twinkling stars, slow drift, the odd shooting star */
+let hudStars = null, hudShoot = null;
+function drawHudStars(t) {
+  const cv = $('#hudstars'); if (!cv) return; const dpr = Math.min(2, devicePixelRatio || 1), w = cv.clientWidth, h = cv.clientHeight;
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); hudStars = null; }
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+  if (!hudStars) { hudStars = []; const n = Math.round(w * h / 2600); for (let i = 0; i < n; i++) hudStars.push({ x: Math.random() * w, y: Math.random() * h, r: Math.random() < .08 ? 1.6 : Math.random() * .9 + .3, p: Math.random() * 6.28, v: .3 + Math.random() }); }
+  const HI = hudHI();
+  for (const s of hudStars) { const a = .35 + .65 * (1 + Math.sin(t / 900 * s.v + s.p)) / 2; s.x -= .02 * s.v; if (s.x < 0) s.x = w;
+    c.fillStyle = s.r > 1.5 ? `rgba(${HI},${a})` : `rgba(255,255,255,${a * .8})`; c.beginPath(); c.arc(s.x, s.y, s.r, 0, 6.283); c.fill(); }
+  if (!hudShoot && Math.random() < .004) hudShoot = { x: Math.random() * w * .8, y: Math.random() * h * .4, life: 0 };
+  if (hudShoot) { const k = hudShoot.life / 50, x = hudShoot.x + hudShoot.life * 9, y = hudShoot.y + hudShoot.life * 3.5;
+    const gr = c.createLinearGradient(x - 90, y - 35, x, y); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(1, `rgba(255,255,255,${1 - k})`);
+    c.strokeStyle = gr; c.lineWidth = 1.6; c.beginPath(); c.moveTo(x - 90, y - 35); c.lineTo(x, y); c.stroke(); if (++hudShoot.life > 50) hudShoot = null; }
+}
+function drawHudRadar(t) {
+  const cv = $('#hudradar'); if (!cv) return; const RGB = hudRGB(), HI = hudHI(); const c = cv.getContext('2d'), W = cv.width, R = W / 2 - 4; c.clearRect(0, 0, W, W); c.save(); c.translate(W / 2, W / 2);
+  c.strokeStyle = `rgba(${RGB},.35)`; c.lineWidth = 1; [1, .66, .33].forEach(k => { c.beginPath(); c.arc(0, 0, R * k, 0, 6.283); c.stroke(); });
+  c.beginPath(); c.moveTo(-R, 0); c.lineTo(R, 0); c.moveTo(0, -R); c.lineTo(0, R); c.stroke();
+  const a = (t / 2200) % 6.283; const g = c.createConicGradient ? c.createConicGradient(a - .8, 0, 0) : null;
+  if (g) { g.addColorStop(0, 'rgba(79,166,255,0)'); g.addColorStop(.127, `rgba(${RGB},.45)`); g.addColorStop(.128, 'rgba(79,166,255,0)'); c.fillStyle = g; c.beginPath(); c.arc(0, 0, R, 0, 6.283); c.fill(); }
+  items('project').forEach((p, i) => { const ang = (i * 2.4) % 6.283, d = R * (.25 + .7 * (1 - (+p.pct || 0) / 100)), x = Math.cos(ang) * d, y = Math.sin(ang) * d;
+    const since = ((a - ang) % 6.283 + 6.283) % 6.283, glow = Math.max(.25, 1 - since / 3); c.fillStyle = `rgba(${HI},${glow})`; c.beginPath(); c.arc(x, y, 4, 0, 6.283); c.fill();
+    if (i < 4) { c.font = '600 22px JetBrains Mono, monospace'; c.fillStyle = `rgba(${HI},${.45 + glow * .55})`; const lbl = String(p.title).slice(0, 14); c.textAlign = x > 0 ? 'right' : 'left'; c.fillText(lbl, x + (x > 0 ? -10 : 10), y + (i % 2 ? 22 : -10)); } });
+  c.restore();
+}
+function hudLoop(t) { if (!HUD.open) return; drawHudStars(reduceMotion ? 4000 : t); if (HUD.screen === 'core') { drawHudOrb(reduceMotion ? 4000 : t); drawHudRadar(reduceMotion ? 4000 : t); }
+  const d = new Date(); $('#hudclock').textContent = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   HUD.raf = requestAnimationFrame(hudLoop); }
 function openHud(screen = 'core') {
   HUD.screen = screen === 'diagram' ? 'diagram' : 'core';
