@@ -716,7 +716,7 @@ body:not(.drawer-open) .jv-fab { display: none; }
       <label>Device voice <select id="vt-voice"></select></label>
       <label>Pitch <input id="vt-pitch" type="range" min="0.6" max="1.3" step="0.02"><span id="vt-pv" class="mono"></span></label>
       <label>Pace <input id="vt-rate" type="range" min="0.75" max="1.25" step="0.01"><span id="vt-rv" class="mono"></span></label>
-      <div class="vt-row"><button type="button" id="vt-test">Test voice</button><button type="button" id="vt-preset">J.A.R.V.I.S. preset</button></div>
+      <div class="vt-row"><button type="button" id="vt-clip">Hear J.A.R.V.I.S. (ElevenLabs)</button><button type="button" id="vt-test">Test voice</button><button type="button" id="vt-preset">J.A.R.V.I.S. preset</button></div>
       <div class="vt-note" id="vt-note"></div></details>
     <label>Chatter <select id="jvchatter"><option value="talk">Talkative</option><option value="quiet">Bubbles only</option><option value="silent">Silent</option></select></label>
     <label>Voice <select id="jvvoicepick"><option value="british">British device voice (Edge: Ryan Natural)</option><option value="claude-gb">Claude voice, British</option><option value="rounded">Rounded</option><option value="glassy">Glassy</option><option value="buttery">Buttery</option><option value="airy">Airy</option></select></label></div>
@@ -1936,13 +1936,35 @@ async function ask(text) {
   } finally { J.busy = false; }
 }
 let greeted = false;
+/* ---- the real ElevenLabs voice: his recorded morning greeting (voice fONmGZvf9jMdFhjqnd2L, eleven_flash_v2_5) ---- */
+const JV_CLIP = { src: window.JV_HOSTED ? 'jarvis-greeting.mp3' : '/_blob/75c98346f2e4ce9cb8664c289574fe5c',
+  text: "Good morning, Sir. The command centre is online. I've taken the liberty of putting your priorities in order." };
+const clipDay = () => { try { return localStorage.getItem('cc.clipDay'); } catch (e) { return null; } };
+const morningClipDue = () => new Date().getHours() < 12 && clipDay() !== new Date().toDateString();
+let clipAudio = null;
+function playClip() {
+  try { localStorage.setItem('cc.clipDay', new Date().toDateString()); } catch (e) {}
+  return new Promise(res => {
+    if (SYN) SYN.cancel(); if (J.tts) J.tts.stop().catch(() => {});
+    if (clipAudio) clipAudio.pause();
+    clipAudio = new Audio(JV_CLIP.src);
+    const done = ok => { if (J.state === 'speak') setState('idle', J.hf && J.mode === 'hf' ? 'Waiting for "Hey Jarvis"' : undefined); res(ok); };
+    clipAudio.onplaying = () => { setState('speak'); J.speakingUntil = Date.now() + 8000; };
+    clipAudio.onended = () => { J.speakingUntil = Date.now() + 900; done(true); };
+    clipAudio.onerror = () => done(false);
+    clipAudio.play().catch(() => done(false));
+  });
+}
+/* first tap of the morning anywhere: he comes online in his own voice */
+addEventListener('pointerdown', () => { if (morningClipDue() && $('#jvvoice').checked) { const t = $('#ct-state'); playClip().then(ok => { if (!ok) speak(JV_CLIP.text); }); if (t) t.textContent = 'Speaking'; } }, { once: true, capture: true });
 function openPanel() {
   $('#jvpanel').hidden = false; $('#jvfab').hidden = true; $('#jvhint').hidden = true;
   if (!greeted) {
     greeted = true;
     const sh = S.items.get('shift'), act2 = items('project').filter(p => p.status === 'active').length;
-    const g = `${greet()}. ${sh && sh.on ? 'You are on shift, so I shall keep this brief.' : act2 ? act2 + ' projects on the go. Shall I pick one for tonight?' : 'The board is empty. Tell me what we are building.'}`;
-    addMsg('j', g); J.turns.push({ role: 'assistant', content: g }); if (!(J.hf && J.mode === 'hf')) { setState('speak'); speak(g); }
+    const useClip = morningClipDue();
+    const g = useClip ? JV_CLIP.text : `${greet()}. ${sh && sh.on ? 'You are on shift, so I shall keep this brief.' : act2 ? act2 + ' projects on the go. Shall I pick one for tonight?' : 'The board is empty. Tell me what we are building.'}`;
+    addMsg('j', g); J.turns.push({ role: 'assistant', content: g }); if (!(J.hf && J.mode === 'hf')) { if (useClip && $('#jvvoice').checked) playClip().then(ok => { if (!ok) { setState('speak'); speak(g); } }); else { setState('speak'); speak(g); } }
   }
   $('#jvsugs').innerHTML = ['What should I work on tonight?', 'Add "order filament" to today', 'Start my shift', 'Give me a DEAD RECKONING idea', 'Focus Protocol on'].map(s => `<button type="button">${esc(s)}</button>`).join('');
   $('#jvsugs').querySelectorAll('button').forEach(b => b.onclick = () => ask(b.textContent));
@@ -2054,6 +2076,7 @@ $('#vt').addEventListener('toggle', () => { if ($('#vt').open) fillVoiceLab(); }
 $('#vt-voice').onchange = e => { const v = VPREF(); v.name = e.target.value; saveV(v); };
 $('#vt-pitch').oninput = e => { const v = VPREF(); v.pitch = +e.target.value; saveV(v); $('#vt-pv').textContent = v.pitch.toFixed(2); };
 $('#vt-rate').oninput = e => { const v = VPREF(); v.rate = +e.target.value; saveV(v); $('#vt-rv').textContent = v.rate.toFixed(2); };
+$('#vt-clip').onclick = () => playClip();
 $('#vt-test').onclick = () => { if (useBrowserVoice()) { if (!SYN) { toast('This browser has no device voices. Try Edge or Chrome.'); return; } speakBrowser(SAMPLE); } else { setState('speak'); speak(SAMPLE); } };
 $('#vt-preset').onclick = () => {
   const vs = SYN ? SYN.getVoices() : []; let pick = '';
