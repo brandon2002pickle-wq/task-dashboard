@@ -91,6 +91,20 @@ The claude.ai artifact version can't download models, so it picks the best free 
 
 Tests: `node --experimental-strip-types tests/jarvis-voice-fn.mjs` (exact ElevenLabs request), `MOCK_TONE=<mp3> node tests/jarvis-hosted.js` (sign-in, Claude tool call, spoken reply), `node tests/jarvis-fallback.js` (bad ElevenLabs key, missing Anthropic key), `node tests/jarvis-music.js` (Shop Mix playlist: track order, Apple Music player per track, own copies matched by title, skip, ducking, bass pulse, remembered on the device), `node tests/jarvis-galaxy.js` (galaxy home: planets per mode, boards as drawers, shop galaxy on clock-in, J.A.R.V.I.S. at the centre), `node tests/jarvis-hud.js` (system display: "pull up the diagram", live lanes, core/close, phone layout), `node tests/jarvis-kokoro.js` (free voice with a stand-in model: device voice while loading, sentence-by-sentence synthesis, fallback when the model can't load).
 
+### Desktop hub (Windows)
+
+The hosted command centre installs as its own desktop app (`jarvis/manifest.webmanifest`).
+
+1. Open `https://<project>.pages.dev/jarvis/` in **Edge**.
+2. **⋯ → Apps → Install this site as an app** (Chrome: install icon in the address bar).
+3. To open it at start-up: `edge://apps` → right-click **J.A.R.V.I.S. Command Centre** → **Start app when you sign in**. Pin it to the taskbar from the same menu.
+
+**Dock:** websites open in a new tab; desktop apps open through their link format (`spotify:`, `discord://`, `steam://open/games`, `obsidian://open?vault=JARVIS-Brain`, `ms-settings:`); the browser asks once per app. Keys 1–9 launch dock apps; "Hey Jarvis, open Spotify" works by voice. Each app can be set to show in Home, Creator and/or Shop.
+
+**Modes:** Home (Today, Garage, Prints), Creator (Projects, Ideas, DEAD RECKONING, New idea; teal galaxy; "creator mode on/off" by voice), Shop (Thompson Tractor work only: pre-job checks, shift clock, shop notes, Cat SIS 2.0, Deere and Bobcat parts; work apps only on the dock).
+
+Tests: `node tests/jarvis-dock.js`, `node tests/jarvis-modes.js`.
+
 ## Install
 
 - **Android (Chrome):** open the app link → ⋮ → *Add to Home screen* → *Install*.

@@ -485,10 +485,11 @@ input[type=range] { padding: 0; accent-color: var(--indigo-2); background: trans
 #cosmos-sky { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .orbits { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .orbits ellipse { fill: none; stroke: rgba(var(--h-rgb, 133,119,255), .16); stroke-width: 1; stroke-dasharray: 2 6; }
-.cosmos-core { position: absolute; left: 50%; top: 54%; transform: translate(-50%, -50%); width: min(88vmin, 880px); aspect-ratio: 1; border: 0; padding: 0; background: none; cursor: pointer; border-radius: 50%; z-index: 2; }
-.cosmos-core canvas { width: 100%; height: 100%; display: block; }
+.cosmos-core { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(88vmin, 880px); aspect-ratio: 1; border: 0; padding: 0; background: none; cursor: pointer; border-radius: 50%; z-index: 2; }
+.cosmos-core { pointer-events: none; } .cosmos-core canvas { width: 100%; height: 100%; display: block; }
+.cosmos-core .core-hit { position: absolute; left: 50%; top: 50%; width: 30%; height: 30%; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: auto; cursor: pointer; }
 .cosmos-core:focus-visible { outline: 2px solid var(--h-glow); outline-offset: -12%; }
-.core-tag { margin-top: 2vmin; z-index: 4 !important; padding: 4px 12px; border-radius: 999px; background: rgba(4,3,12,.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); position: absolute; left: 50%; top: calc(54% + min(19vmin, 190px)); transform: translateX(-50%); text-align: center; z-index: 2; pointer-events: none; white-space: nowrap; }
+.core-tag { margin-top: 2vmin; z-index: 4 !important; padding: 4px 12px; border-radius: 999px; background: rgba(4,3,12,.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); position: absolute; left: 50%; top: calc(50% + min(19vmin, 190px)); transform: translateX(-50%); text-align: center; z-index: 2; pointer-events: none; white-space: nowrap; }
 .core-tag b { display: block; font-family: 'Orbitron', var(--font-m); font-size: 14px; letter-spacing: .45em; color: #fff; text-shadow: 0 0 14px var(--h-glow); }
 .core-tag span { font-size: 11px; letter-spacing: .14em; color: var(--h-acc); }
 .planet { position: absolute; left: 0; top: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 5px; border: 0; background: none; color: inherit; font: inherit; padding: 6px; cursor: pointer; will-change: transform; border-radius: 16px; }
@@ -511,6 +512,45 @@ input[type=range] { padding: 0; accent-color: var(--indigo-2); background: trans
 .ct-btn:hover { border-color: var(--h-glow); box-shadow: 0 0 14px -4px var(--h-glow); }
 .ct-btn.primary { background: linear-gradient(135deg, rgba(var(--h-rgb,133,119,255),.85), rgba(var(--h-hi,200,195,255),.6)); color: #0b0820; border-color: transparent; font-weight: 700; }
 .cosmos-foot { position: absolute; z-index: 4; left: 0; right: 0; bottom: max(14px, env(safe-area-inset-bottom, 0px)); text-align: center; font-size: 10px; letter-spacing: .16em; color: var(--h-mute); text-transform: uppercase; padding: 0 16px; pointer-events: none; }
+/* ---- creator mode palette ---- */
+:root[data-mode="creator"] :is(.hud, .cosmos) { --h-line: rgba(90,255,214,.6); --h-dim: rgba(90,255,214,.22); --h-glow: #5affd6; --h-ink: #eafffa; --h-mute: #9cc9c0; --h-acc: #ff8ce6; --h-rgb: 90,255,214; --h-hi: 210,255,244;
+  background:
+    radial-gradient(50% 40% at 78% 20%, rgba(0,200,170,.22), transparent 70%),
+    radial-gradient(42% 38% at 18% 78%, rgba(255,80,200,.16), transparent 70%),
+    radial-gradient(34% 30% at 30% 16%, rgba(255,200,80,.10), transparent 70%),
+    radial-gradient(120% 100% at 50% 50%, #04141a 0%, #020a0e 60%, #010305 100%); }
+#ct-creator[aria-pressed="true"] { border-color: var(--h-glow); box-shadow: 0 0 16px -4px var(--h-glow); color: #fff; }
+/* ---- app dock ---- */
+.dock { padding-top: 12px !important; position: absolute; z-index: 5; left: 50%; bottom: max(30px, calc(env(safe-area-inset-bottom, 0px) + 18px)); transform: translateX(-50%); display: flex; align-items: flex-end; gap: 6px;
+  padding: 8px 10px; border-radius: 22px; background: rgba(10,8,26,.55); border: 1px solid var(--h-dim); backdrop-filter: blur(16px) saturate(1.3); -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  box-shadow: 0 18px 50px -18px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.06); max-width: calc(100vw - 24px); overflow-x: auto; scrollbar-width: none; }
+.dock .app { position: relative; flex: none; width: 52px; display: flex; flex-direction: column; align-items: center; gap: 4px; border: 0; background: none; color: var(--h-ink); font: inherit; padding: 2px 0; cursor: pointer; }
+.dock .app i { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; font-style: normal; font-family: 'Orbitron', var(--font-d); font-weight: 700; font-size: 17px; color: #fff;
+  background: radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--ac) 80%, #fff 20%), var(--ac) 45%, color-mix(in srgb, var(--ac) 45%, #000) 100%);
+  box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--ac) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.35); transition: transform .18s cubic-bezier(.2,.8,.2,1); }
+.dock .app span { font-size: 9px; letter-spacing: .04em; color: var(--h-mute); max-width: 56px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dock .app kbd { position: absolute; top: -2px; right: 2px; font: 600 9px var(--font-m); color: var(--h-mute); background: rgba(0,0,0,.5); border-radius: 5px; padding: 0 4px; opacity: 0; transition: opacity .2s; }
+.dock:hover .app kbd { opacity: 1; }
+.dock .app:hover i, .dock .app:focus-visible i { transform: translateY(-6px) scale(1.12); }
+.dock .app.launching i { animation: launch .7s ease; }
+@keyframes launch { 30% { transform: translateY(-14px) scale(1.15); } 60% { transform: translateY(-2px); } }
+.dock .sep { width: 1px; align-self: stretch; margin: 6px 4px; background: var(--h-dim); }
+.dock .app.add i { background: rgba(255,255,255,.06); border: 1px dashed var(--h-dim); box-shadow: none; color: var(--h-mute); font-size: 22px; }
+.dock.editing .app:not(.add) i { animation: wiggle .3s ease-in-out infinite alternate; }
+@keyframes wiggle { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+.dock .app .x { display: none; position: absolute; z-index: 2; top: 0; left: 2px; cursor: pointer; width: 18px; height: 18px; border-radius: 50%; background: #ff4b5c; color: #fff; font: 700 11px/18px var(--font-m); text-align: center; }
+.dock.editing .app .x { display: block; }
+.apped { position: absolute; z-index: 7; left: 50%; bottom: calc(max(30px, env(safe-area-inset-bottom, 0px) + 18px) + 92px); transform: translateX(-50%); width: min(380px, calc(100vw - 32px));
+  background: rgba(8,6,20,.92); border: 1px solid var(--h-dim); border-radius: 16px; padding: 14px; backdrop-filter: blur(14px); color: var(--h-ink); box-shadow: 0 20px 50px -20px #000; }
+.apped h4 { margin: 0 0 10px; font-family: 'Orbitron', var(--font-m); font-size: 12px; letter-spacing: .18em; }
+.apped label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--h-mute); margin-bottom: 8px; }
+.apped input { font: inherit; font-size: 14px; color: var(--h-ink); background: rgba(255,255,255,.05); border: 1px solid var(--h-dim); border-radius: 10px; padding: 8px 10px; }
+.apped .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.apped .sw { width: 26px; height: 26px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; }
+.apped .sw[aria-pressed="true"] { border-color: #fff; }
+.apped p { font-size: 11px; color: var(--h-mute); margin: 6px 0; line-height: 1.5; }
+.cosmos-foot { bottom: 6px !important; }
+@media (max-width: 760px) { .dock .app { width: 46px; } .dock .app i { width: 40px; height: 40px; border-radius: 12px; font-size: 15px; } .dock { bottom: max(12px, env(safe-area-inset-bottom, 0px)); } }
 /* background music */
 .musicpop { position: absolute; z-index: 6; top: calc(max(18px, env(safe-area-inset-top, 0px)) + 120px); right: max(22px, env(safe-area-inset-right, 0px)); width: min(360px, calc(100vw - 32px));
   background: rgba(8,6,20,.86); border: 1px solid var(--h-dim); border-radius: 16px; padding: 14px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 20px 50px -20px rgba(0,0,0,.9); color: var(--h-ink); }
@@ -549,9 +589,12 @@ body.drawer-open .shell { transform: none; visibility: visible; transition: tran
 body.drawer-open .drawer-x { display: inline-flex; }
 body:not(.drawer-open) .jv-fab { display: none; }
 @media (max-width: 760px) {
+  .cosmos-top p, #ct-date { display: none; } .ct-name { font-size: 9px; letter-spacing: .2em; } .cosmos-top h1 { font-size: 1.05rem; margin: 4px 0 0; }
+  .ct-right { flex-direction: row; align-items: center; gap: 10px; width: 100%; } .ct-right b { font-size: 18px; } .ct-actions { margin: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .ct-btn { padding: 6px 10px; font-size: 10px; white-space: nowrap; }
   .shell { width: 100vw; border-left: 0; } .shell .rail { min-height: 0; }
   .cosmos-top { flex-direction: column; gap: 10px; } .ct-right { text-align: left; align-items: flex-start; } .ct-actions { justify-content: flex-start; }
-  .cosmos-core { top: 60%; width: min(72vw, 320px); } .core-tag { top: calc(60% + min(19vw, 84px)); }
+  .cosmos-core { top: 56%; width: min(72vw, 320px); } .core-tag { top: calc(56% + min(19vw, 84px)); }
   .planet { --k: .78; } .planet .globe { width: calc(var(--sz, 48px) * var(--rw, 1) * .78); height: calc(var(--sz, 48px) * .78); } .planet b { font-size: 10px; } .cosmos-foot { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .shell { transition: none; } }
@@ -579,9 +622,9 @@ body:not(.drawer-open) .jv-fab { display: none; }
   <div class="cosmos-top">
     <div><div class="ct-name" id="ct-name">J.A.R.V.I.S. · BRANDON'S COMMAND CENTRE</div><h1 id="ct-greet"></h1><p id="ct-quip"></p></div>
     <div class="ct-right"><b id="ct-clock"></b><span id="ct-date"></span>
-      <div class="ct-actions"><button type="button" class="ct-btn primary" id="ct-shift">Start shift</button><button type="button" class="ct-btn" id="ct-map">Diagram</button><button type="button" class="ct-btn" id="ct-all">All boards</button><button type="button" class="ct-btn" id="ct-music" aria-pressed="false" aria-expanded="false">♪ Music</button></div></div>
+      <div class="ct-actions"><button type="button" class="ct-btn primary" id="ct-shift">Start shift</button><button type="button" class="ct-btn" id="ct-creator" aria-pressed="false">✦ Creator</button><button type="button" class="ct-btn" id="ct-map">Diagram</button><button type="button" class="ct-btn" id="ct-all">All boards</button><button type="button" class="ct-btn" id="ct-music" aria-pressed="false" aria-expanded="false">♪ Music</button></div></div>
   </div>
-  <button class="cosmos-core" id="cosmos-core" type="button" aria-label="Talk to J.A.R.V.I.S."><canvas id="cosmos-gal" width="1000" height="1000"></canvas></button>
+  <button class="cosmos-core" id="cosmos-core" type="button" aria-label="Talk to J.A.R.V.I.S."><canvas id="cosmos-gal" width="1000" height="1000"></canvas><span class="core-hit" aria-hidden="true"></span></button>
   <div class="core-tag"><b>J.A.R.V.I.S.</b><span id="ct-state">Tap to talk · say "Hey Jarvis"</span></div>
   <nav id="planets" aria-label="Your areas"></nav>
   <section class="musicpop" id="musicpop" hidden aria-label="Background music">
@@ -595,6 +638,16 @@ body:not(.drawer-open) .jv-fab { display: none; }
     <div class="row"><label><input type="checkbox" id="mu-duck" checked> Quieter while J.A.R.V.I.S. talks or listens</label></div>
     <div class="row"><label><input type="checkbox" id="mu-auto"> Start with the page (on first tap)</label></div>
     <div class="now" id="mu-now"></div>
+  </section>
+  <nav class="dock" id="dock" aria-label="Apps"></nav>
+  <section class="apped" id="apped" hidden aria-label="Add or edit an app">
+    <h4 id="ap-title">ADD AN APP</h4>
+    <label>Name<input id="ap-name" placeholder="e.g. Spotify" autocomplete="off"></label>
+    <label>Link<input id="ap-url" placeholder="https://… or an app link like spotify:" autocomplete="off" spellcheck="false"></label>
+    <div class="row" id="ap-colors"></div>
+    <div class="row" id="ap-modes"><label style="flex-direction:row;margin:0"><input type="checkbox" value="home"> Home</label><label style="flex-direction:row;margin:0"><input type="checkbox" value="creator"> Creator</label><label style="flex-direction:row;margin:0"><input type="checkbox" value="shop"> Shop</label></div>
+    <p>Websites open in a new tab. Desktop apps open through their link format (for example <b>spotify:</b>, <b>discord://</b>, <b>steam://open/games</b>, <b>obsidian://open?vault=JARVIS-Brain</b>, <b>ms-settings:</b>); your browser asks once before opening each one.</p>
+    <div class="row"><button type="button" class="ct-btn primary" id="ap-save">Save</button><button type="button" class="ct-btn" id="ap-cancel">Cancel</button><button type="button" class="ct-btn" id="ap-edit">Edit dock</button></div>
   </section>
   <div class="cosmos-foot">Tap a planet to open it · tap J.A.R.V.I.S. to talk · "Hey Jarvis, pull up the diagram"</div>
 </div>
@@ -710,7 +763,9 @@ const SHOPCHECKS = [
   'Clean up, final walk-around and test run'
 ];
 let modeLock = false;
-function applyMode() { if (modeLock) return; const on = !!(S.items.get('shift') || {}).on; document.documentElement.dataset.mode = on ? 'shop' : ''; }
+function applyMode() { if (modeLock) return; const on = !!(S.items.get('shift') || {}).on; document.documentElement.dataset.mode = on ? 'shop' : prefs.creator ? 'creator' : ''; }
+const modeKey = () => document.documentElement.dataset.mode === 'shop' ? 'shop' : document.documentElement.dataset.mode === 'creator' ? 'creator' : 'home';
+function setCreator(on) { prefs.creator = !!on; savePrefs(); applyMode(); render(); if (typeof cosmosFill === 'function') cosmosFill(); toast(on ? 'Creator mode. What are we making, Sir?' : 'Back home, Sir.'); }
 function setShift(on) {
   const s = { ...(S.items.get('shift') || {}), id: 'shift', type: 'shift' };
   if (on === !!s.on) return;
@@ -810,6 +865,7 @@ document.querySelectorAll('.rail button[data-view]').forEach(b => b.onclick = ()
 addEventListener('hashchange', () => { const v = location.hash.slice(1); view = VIEWS.includes(v) ? v : 'overview'; render(); scrollTo(0, 0); const shellEl = document.querySelector('.shell'); if (shellEl) shellEl.scrollTop = 0; if (!document.body.classList.contains('drawer-open')) return; setTimeout(() => { if (typeof flyTo === 'function' && $('#jvpanel').hidden) flyTo(document.querySelector('.hero h1'), true); setTimeout(() => say(navLine(view)), 1200); }, 120); });
 
 function render() {
+  if (typeof renderDock === 'function' && document.querySelector('#dock')) setTimeout(renderDock, 0);
   if (typeof COS !== 'undefined' && document.querySelector('.planet')) setTimeout(cosmosFill, 0);
   if (typeof HUD !== 'undefined' && HUD.open) setTimeout(hudFill, 0);
   applyMode();
@@ -1015,7 +1071,8 @@ function drawFace(cv, t) {
   if (reduceMotion) t = 4000;
   const st = J.state, speak = st === 'speak', listen = st === 'listen', think = st === 'think';
   const shopOn = document.documentElement.dataset.mode === 'shop';
-  const CY = shopOn ? '255,196,74' : '128,112,255', AM = shopOn ? '255,48,36' : '150,232,165';
+  const creatorOn = document.documentElement.dataset.mode === 'creator';
+  const CY = shopOn ? '255,196,74' : creatorOn ? '90,255,214' : '128,112,255', AM = shopOn ? '255,48,36' : creatorOn ? '255,140,230' : '150,232,165';
   c.clearRect(0, 0, W, H);
   c.save(); c.translate(R, R + (reduceMotion ? 0 : Math.sin(t / 1100) * R * .02));
   J.look.x += (J.aim.x - J.look.x) * .05; J.look.y += (J.aim.y - J.look.y) * .05;
@@ -1107,11 +1164,13 @@ function boardSummary() {
     'Print queue: ' + (items('print').map(p => `${p.title} (${p.material || '?'}, ${p.hours || '?'}h, ${PSTATE[p.state]}) id=${p.id}`).join('; ') || 'empty'),
     'Ideas: ' + (items('idea').map(i => `${i.title} (${ISTAGE[i.stage]})`).join('; ') || 'none'),
     'Garage: ' + (items('vehicle').map(v => `${v.title}${v.due ? ' due: ' + v.due : ''}`).join('; ') || 'none'),
+    'Dock apps: ' + (apps().map(a => a.title).join(', ') || 'none'),
     'DEAD RECKONING: ' + (items('game').map(g => `${g.title} (${STATUS[g.state]})`).join('; ') || 'none')
   ].join('\n');
 }
 const RULES = () => `You are J.A.R.V.I.S., the voice of Brandon's personal command centre. Address him as "Sir" naturally, not in every sentence. Composed, concise, precise, subtly British and loyal; lightly dry wit, never at his expense in a hurtful way. Never call him "big dog". If asked, be honest that you are Claude, an AI by Anthropic, playing J.A.R.V.I.S.; never claim abilities you don't have (you cannot see his devices, the shop, or the internet).
 He is a Technician B on Cat compact construction equipment at a Cat dealer (dealer code D435) and also works on John Deere and Bobcat machines. His interests: vehicle projects, 3D printing, business ideas, and his first-person zombie survival game DEAD RECKONING. Speak expert to expert. For safety-critical repair questions drop the wit and be direct and exact, and never invent specifications, torque values, pressures or procedures; say to confirm against SIS / the OEM manual.
+Modes: HOME (off the clock), CREATOR (his game ideas, general ideas and projects: be an energetic creative partner, push ideas forward, capture them with the tools) and SHOP (work at Thompson Tractor only). Current mode: ${typeof modeKey === 'function' ? modeKey().toUpperCase() : 'HOME'}.
 When his shift is on, the page is in SHOP MODE: be brisk and practical, keep side-project chatter to a minimum unless he raises it, and remind him of PSR before/after only when relevant.
 Your replies are SPOKEN ALOUD, so write for the ear: natural conversational British English with contractions (I've, you're, that's), varied sentence length, and the odd natural lead-in (Right, Ah, Well) used sparingly. No abbreviations, symbols, markdown or lists; say numbers the way a person would. Keep it to 1-3 sentences and lead with the answer.
 You can change his board with the tools. Use them when he asks you to add, update, tick off, start or end something; confirm briefly what you did. Don't invent items he didn't ask for.
@@ -1135,6 +1194,10 @@ const TOOLS = [
     execute: ({ on }) => { const was = !!(S.items.get('shift') || {}).on; if (!!on !== was) { setShift(!!on); act(on ? 'Shift started: shop mode' : 'Shift ended'); } return on ? 'Shop mode on' : 'Shop mode off'; } },
   { name: 'show_display', description: 'Open the full-screen J.A.R.V.I.S. display: screen "diagram" shows how his J.A.R.V.I.S. system is wired (reasoning core, orchestrator lanes, channels, connections); "core" shows the system core with live metrics; "close" closes it.', inputSchema: { type: 'object', properties: { screen: { type: 'string', enum: ['diagram', 'core', 'close'] } }, required: ['screen'] },
     execute: ({ screen }) => { if (screen === 'close') closeHud(); else openHud(screen); return 'ok'; } },
+  { name: 'open_app', description: 'Open one of the apps on his desktop dock by name. Apps: ' + 'see the dock list in BOARD. Returns ok or not found.', inputSchema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
+    execute: ({ name }) => { const n = String(name || '').toLowerCase(), a = apps().find(x => x.title.toLowerCase() === n) || apps().find(x => x.title.toLowerCase().includes(n) || n.includes(x.title.toLowerCase())); if (!a) return 'not found: ' + name; launchApp(a, true); return 'opened ' + a.title; } },
+  { name: 'set_creator_mode', description: 'Turn creator mode on or off (his galaxy for game ideas, general ideas and projects). Not available on shift.', inputSchema: { type: 'object', properties: { on: { type: 'boolean' } }, required: ['on'] },
+    execute: ({ on }) => { if (onShiftNow()) return 'on shift: shop mode stays until the shift ends'; setCreator(on); return 'ok'; } },
   { name: 'set_focus_protocol', description: 'Turn Focus Protocol on or off (hides everything but his top project).', inputSchema: { type: 'object', properties: { on: { type: 'boolean' } }, required: ['on'] },
     execute: ({ on }) => { prefs.focus = !!on; savePrefs(); render(); act('Focus Protocol ' + (on ? 'on' : 'off')); return 'ok'; } }
 ];
@@ -1149,7 +1212,7 @@ const PLANETS = [
 ];
 const SHOP_PLANETS = [
   { k: 'checks', v: 'overview', focus: '.checks', n: 'Pre-job checks', c: '#ffc44a', orbit: 0, a0: .3, t: 'jupiter', sz: 64, info: () => { const sh = S.items.get('shift') || {}; return (sh.checks || []).length + ' of ' + SHOPCHECKS.length + ' done'; } },
-  { k: 'today', v: 'overview', focus: '#taskform', n: 'Today', c: '#ff7a45', orbit: 1, a0: 1.9, t: 'mars', sz: 44, info: () => { const n = items('task').filter(t => !t.done).length; return n ? n + ' on the list' : 'list clear'; } },
+  { k: 'shift', v: 'overview', focus: '.shift', n: 'Shift clock', c: '#ff7a45', orbit: 1, a0: 1.9, t: 'mars', sz: 44, info: () => { const sh = S.items.get('shift') || {}; return sh.on ? 'on the clock ' + fmtDur(Date.now() - sh.since) : 'off'; } },
   { k: 'notes', v: 'overview', focus: '#shopnoteform', n: 'Shop notes', c: '#d8d4cc', orbit: 1, a0: 4.1, t: 'moon', sz: 36, info: () => 'parts · call-backs' },
   { k: 'sis', url: 'https://sis2.cat.com/', n: 'Cat SIS 2.0', c: '#ffcd11', orbit: 2, a0: .6, ring: true, t: 'saturn', sz: 56, info: () => 'parts · schematics ↗' },
   { k: 'deere', url: 'https://partscatalog.deere.com/', n: 'Deere parts', c: '#7cc957', orbit: 2, a0: 3.0, t: 'earth', sz: 48, info: () => 'search by PIN ↗' },
@@ -1157,7 +1220,11 @@ const SHOP_PLANETS = [
 ];
 PLANETS.forEach(p => p.k = p.v);
 const onShiftNow = () => !!(S.items.get('shift') || {}).on;
-const curPlanets = () => onShiftNow() ? SHOP_PLANETS : PLANETS;
+const HOME_KEYS = ['overview', 'garage', 'prints'], CREATOR_KEYS = ['projects', 'ideas', 'deadreckoning', 'newidea'];
+const CREATOR_EXTRA = [{ k: 'newidea', v: 'ideas', focus: 'form', n: 'New idea', c: '#ffd166', orbit: 0, a0: 3.6, t: 'venus', sz: 40, info: () => 'capture it now' }];
+const curPlanets = () => { const m = modeKey(); if (m === 'shop') return SHOP_PLANETS;
+  const all = PLANETS.concat(CREATOR_EXTRA), keys = m === 'creator' ? CREATOR_KEYS : HOME_KEYS;
+  return keys.map((k, i) => { const p = all.find(x => x.k === k || x.v === k && !x.k); return p && { ...p, k: p.k || p.v, orbit: i % 3, a0: (p.a0 || 0) + i * 2.1 }; }).filter(Boolean); };
 const COS = { hold: false, raf: 0, geom: null, last: 0, mode: null, frame: 0 };
 /* ---- realistic planets: procedural textures on a lit, rotating sphere ---- */
 const TEX = {};
@@ -1244,28 +1311,38 @@ function drawPlanet(cv, p, rot, L) {
   ring(true);
 }
 function cosmosBuild() {
-  COS.mode = onShiftNow();
+  COS.mode = modeKey();
   $('#planets').innerHTML = curPlanets().map(p => `<button type="button" class="planet${p.ring ? ' ringed' : ''}" data-v="${p.k}" style="--pc:${p.c};--sz:${p.sz || 48}px;--rw:${p.ring ? 2.1 : 1}"><canvas class="globe" aria-hidden="true"></canvas><b>${esc(p.n)}</b><span></span></button>`).join('');
   document.querySelectorAll('.planet').forEach(el => { el.onclick = () => planetGo(curPlanets().find(x => x.k === el.dataset.v));
     el.onpointerenter = () => COS.hold = true; el.onpointerleave = () => COS.hold = false; el.onfocus = () => COS.hold = true; el.onblur = () => COS.hold = false; });
   cosmosGeom();
 }
 function cosmosGeom() {
-  const W = innerWidth, H = innerHeight, narrow = W < 760, cx = W / 2, cy = H * (narrow ? .6 : .54);
+  const W = innerWidth, H = innerHeight, narrow = W < 760, cx = W / 2;
+  // orbit inside the free space between the header and the dock, on any screen
+  const topEl = document.querySelector('.cosmos-top'), dockEl = document.querySelector('#dock');
+  const top = (topEl ? topEl.getBoundingClientRect().bottom : 0) + (narrow ? 30 : 20), bot = (dockEl ? dockEl.getBoundingClientRect().top : H) - (narrow ? 44 : 50);
+  const cy = (top + bot) / 2, room = Math.max(80, (bot - top) / 2);
   // orbits sit outside the galaxy so planets never cross J.A.R.V.I.S.
-  const rings = narrow ? [[.27, .2], [.36, .27], [.42, .33]].map(([kx, ky]) => ({ rx: W * kx, ry: H * ky }))
-    : [.72, .88, 1.04].map(k => { const base = Math.min(W * .44, H * .78), rx = base * k; return { rx, ry: Math.min(rx * .48, H * .42) }; });
+  const rings = narrow ? [[.27, .62], [.36, .82], [.42, 1]].map(([kx, ky]) => ({ rx: W * kx, ry: room * ky }))
+    : [.72, .88, 1.04].map(k => { const base = Math.min(W * .44, H * .78), rx = base * k; return { rx, ry: Math.min(rx * .42, room * [.66, .84, 1][[.72, .88, 1.04].indexOf(k)]) }; });
   COS.geom = { cx, cy, rings };
+  const core = document.querySelector('#cosmos-core'), tag = document.querySelector('.core-tag');
+  if (core) { core.style.top = cy + 'px'; if (narrow) core.style.width = Math.min(W * .72, room * 1.9) + 'px'; else core.style.width = ''; }
+  if (core && tag) tag.style.top = (cy + core.offsetWidth * .2) + 'px';
   $('#orbits').innerHTML = rings.map(r => `<ellipse cx="${cx}" cy="${cy}" rx="${r.rx}" ry="${r.ry}"/>`).join('');
 }
 function cosmosFill() {
-  if (COS.mode !== onShiftNow()) cosmosBuild();
+  if (COS.mode !== modeKey()) cosmosBuild();
   const sh = S.items.get('shift'), P = items('project').filter(p => p.status === 'active');
-  $('#ct-greet').textContent = sh && sh.on ? 'Shop galaxy · on the clock ' + fmtDur(Date.now() - sh.since) : greet() + '.';
+  const MK = modeKey();
+  $('#ct-greet').textContent = MK === 'shop' ? 'Shop galaxy · on the clock ' + fmtDur(Date.now() - sh.since) : MK === 'creator' ? 'Creator mode. What are we making, Sir?' : greet() + '.';
   $('#ct-quip').textContent = '"' + pickQuip({ onShift: !!(sh && sh.on), active: P.length, game: items('game').length }) + '"';
   $('#ct-shift').textContent = sh && sh.on ? 'End shift' : 'Start shift';
-  $('#ct-name').textContent = sh && sh.on ? 'J.A.R.V.I.S. · SHOP GALAXY · TECHNICIAN B · D435' : "J.A.R.V.I.S. · BRANDON'S GALAXY · OFF THE CLOCK";
+  $('#ct-name').textContent = MK === 'shop' ? 'J.A.R.V.I.S. · SHOP GALAXY · THOMPSON TRACTOR · D435' : MK === 'creator' ? 'J.A.R.V.I.S. · CREATOR GALAXY · IDEAS · PROJECTS · DEAD RECKONING' : "J.A.R.V.I.S. · BRANDON'S GALAXY · OFF THE CLOCK";
+  const cb = $('#ct-creator'); if (cb) { cb.hidden = MK === 'shop'; cb.setAttribute('aria-pressed', String(MK === 'creator')); cb.textContent = MK === 'creator' ? '✦ Creator: on' : '✦ Creator'; }
   document.querySelectorAll('.planet').forEach(el => { const p = curPlanets().find(x => x.k === el.dataset.v); el.querySelector('span').textContent = p.info(); el.setAttribute('aria-label', p.n + ', ' + p.info()); });
+  requestAnimationFrame(cosmosGeom);
   const d = new Date(); $('#ct-date').textContent = d.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' });
 }
 function cosmosState() {
@@ -1283,7 +1360,7 @@ function cosmosLoop(t) {
     document.querySelectorAll('.planet').forEach(el => {
       const p = curPlanets().find(x => x.k === el.dataset.v), r = g.rings[p.orbit], ang = p.a0 + COS.last * speeds[p.orbit] * 6.283;
       const x = g.cx + Math.cos(ang) * r.rx, y = g.cy + Math.sin(ang) * r.ry, depth = (Math.sin(ang) + 1) / 2;
-      const hw = el.offsetWidth / 2, px = Math.min(Math.max(x, hw + 2), innerWidth - hw - 2);   // keep labels on screen
+      const hw = el.offsetWidth / 2, sc = .82 + depth * .3, px = Math.min(Math.max(x, hw * sc + 4), innerWidth - hw * sc - 4);   // keep labels on screen
       el.style.transform = `translate(${px - hw}px, ${y - el.offsetHeight / 2}px) scale(${.82 + depth * .3})`;
       el.style.zIndex = depth > .45 ? 3 : 1; el.style.opacity = .78 + depth * .22;
       if (COS.frame % 2 === 0 || !el.dataset.drawn) { const dx = g.cx - x, dy = g.cy - y, dl = Math.hypot(dx, dy) || 1, L = [dx / dl * .95, dy / dl * .6, .22], ln = Math.hypot(...L);
@@ -1313,10 +1390,108 @@ function cosmosPulse(v) { const el = document.querySelector(`.planet[data-v="${v
 $('#drawerx').onclick = closeDrawer;
 $('#cosmos-core').onclick = () => { if (J.hfPaused) startHF(); openPanel(); };
 $('#ct-all').onclick = () => openDrawer('overview');
+$('#ct-creator').onclick = () => setCreator(!prefs.creator);
 $('#ct-map').onclick = () => openHud('diagram');
 $('#ct-shift').onclick = () => { const sh = S.items.get('shift'); setShift(!(sh && sh.on)); setTimeout(cosmosFill, 1700); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('drawer-open') && !(typeof HUD !== 'undefined' && HUD.open) && $('#jvpanel').hidden) closeDrawer(); });
 addEventListener('resize', cosmosGeom);
+
+/* ===== APP DOCK ===== */
+const APP_COLORS = ['#1db954', '#5865f2', '#1b2838', '#7c3aed', '#0078d4', '#ffcd11', '#e0453b', '#00a3a3', '#f97316', '#64748b'];
+const APP_SEED = [
+  ['Cat SIS 2.0', 'https://sis2.cat.com/', '#ffcd11'],
+  ['Gmail', 'https://mail.google.com/', '#e0453b'],
+  ['Claude', 'https://claude.ai/', '#d97757'],
+  ['YouTube', 'https://www.youtube.com/', '#ff2a2a'],
+  ['Spotify', 'spotify:', '#1db954'],
+  ['Discord', 'discord://', '#5865f2'],
+  ['Steam', 'steam://open/games', '#1b2838'],
+  ['Obsidian', 'obsidian://open?vault=JARVIS-Brain', '#7c3aed'],
+  ['Settings', 'ms-settings:', '#64748b'],
+  ['Deere Parts', 'https://partscatalog.deere.com/', '#367c2b'],
+  ['Bobcat Parts', 'https://www.bobcat.com/na/en/parts-service/parts-catalog', '#e0453b']
+];
+const SEED_MODES = { 'app-seed-0': ['home', 'shop'], 'app-seed-1': ['home', 'creator'], 'app-seed-2': ['home', 'creator', 'shop'], 'app-seed-3': ['home', 'creator'], 'app-seed-4': ['home', 'creator'], 'app-seed-5': ['home', 'creator'], 'app-seed-6': ['home'], 'app-seed-7': ['home', 'creator'], 'app-seed-8': ['home'], 'app-seed-9': ['shop'], 'app-seed-10': ['shop'] };
+const appModes = a => a.modes || SEED_MODES[a.id] || ['home', 'creator', 'shop'];
+const allApps = () => [...S.items.values()].filter(o => o.type === 'app').sort((a, b) => (a.order || 0) - (b.order || 0));
+const apps = () => { const m = typeof modeKey === 'function' ? modeKey() : 'home'; return allApps().filter(a => appModes(a).includes(m)); };
+const appGlyph = n => { const w = String(n).replace(/[^A-Za-z0-9 ]/g, ' ').trim().split(/\s+/); return (w.length > 1 && w[1] ? w[0][0] + w[1][0] : (w[0] || '?').slice(0, 2)).toUpperCase(); };
+const isWeb = u => /^https?:\/\//i.test(u);
+const safeLink = u => /^(https?:\/\/|[a-z][a-z0-9+.-]*:)/i.test(u) && !/^(javascript|data|vbscript|file):/i.test(u);
+let dockEditing = false, editingApp = null, apColor = APP_COLORS[0];
+/* once per account: wait for the synced board, then seed with fixed ids and a synced marker so no device seeds twice or brings back deleted apps */
+function seedApps() {
+  if (S.items.has('flag-apps-seeded') || allApps().length) { if (S.items.has('flag-apps-seeded') && !S.items.has('flag-apps-seeded-2')) { save({ id: 'flag-apps-seeded-2', type: 'flag', at: Date.now() }); APP_SEED.slice(9).forEach(([name, url, color], j) => { if (!S.items.has('app-seed-' + (9 + j))) save({ id: 'app-seed-' + (9 + j), type: 'app', title: name, url, color, order: 9 + j, modes: SEED_MODES['app-seed-' + (9 + j)] }); }); } return; }
+  save({ id: 'flag-apps-seeded-2', type: 'flag', at: Date.now() });
+  save({ id: 'flag-apps-seeded', type: 'flag', at: Date.now() });
+  APP_SEED.forEach(([name, url, color], i) => save({ id: 'app-seed-' + i, type: 'app', title: name, url, color, order: i, modes: SEED_MODES['app-seed-' + i] }));
+}
+function launchApp(a, viaVoice) {
+  if (!a || !safeLink(a.url)) { toast('That link can\'t be opened.'); return false; }
+  const el = document.querySelector(`.dock .app[data-id="${a.id}"]`); if (el) { el.classList.remove('launching'); void el.offsetWidth; el.classList.add('launching'); }
+  try {
+    if (isWeb(a.url)) { const w = window.open(a.url, '_blank', 'noopener'); if (!w && !viaVoice) location.href = a.url; }
+    else { const l = document.createElement('a'); l.href = a.url; l.rel = 'noopener'; document.body.appendChild(l); l.click(); l.remove(); }
+  } catch (e) { toast('Couldn\'t open ' + a.title + ' here. Try your hosted J.A.R.V.I.S. page.'); return false; }
+  logIt('Opened ' + a.title, 'jarvis'); return true;
+}
+function renderDock() {
+  const d = $('#dock'); if (!d) return; d.classList.toggle('editing', dockEditing);
+  d.innerHTML = apps().map((a, i) => `<button type="button" class="app" data-id="${esc(a.id)}" style="--ac:${esc(a.color || '#7c3aed')}" title="${esc(a.title)}" aria-label="${dockEditing ? 'Edit ' : 'Open '}${esc(a.title)}"><span class="x" aria-hidden="true">×</span>${i < 9 ? '<kbd>' + (i + 1) + '</kbd>' : ''}<i aria-hidden="true">${esc(appGlyph(a.title))}</i><span>${esc(a.title)}</span></button>`).join('')
+    + '<span class="sep" aria-hidden="true"></span><button type="button" class="app add" id="dock-add" aria-label="Add an app"><i aria-hidden="true">+</i><span>' + (dockEditing ? 'Done' : 'Add') + '</span></button>';
+  d.querySelectorAll('.app[data-id]').forEach(b => {
+    const a = S.items.get(b.dataset.id);
+    b.onclick = e => { if (dockEditing) { if (e.target.closest('.x')) { del(a.id); return; } openAppEd(a); } else launchApp(a); };
+    b.draggable = dockEditing;
+    b.ondragstart = e => e.dataTransfer.setData('text/plain', a.id);
+    b.ondragover = e => { if (dockEditing) e.preventDefault(); };
+    b.ondrop = e => { e.preventDefault(); const from = S.items.get(e.dataTransfer.getData('text/plain')); if (!from || from.id === a.id) return;
+      const list = allApps().filter(x => x.id !== from.id); list.splice(list.findIndex(x => x.id === a.id), 0, from); list.forEach((x, i) => { if (x.order !== i) { x.order = i; save(x); } }); };
+  });
+  $('#dock-add').onclick = () => { if (dockEditing) { dockEditing = false; renderDock(); } else openAppEd(null); };
+}
+function openAppEd(a) {
+  editingApp = a; apColor = (a && a.color) || APP_COLORS[apps().length % APP_COLORS.length];
+  $('#ap-title').textContent = a ? 'EDIT ' + a.title.toUpperCase() : 'ADD AN APP';
+  $('#ap-name').value = a ? a.title : ''; $('#ap-url').value = a ? a.url : '';
+  $('#ap-colors').innerHTML = APP_COLORS.map(c => `<button type="button" class="sw" style="background:${c}" data-c="${c}" aria-label="Colour ${c}" aria-pressed="${c === apColor}"></button>`).join('');
+  $('#ap-colors').querySelectorAll('.sw').forEach(b => b.onclick = () => { apColor = b.dataset.c; $('#ap-colors').querySelectorAll('.sw').forEach(x => x.setAttribute('aria-pressed', String(x === b))); });
+  const ms = a ? appModes(a) : [modeKey()]; $('#ap-modes').querySelectorAll('input').forEach(i => i.checked = ms.includes(i.value));
+  $('#ap-edit').hidden = !!a || !apps().length;
+  $('#apped').hidden = false; setTimeout(() => $('#ap-name').focus(), 30);
+}
+$('#ap-cancel').onclick = () => { $('#apped').hidden = true; };
+$('#ap-edit').onclick = () => { $('#apped').hidden = true; dockEditing = true; renderDock(); toast('Click an app to edit it, × to remove, drag to reorder.'); };
+$('#ap-save').onclick = () => {
+  const name = $('#ap-name').value.trim(); let url = $('#ap-url').value.trim();
+  if (!name) { $('#ap-name').focus(); return; }
+  if (/^[\w.-]+\.[a-z]{2,}(\/.*)?$/i.test(url)) url = 'https://' + url;      // "youtube.com" -> https://youtube.com
+  if (!safeLink(url)) { toast('Use a web address (https://…) or an app link (like spotify:).'); $('#ap-url').focus(); return; }
+  const modes = [...$('#ap-modes').querySelectorAll('input:checked')].map(i => i.value); if (!modes.length) { toast('Pick at least one galaxy for it.'); return; }
+  const a = editingApp ? { ...editingApp, title: name, url, color: apColor, modes } : { id: 'app-' + uid(), type: 'app', title: name, url, color: apColor, order: allApps().length, modes };
+  save(a, editingApp ? null : 'Added ' + name + ' to the dock'); $('#apped').hidden = true;
+};
+['#ap-name', '#ap-url'].forEach(sel => $(sel).addEventListener('keydown', e => { if (e.key === 'Enter') $('#ap-save').click(); if (e.key === 'Escape') $('#apped').hidden = true; }));
+/* keys 1-9 launch dock apps from the galaxy (not while typing, not with a board open) */
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || !/^[1-9]$/.test(e.key)) return;
+  const t = e.target; if (t && (t.closest('input, textarea, select, [contenteditable]'))) return;
+  if (document.body.classList.contains('drawer-open') || !$('#jvpanel').hidden || (typeof HUD !== 'undefined' && HUD.open)) return;
+  const a = apps()[+e.key - 1]; if (a) { e.preventDefault(); launchApp(a); }
+});
+function modeCommand(text) {
+  const n = String(text).toLowerCase(); if (!/\b(creator|creative) mode\b/.test(n)) return null;
+  if (onShiftNow()) return 'You\'re on shift, Sir. Creator mode can wait until you clock out.';
+  const off = /\b(off|exit|leave|close|stop|end)\b/.test(n); setCreator(!off); return off ? 'Back home, Sir.' : 'Creator mode. What are we making, Sir?';
+}
+/* "open spotify", "launch steam", "pull up gmail" -> instant, no model round trip */
+function appCommand(text) {
+  const m = /\b(?:open|launch|start|run|fire up|pull up|bring up)\s+(?:up\s+)?(?:my\s+|the\s+)?(.+?)[.!?]*$/i.exec(String(text).trim()); if (!m) return null;
+  const want = m[1].replace(/\b(app|application|please|for me|sir)\b/gi, '').trim().toLowerCase(); if (!want) return null;
+  const list = apps(), hit = list.find(a => a.title.toLowerCase() === want) || list.find(a => a.title.toLowerCase().startsWith(want)) || list.find(a => want.includes(a.title.toLowerCase()));
+  if (!hit) return null;
+  return launchApp(hit, true) ? 'Opening ' + hit.title + ', Sir.' : 'I couldn\'t open ' + hit.title + ' from here, Sir.';
+}
 
 /* ===== BACKGROUND MUSIC: Pickle's Shop Mix · After Dark ===== */
 const MIX = [
@@ -1538,7 +1713,11 @@ const hudHI = () => (getComputedStyle($('#hud')).getPropertyValue('--h-hi') || '
 let hudGal = null; const GALS = {};
 /* off shift: three loose ultraviolet arms. On shift: a gold ring galaxy, two tight arms inside a bright outer ring. */
 function galFor(shop) {
-  const key = shop ? 'shop' : 'off'; if (GALS[key]) return GALS[key];
+  const key = shop === 'creator' ? 'creator' : shop ? 'shop' : 'off'; if (GALS[key]) return GALS[key];
+  if (key === 'creator') { let seed = 23; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647, out = [];
+    for (let i = 0; i < 2800; i++) { const arm = i % 4, d = Math.pow(rnd(), .75), q = rnd(), k = d < .16 ? 'core' : q < .08 ? 'knot' : q < .2 ? 'neb' : 'arm';
+      out.push({ d, ang: arm * 1.5708 + d * 4.4 + (rnd() - .5) * (.3 + d * .45), z: rnd(), s: .6 + rnd() * 1.6, k }); }
+    return (GALS[key] = out); }
   let seed = shop ? 11 : 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647, out = [];
   if (!shop) for (let i = 0; i < 2800; i++) { const arm = i % 3, d = Math.pow(rnd(), .7), spread = (rnd() - .5) * (.35 + d * .5), q = rnd();
     const k = d < .16 ? 'core' : q < .06 ? 'knot' : q < .16 ? 'neb' : 'arm';
@@ -1554,11 +1733,13 @@ function galFor(shop) {
 function drawHudOrb(t) { drawGalaxy($('#hudorb'), t); }
 function drawGalaxy(cv, t) {
   if (!cv) return; const RGB = hudRGB(), HI = hudHI(); const c = cv.getContext('2d'), W = cv.width, R = W / 2; c.clearRect(0, 0, W, W);
-  const shopGal = document.documentElement.dataset.mode === 'shop';
-  hudGal = galFor(shopGal);
+  const shopGal = document.documentElement.dataset.mode === 'shop', creatorGal = document.documentElement.dataset.mode === 'creator';
+  hudGal = galFor(shopGal ? true : creatorGal ? 'creator' : false);
   const talk = J.talk || 0, spin = t / 26000, tilt = .5;
   c.save(); c.translate(R, R);
-  const PAL = shopGal
+  const PAL = creatorGal
+    ? { core: [255,246,210], arm: [110,255,220], arm2: [255,150,232], knot: [255,214,110], neb: [60,230,200], glow: [[255,240,200], [40,220,190]] }
+    : shopGal
     ? { core: [255,236,200], ember: [255,138,58], neb: [255,96,60], ring: [120,205,255], knot: [255,120,200], dust: [255,196,150], glow: [[255,214,160], [255,120,50]] }
     : { core: [255,214,150], arm: [176,204,255], arm2: [226,234,255], knot: [255,112,196], neb: [96,120,255], glow: [[255,220,170], [90,110,255]] };
   let g = c.createRadialGradient(0, 0, 0, 0, 0, R * .9); g.addColorStop(0, `rgba(${PAL.glow[0]},${.5 + talk * .35})`); g.addColorStop(.14, `rgba(${PAL.glow[1]},${.22 + talk * .2})`); g.addColorStop(.55, `rgba(${PAL.glow[1]},.05)`); g.addColorStop(1, 'rgba(0,0,0,0)');
@@ -1628,7 +1809,7 @@ function openHud(screen = 'core') {
 function closeHud() { HUD.open = false; $('#hud').hidden = true; cancelAnimationFrame(HUD.raf); }
 addEventListener('resize', () => { if (HUD.open) hudWires(); });
 setTimeout(() => {                 // after the whole script has run (helpers defined further down)
-  cosmosBuild(); cosmosFill();
+  cosmosBuild(); cosmosFill(); renderDock(); setTimeout(seedApps, 3500);
   if (VIEWS.includes(location.hash.slice(1))) openDrawer(location.hash.slice(1)); else $('.shell').inert = true;
   COS.raf = requestAnimationFrame(cosmosLoop);
 }, 0);
@@ -1737,7 +1918,7 @@ async function speak(text) {
 }
 async function ask(text) {
   if (!text || J.busy) return;
-  const quick = displayCommand(text);
+  const quick = modeCommand(text) || appCommand(text) || displayCommand(text);
   if (quick) { addMsg('u', text); addMsg('j', quick); const hs = $('#hudsaid'); if (hs) hs.textContent = 'J.A.R.V.I.S. › ' + quick; setState('speak'); await speak(quick); if (J.hf && J.mode === 'hf') setState('idle', 'Waiting for "Hey Jarvis"'); return; }
   if (!J.sample) { addMsg('j', 'I need this page open in Claude to think, Sir. Here I am merely decorative.'); return; }
   J.busy = true; addMsg('u', text); J.turns.push({ role: 'user', content: text }); J.turns = J.turns.slice(-16);
