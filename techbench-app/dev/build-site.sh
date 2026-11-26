@@ -14,7 +14,7 @@ mkdir -p "$OUT/icons" "$OUT/jarvis" "$OUT/psr/icons" "$OUT/psr/vendor" "$OUT/psr
 
 cp "$APP"/{index.html,app.css,app.js,data.js,report.js,parts.js,sw.js,manifest.webmanifest,config.js} "$OUT/"
 cp "$APP"/icons/*.png "$OUT/icons/"
-cp "$APP"/jarvis/index.html "$APP"/jarvis/hosted.js "$OUT/jarvis/"
+cp "$APP"/jarvis/index.html "$APP"/jarvis/hosted.js "$APP"/jarvis/manifest.webmanifest "$OUT/jarvis/"
 
 PSR="$ROOT/psr-app"
 cp "$PSR"/{index.html,app.css,app.js,sync.js,sw.js,manifest.webmanifest,config.js} "$OUT/psr/"

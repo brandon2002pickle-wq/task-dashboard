@@ -1,0 +1,40 @@
+// App dock: seeded once, website + desktop-app launching, keys 1-9, 'open <app>' by voice, add/remove, unsafe links refused, no duplicates after reload.
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 1600, height: 900 } }); const p = await ctx.newPage();
+  const errs = []; p.on('pageerror', e => errs.push(e.message)); const results = []; const check = (n, ok, d = '') => { results.push(ok); console.log(ok ? 'PASS' : 'FAIL', n, d); };
+  await p.addInitScript(() => {
+    window.__opened = []; const wo = window.open; window.open = (u) => { window.__opened.push(u); return {}; };
+    const ac = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { window.__opened.push(this.href); };
+    window.__asked = 0; window.SpeechSynthesisUtterance = class { constructor(t) { this.text = t; } }; speechSynthesis.speak = u => setTimeout(() => u.onend && u.onend(), 10);
+    window.claude = { use: n => Promise.resolve(n === 'sample' ? async () => { window.__asked++; return { text: 'ok' }; } : null) };
+  });
+  await p.goto('file://' + require('path').join(__dirname, '..', 'jarvis', 'command-centre.src.html')); await p.waitForTimeout(4200);
+  const names = await p.evaluate(() => [...document.querySelectorAll('.dock .app[data-id] span:last-child')].map(s => s.textContent));
+  check('dock seeded with 9 apps', names.join('|') === 'Cat SIS 2.0|Gmail|Claude|YouTube|Spotify|Discord|Steam|Obsidian|Settings', names.join('|'));
+  await p.click('.dock .app[data-id="app-seed-0"]'); await p.click('.dock .app[data-id="app-seed-4"]'); await p.waitForTimeout(200);
+  let op = await p.evaluate(() => window.__opened);
+  check('website opens in a new tab, desktop app via its link', op[0] === 'https://sis2.cat.com/' && op[1] === 'spotify:', JSON.stringify(op));
+  await p.keyboard.press('7'); await p.waitForTimeout(100); op = await p.evaluate(() => window.__opened);
+  check('key 7 launches the 7th app (Steam)', op[2] === 'steam://open/games', op[2]);
+  await p.click('#cosmos-core', { force: true }); await p.waitForTimeout(300);
+  await p.fill('#jvtext', 'Hey Jarvis, open Discord'); await p.press('#jvtext', 'Enter'); await p.waitForTimeout(400);
+  const st = await p.evaluate(() => ({ op: window.__opened.slice(-1)[0], asked: window.__asked, said: [...document.querySelectorAll('.msg.j')].map(m => m.textContent).slice(-1)[0] }));
+  check('"open Discord" launches it instantly with no model call', st.op === 'discord://' && st.asked === 0 && /Opening Discord, Sir/.test(st.said), JSON.stringify(st));
+  await p.click('#jvclose');
+  await p.click('#dock-add'); await p.fill('#ap-name', 'Bambu Studio'); await p.fill('#ap-url', 'makerworld.com'); await p.click('#ap-save'); await p.waitForTimeout(300);
+  const added = await p.evaluate(() => { const a = [...document.querySelectorAll('.dock .app[data-id]')].pop(); return a.textContent; });
+  check('add an app (bare domain gets https://)', /Bambu Studio/.test(added) && await p.evaluate(() => [...document.querySelectorAll('.dock .app[data-id]')].length) === 10);
+  await p.click('#dock-add'); await p.fill('#ap-name', 'Bad'); await p.fill('#ap-url', 'javascript:alert(1)'); await p.click('#ap-save'); await p.waitForTimeout(200);
+  check('unsafe links refused', await p.evaluate(() => [...document.querySelectorAll('.dock .app[data-id]')].length) === 10 && !(await p.isHidden('#apped')));
+  await p.click('#ap-cancel'); await p.click('#dock-add'); await p.click('#ap-edit'); await p.waitForTimeout(100);
+  await p.click('.dock .app[data-id="app-seed-3"] .x', { force: true }); await p.waitForTimeout(300);
+  check('remove an app in edit mode', await p.evaluate(() => !document.querySelector('.dock .app[data-id="app-seed-3"]')));
+  await p.screenshot({ path: require('os').tmpdir() + '/dock-edit.png' });
+  await p.click('#dock-add'); await p.reload(); await p.waitForTimeout(4200);
+  const after = await p.evaluate(() => [...document.querySelectorAll('.dock .app[data-id]')].map(a => a.dataset.id));
+  check('after reload: kept, removed app stays removed, no duplicates', after.length === 9 && !after.includes('app-seed-3') && new Set(after).size === after.length, after.join(','));
+  check('no page errors', errs.length === 0, errs.join(' | '));
+  await p.screenshot({ path: require('os').tmpdir() + '/dock.png' });
+  await b.close(); process.exit(results.every(Boolean) ? 0 : 1);
+})();
