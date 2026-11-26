@@ -1,0 +1,70 @@
+{
+  "collapse-filter": false,
+  "search": "path:\"\" -path:\"99-Templates\" -file:.keep",
+  "showTags": false,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "path:\"10-Projects\"",
+      "color": {
+        "a": 1,
+        "rgb": 8747007
+      }
+    },
+    {
+      "query": "path:\"20-Sessions\"",
+      "color": {
+        "a": 1,
+        "rgb": 6084351
+      }
+    },
+    {
+      "query": "path:\"30-Cases\"",
+      "color": {
+        "a": 1,
+        "rgb": 16761930
+      }
+    },
+    {
+      "query": "path:\"40-Reports\"",
+      "color": {
+        "a": 1,
+        "rgb": 16742981
+      }
+    },
+    {
+      "query": "path:\"50-Reference\"",
+      "color": {
+        "a": 1,
+        "rgb": 10479788
+      }
+    },
+    {
+      "query": "path:\"00-Inbox\"",
+      "color": {
+        "a": 1,
+        "rgb": 16735348
+      }
+    },
+    {
+      "query": "file:Home OR file:\"Command Centre\"",
+      "color": {
+        "a": 1,
+        "rgb": 16777215
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": false,
+  "textFadeMultiplier": -1,
+  "nodeSizeMultiplier": 1.3,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": true,
+  "centerStrength": 0.5,
+  "repelStrength": 12,
+  "linkStrength": 1,
+  "linkDistance": 220
+}

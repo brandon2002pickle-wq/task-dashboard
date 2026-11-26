@@ -1,5 +1,5 @@
 // Background music: Pickle's Shop Mix · After Dark. 13 tracks in order, Apple Music player per track,
-// own copies matched to tracks by file name, next/prev, remembered on the device, ducked under J.A.R.V.I.S., galaxy pulses to the bass.
+// own copies matched to tracks by file name, next/prev, remembered on the device, ducked under J.A.R.V.I.S.; no beat-driven pulsing.
 const { chromium } = require('playwright'); const fs = require('fs'), path = require('path'), os = require('os');
 const PAGE = 'file://' + path.join(__dirname, '..', 'jarvis', 'command-centre.src.html');
 function wav() {   // 6 s of a pulsing 55 Hz bass tone
@@ -30,7 +30,7 @@ function wav() {   // 6 s of a pulsing 55 Hz bass tone
   await p.click('#mu-next'); await p.waitForTimeout(500); st = await p.evaluate(() => window.__ccMusic());
   check('next goes to the next owned track in order', st.cur === 4 && st.playing, st.title);
   let peak = 0; for (let i = 0; i < 15; i++) { await p.waitForTimeout(100); peak = Math.max(peak, (await p.evaluate(() => window.__ccMusic())).beat); }
-  check('galaxy picks up the bass', peak > .02, String(peak));
+  check('no beat: the galaxy does not pulse to the music', peak === 0, String(peak));
   await p.click('#ct-music'); await p.click('#cosmos-core', { force: true }); await p.waitForTimeout(1600);
   st = await p.evaluate(() => window.__ccMusic());
   check('ducks while J.A.R.V.I.S. talks', st.state === 'speak' && st.volume < st.set * .45, JSON.stringify(st));

@@ -241,18 +241,6 @@ input[type=range] { padding: 0; accent-color: var(--indigo-2); background: trans
     radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0,0,0,.75) 100%),
     var(--bg);
   background-attachment: fixed; }
-/* the beat: an ultraviolet bloom that hits once per beat at 99 BPM (0.606s) */
-:root:not([data-mode="shop"]) body::before { content: ""; position: fixed; inset: -10%; pointer-events: none; z-index: -1;
-  background: radial-gradient(38% 32% at 72% 28%, rgba(90,70,255,.22), transparent 70%), radial-gradient(40% 36% at 22% 78%, rgba(140,230,160,.07), transparent 70%);
-  animation: thump .606s cubic-bezier(.2,0,.2,1) infinite; }
-@keyframes thump { 0% { opacity: 1; transform: scale(1.03); } 35% { opacity: .55; transform: scale(1); } 100% { opacity: .5; transform: scale(1); } }
-/* night-vision grain + scanlines, tinted green like the dashcam footage */
-:root:not([data-mode="shop"]) body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 40; opacity: .55; mix-blend-mode: screen;
-  background:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .9  0 0 0 0 .6  0 0 0 .16 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
-    repeating-linear-gradient(180deg, rgba(160,240,175,.035) 0 1px, transparent 1px 3px);
-  animation: grain .5s steps(3) infinite; }
-@keyframes grain { 0% { transform: translate(0,0); } 33% { transform: translate(-2%,1%); } 66% { transform: translate(1%,-2%); } 100% { transform: translate(0,0); } }
 /* type: heavy condensed italic caps with an ultraviolet glow; the accent word is chrome, like "2026" */
 :root:not([data-mode="shop"]) h1 { font-family: var(--font-x); font-weight: 400; font-style: italic; text-transform: uppercase; letter-spacing: .01em; font-size: clamp(1.7rem, 3.6vw, 2.6rem); line-height: 1.02;
   text-shadow: 0 0 22px rgba(90,70,255,.55), 0 0 2px rgba(200,195,255,.6); }
@@ -407,10 +395,11 @@ input[type=range] { padding: 0; accent-color: var(--indigo-2); background: trans
 .hud::before, .hud::after { display: none; }
 #hudstars { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
 :root:not([data-mode="shop"]) :is(.hud, .cosmos) { background:
-  radial-gradient(55% 45% at 78% 22%, rgba(120,70,255,.30), transparent 70%),
-  radial-gradient(45% 40% at 18% 78%, rgba(40,200,190,.16), transparent 70%),
-  radial-gradient(40% 35% at 30% 20%, rgba(220,80,200,.12), transparent 70%),
-  radial-gradient(120% 100% at 50% 50%, #0b0826 0%, #04030f 60%, #010106 100%); }
+  radial-gradient(50% 40% at 80% 18%, rgba(50,90,255,.24), transparent 70%),
+  radial-gradient(42% 38% at 15% 80%, rgba(0,190,200,.13), transparent 70%),
+  radial-gradient(36% 30% at 28% 18%, rgba(255,60,160,.11), transparent 70%),
+  radial-gradient(30% 26% at 88% 85%, rgba(140,60,255,.12), transparent 70%),
+  radial-gradient(120% 100% at 50% 50%, #070a22 0%, #03040f 60%, #010105 100%); }
 :root[data-mode="shop"] :is(.hud, .cosmos) { background:
   radial-gradient(55% 45% at 78% 22%, rgba(255,120,40,.26), transparent 70%),
   radial-gradient(45% 40% at 18% 78%, rgba(255,60,50,.16), transparent 70%),
@@ -496,10 +485,10 @@ input[type=range] { padding: 0; accent-color: var(--indigo-2); background: trans
 #cosmos-sky { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .orbits { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .orbits ellipse { fill: none; stroke: rgba(var(--h-rgb, 133,119,255), .16); stroke-width: 1; stroke-dasharray: 2 6; }
-.cosmos-core { position: absolute; left: 50%; top: 54%; transform: translate(-50%, -50%); width: min(72vmin, 720px); aspect-ratio: 1; border: 0; padding: 0; background: none; cursor: pointer; border-radius: 50%; z-index: 2; }
+.cosmos-core { position: absolute; left: 50%; top: 54%; transform: translate(-50%, -50%); width: min(88vmin, 880px); aspect-ratio: 1; border: 0; padding: 0; background: none; cursor: pointer; border-radius: 50%; z-index: 2; }
 .cosmos-core canvas { width: 100%; height: 100%; display: block; }
 .cosmos-core:focus-visible { outline: 2px solid var(--h-glow); outline-offset: -12%; }
-.core-tag { z-index: 4 !important; padding: 4px 12px; border-radius: 999px; background: rgba(4,3,12,.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); position: absolute; left: 50%; top: calc(54% + min(19vmin, 190px)); transform: translateX(-50%); text-align: center; z-index: 2; pointer-events: none; white-space: nowrap; }
+.core-tag { margin-top: 2vmin; z-index: 4 !important; padding: 4px 12px; border-radius: 999px; background: rgba(4,3,12,.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); position: absolute; left: 50%; top: calc(54% + min(19vmin, 190px)); transform: translateX(-50%); text-align: center; z-index: 2; pointer-events: none; white-space: nowrap; }
 .core-tag b { display: block; font-family: 'Orbitron', var(--font-m); font-size: 14px; letter-spacing: .45em; color: #fff; text-shadow: 0 0 14px var(--h-glow); }
 .core-tag span { font-size: 11px; letter-spacing: .14em; color: var(--h-acc); }
 .planet { position: absolute; left: 0; top: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 5px; border: 0; background: none; color: inherit; font: inherit; padding: 6px; cursor: pointer; will-change: transform; border-radius: 16px; }
@@ -1412,7 +1401,7 @@ function muTick() {
   MU.level += (want - MU.level) * .08; MU.audio.volume = Math.max(0, Math.min(1, MU.vol * MU.level));
   if (MU.an) { MU.an.getByteFrequencyData(MU.buf); let e = 0; for (let i = 0; i < 6; i++) e += MU.buf[i]; e /= 6 * 255; MU.raw = e;
     MU.avg = (MU.avg || e) * .96 + e * .04;                                   // kicks = bass above its own running average
-    J.beat = (J.beat || 0) * .75 + Math.min(1, Math.max(0, (e - MU.avg) * 5) + e * .25) * .25; }
+    J.beat = 0; }
 }
 $('#ct-music').onclick = () => { const p = $('#musicpop'), open = p.hidden; p.hidden = !open; $('#ct-music').setAttribute('aria-expanded', String(open)); if (open && !$('#am-wrap').firstChild) amFrame(MIX[MU.cur].am); };
 document.addEventListener('securitypolicyviolation', e => { if (/apple\.com/.test(e.blockedURI || '')) { $('#am-wrap').innerHTML = ''; $('#am-note').textContent = 'The Apple Music player is blocked inside Claude. It works on your hosted J.A.R.V.I.S. page; here, add your own copies of the songs.'; } });
@@ -1551,13 +1540,15 @@ let hudGal = null; const GALS = {};
 function galFor(shop) {
   const key = shop ? 'shop' : 'off'; if (GALS[key]) return GALS[key];
   let seed = shop ? 11 : 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647, out = [];
-  if (!shop) for (let i = 0; i < 1600; i++) { const arm = i % 3, d = Math.pow(rnd(), .7), spread = (rnd() - .5) * (.35 + d * .5);
-    out.push({ d, ang: arm * 2.094 + d * 5.2 + spread, z: rnd(), s: .6 + rnd() * 1.6, warm: rnd() < .25 }); }
-  else for (let i = 0; i < 1700; i++) { const k = rnd(); let d, ang;
+  if (!shop) for (let i = 0; i < 2800; i++) { const arm = i % 3, d = Math.pow(rnd(), .7), spread = (rnd() - .5) * (.35 + d * .5), q = rnd();
+    const k = d < .16 ? 'core' : q < .06 ? 'knot' : q < .16 ? 'neb' : 'arm';
+    out.push({ d, ang: arm * 2.094 + d * 5.2 + spread * (k === 'neb' ? .6 : 1), z: rnd(), s: .6 + rnd() * 1.6, k }); }
+  else for (let i = 0; i < 2600; i++) { const k = rnd(); let d, ang;
     if (k < .55) { const arm = i % 2; d = .1 + Math.pow(rnd(), .8) * .75; ang = arm * Math.PI + d * 3.4 + (rnd() - .5) * .45; }
     else if (k < .88) { d = .93 + (rnd() - .5) * .09; ang = rnd() * 6.283; }
     else { d = rnd(); ang = rnd() * 6.283; }
-    out.push({ d, ang, z: rnd(), s: .6 + rnd() * 1.7, warm: rnd() < .35, rigid: true }); }
+    const q = rnd(), k2 = k < .55 ? (d < .2 ? 'core' : q < .1 ? 'neb' : 'ember') : k < .88 ? (q < .14 ? 'knot' : 'ring') : 'dust';
+    out.push({ d, ang, z: rnd(), s: .6 + rnd() * 1.7, k: k2, rigid: true }); }
   return (GALS[key] = out);
 }
 function drawHudOrb(t) { drawGalaxy($('#hudorb'), t); }
@@ -1565,18 +1556,23 @@ function drawGalaxy(cv, t) {
   if (!cv) return; const RGB = hudRGB(), HI = hudHI(); const c = cv.getContext('2d'), W = cv.width, R = W / 2; c.clearRect(0, 0, W, W);
   const shopGal = document.documentElement.dataset.mode === 'shop';
   hudGal = galFor(shopGal);
-  const talk = Math.max(J.talk || 0, (J.beat || 0) * .7), spin = t / 26000, tilt = .42;
+  const talk = J.talk || 0, spin = t / 26000, tilt = .5;
   c.save(); c.translate(R, R);
-  let g = c.createRadialGradient(0, 0, 0, 0, 0, R * .9); g.addColorStop(0, `rgba(${HI},${.55 + talk * .35})`); g.addColorStop(.12, `rgba(${RGB},${.35 + talk * .25})`); g.addColorStop(.5, `rgba(${RGB},.06)`); g.addColorStop(1, 'rgba(0,0,0,0)');
+  const PAL = shopGal
+    ? { core: [255,236,200], ember: [255,138,58], neb: [255,96,60], ring: [120,205,255], knot: [255,120,200], dust: [255,196,150], glow: [[255,214,160], [255,120,50]] }
+    : { core: [255,214,150], arm: [176,204,255], arm2: [226,234,255], knot: [255,112,196], neb: [96,120,255], glow: [[255,220,170], [90,110,255]] };
+  let g = c.createRadialGradient(0, 0, 0, 0, 0, R * .9); g.addColorStop(0, `rgba(${PAL.glow[0]},${.5 + talk * .35})`); g.addColorStop(.14, `rgba(${PAL.glow[1]},${.22 + talk * .2})`); g.addColorStop(.55, `rgba(${PAL.glow[1]},.05)`); g.addColorStop(1, 'rgba(0,0,0,0)');
   c.fillStyle = g; c.beginPath(); c.ellipse(0, 0, R * .9, R * .9 * tilt * 1.6, 0, 0, 6.283); c.fill();
   c.globalCompositeOperation = 'lighter';
   for (const p of hudGal) {
-    const ang = p.ang + spin * (p.rigid ? 1.1 : (1.6 - p.d)), r = (.42 + p.d * .58) * R * .95 * (1 + talk * .05 * Math.sin(t / 120 + p.d * 12));
+    const ang = p.ang + spin * (p.rigid ? 1.1 : (1.6 - p.d)), r = (.5 + p.d * .5) * R * .97 * (1 + talk * .05 * Math.sin(t / 120 + p.d * 12));
     const x = Math.cos(ang) * r, y = Math.sin(ang) * r * tilt;
     const tw = .45 + .55 * Math.abs(Math.sin(t / 900 + p.z * 40));
-    const a = (1 - p.d * .65) * tw * (.55 + talk * .4);
-    c.fillStyle = p.warm ? `rgba(255,220,240,${a})` : (p.d < .3 ? `rgba(${HI},${a})` : `rgba(${RGB},${a})`);
-    c.beginPath(); c.arc(x, y, p.s * (W / 900), 0, 6.283); c.fill();
+    const a = Math.min(1, (1 - p.d * .55) * tw * (.85 + talk * .3));
+    const col = p.k === 'arm' ? (p.z > .5 ? PAL.arm2 : PAL.arm) : (PAL[p.k] || PAL.core);
+    if (p.k === 'neb') { c.fillStyle = `rgba(${col},${a * .1})`; c.beginPath(); c.arc(x, y, p.s * (W / 900) * 13, 0, 6.283); c.fill(); continue; }   // soft nebula cloud
+    if (p.k === 'knot') { c.fillStyle = `rgba(${col},${a * .22})`; c.beginPath(); c.arc(x, y, p.s * (W / 900) * 6, 0, 6.283); c.fill(); }      // star-forming glow
+    c.fillStyle = `rgba(${col},${p.k === 'dust' ? a * .5 : a})`; c.beginPath(); c.arc(x, y, p.s * (W / 900) * (p.k === 'core' ? 1.7 : 1.4), 0, 6.283); c.fill();
   }
   // the centre is J.A.R.V.I.S.: his own holographic orb, talking and listening, in the eye of the galaxy
   c.globalCompositeOperation = 'source-over';
